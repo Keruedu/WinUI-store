@@ -30,7 +30,8 @@ exports.up = async function(knex) {
       table.string('Size', 50).notNullable();
       table.string('Color', 50).notNullable();
       table.decimal('Price', 10, 2).notNullable();
-      table.integer('Stock').notNullable();
+      table.integer('Stock').notNullable(); 
+      table.binary('Image');
     });
   
     await knex.schema.createTable('Order', (table) => {
@@ -56,6 +57,7 @@ exports.up = async function(knex) {
     await knex.schema.dropTable('Order');
     await knex.schema.dropTable('Shoes');
     await knex.schema.dropTable('Category');
-    await knex.schema.dropTable('Address');
     await knex.schema.dropTable('User');
+    await knex.schema.dropTable('Address');
+    
   };
