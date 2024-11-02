@@ -6,6 +6,7 @@ using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Services;
+using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
 using ShoesShop.Services;
@@ -42,8 +43,17 @@ public partial class App : Application
 
     public static UIElement? AppTitlebar { get; set; }
 
+    //test
+    private IDao testiDao = new PostgreDao();
+    //test
     public App()
     {
+        //test
+        Dictionary<string, string> whereOptions = new Dictionary<string, string>();
+        var asc = IDao.SortType.Ascending;
+        Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
+        var result = testiDao.GetCategories(1,3, whereOptions, sortOptions);
+        //test
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.

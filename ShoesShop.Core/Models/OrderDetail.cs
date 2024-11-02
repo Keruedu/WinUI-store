@@ -6,32 +6,27 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class User : INotifyPropertyChanged
+public class OrderDetail
 {
     public int ID
     {
         get; set;
     }
-    public int AddressID 
-    {
-        get; set; 
-    }
-    public string Name
+    public int OrderID
     {
         get; set;
     }
-    public string Email
+    public int ShoesID
     {
         get; set;
     }
-    public string Password
-    {
-        get; set; 
-    }
-    public string PhoneNumber
+    public int Quantity
     {
         get; set;
     }
-
+    public decimal Price
+    {
+        get; set;
+    }
     public event PropertyChangedEventHandler PropertyChanged;
 }
