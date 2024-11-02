@@ -6,14 +6,14 @@ using ShoesShop.Core.Models;
 
 namespace ShoesShop.ViewModels;
 
-public partial class AddBookDetailViewModel : ObservableRecipient, INavigationAware
+public partial class AddShoesDetailViewModel : ObservableRecipient, INavigationAware
 {
     private readonly ISampleDataService _sampleDataService;
 
     [ObservableProperty]
     private SampleOrder? item;
 
-    public AddBookDetailViewModel(ISampleDataService sampleDataService)
+    public AddShoesDetailViewModel(ISampleDataService sampleDataService)
     {
         _sampleDataService = sampleDataService;
     }
