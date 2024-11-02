@@ -5,7 +5,7 @@ using ShoesShop.Core.Models;
 
 namespace ShoesShop.Views;
 
-public sealed partial class BooksDetailControl : UserControl
+public sealed partial class ShoesDetailControl : UserControl
 {
     public SampleOrder? ListDetailsMenuItem
     {
@@ -13,16 +13,16 @@ public sealed partial class BooksDetailControl : UserControl
         set => SetValue(ListDetailsMenuItemProperty, value);
     }
 
-    public static readonly DependencyProperty ListDetailsMenuItemProperty = DependencyProperty.Register("ListDetailsMenuItem", typeof(SampleOrder), typeof(BooksDetailControl), new PropertyMetadata(null, OnListDetailsMenuItemPropertyChanged));
+    public static readonly DependencyProperty ListDetailsMenuItemProperty = DependencyProperty.Register("ListDetailsMenuItem", typeof(SampleOrder), typeof(ShoesDetailControl), new PropertyMetadata(null, OnListDetailsMenuItemPropertyChanged));
 
-    public BooksDetailControl()
+    public ShoesDetailControl()
     {
         InitializeComponent();
     }
 
     private static void OnListDetailsMenuItemPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is BooksDetailControl control)
+        if (d is ShoesDetailControl control)
         {
             control.ForegroundElement.ChangeView(0, 0, 1);
         }

@@ -8,16 +8,16 @@ using ShoesShop.ViewModels;
 
 namespace ShoesShop.Views;
 
-public sealed partial class AddBookDetailPage : Page
+public sealed partial class AddShoesDetailPage : Page
 {
-    public AddBookDetailViewModel ViewModel
+    public AddShoesDetailViewModel ViewModel
     {
         get;
     }
 
-    public AddBookDetailPage()
+    public AddShoesDetailPage()
     {
-        ViewModel = App.GetService<AddBookDetailViewModel>();
+        ViewModel = App.GetService<AddShoesDetailViewModel>();
         InitializeComponent();
     }
 

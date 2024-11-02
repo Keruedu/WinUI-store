@@ -11,14 +11,14 @@ using ShoesShop.Core.Models;
 
 namespace ShoesShop.ViewModels;
 
-public partial class AddBookViewModel : ObservableRecipient, INavigationAware
+public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 {
     private readonly INavigationService _navigationService;
     private readonly ISampleDataService _sampleDataService;
 
     public ObservableCollection<SampleOrder> Source { get; } = new ObservableCollection<SampleOrder>();
 
-    public AddBookViewModel(INavigationService navigationService, ISampleDataService sampleDataService)
+    public AddShoesViewModel(INavigationService navigationService, ISampleDataService sampleDataService)
     {
         _navigationService = navigationService;
         _sampleDataService = sampleDataService;
@@ -46,7 +46,7 @@ public partial class AddBookViewModel : ObservableRecipient, INavigationAware
         if (clickedItem != null)
         {
             _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(AddBookDetailViewModel).FullName!, clickedItem.OrderID);
+            _navigationService.NavigateTo(typeof(AddShoesDetailViewModel).FullName!, clickedItem.OrderID);
         }
     }
 }

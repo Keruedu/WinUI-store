@@ -6,16 +6,16 @@ using ShoesShop.ViewModels;
 
 namespace ShoesShop.Views;
 
-public sealed partial class BooksPage : Page
+public sealed partial class ShoesPage : Page
 {
-    public BooksViewModel ViewModel
+    public ShoesViewModel ViewModel
     {
         get;
     }
 
-    public BooksPage()
+    public ShoesPage()
     {
-        ViewModel = App.GetService<BooksViewModel>();
+        ViewModel = App.GetService<ShoesViewModel>();
         InitializeComponent();
     }
 

@@ -76,14 +76,14 @@
   <data name="Shell_AddCategory.Content" xml:space="preserve">
     <value>AddCategory</value>
   </data>
-  <data name="Books_NoSelection.Text" xml:space="preserve">
+  <data name="Shoes_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>
   </data>
-  <data name="Shell_Books.Content" xml:space="preserve">
-    <value>Books</value>
+  <data name="Shell_Shoes.Content" xml:space="preserve">
+    <value>Shoes</value>
   </data>
-  <data name="Shell_AddBook.Content" xml:space="preserve">
-    <value>AddBook</value>
+  <data name="Shell_AddShoes.Content" xml:space="preserve">
+    <value>AddShoes</value>
   </data>
   <data name="Orders_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>

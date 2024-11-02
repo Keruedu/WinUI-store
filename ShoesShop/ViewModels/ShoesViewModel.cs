@@ -8,7 +8,7 @@ using ShoesShop.Core.Models;
 
 namespace ShoesShop.ViewModels;
 
-public partial class BooksViewModel : ObservableRecipient, INavigationAware
+public partial class ShoesViewModel : ObservableRecipient, INavigationAware
 {
     private readonly ISampleDataService _sampleDataService;
 
@@ -17,7 +17,7 @@ public partial class BooksViewModel : ObservableRecipient, INavigationAware
 
     public ObservableCollection<SampleOrder> SampleItems { get; private set; } = new ObservableCollection<SampleOrder>();
 
-    public BooksViewModel(ISampleDataService sampleDataService)
+    public ShoesViewModel(ISampleDataService sampleDataService)
     {
         _sampleDataService = sampleDataService;
     }

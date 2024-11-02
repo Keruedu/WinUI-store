@@ -80,12 +80,12 @@ public partial class App : Application
             services.AddTransient<AddOrderPage>();
             services.AddTransient<OrdersViewModel>();
             services.AddTransient<OrdersPage>();
-            services.AddTransient<AddBookDetailViewModel>();
-            services.AddTransient<AddBookDetailPage>();
-            services.AddTransient<AddBookViewModel>();
-            services.AddTransient<AddBookPage>();
-            services.AddTransient<BooksViewModel>();
-            services.AddTransient<BooksPage>();
+            services.AddTransient<AddShoesDetailViewModel>();
+            services.AddTransient<AddShoesDetailPage>();
+            services.AddTransient<AddShoesViewModel>();
+            services.AddTransient<AddShoesPage>();
+            services.AddTransient<ShoesViewModel>();
+            services.AddTransient<ShoesPage>();
             services.AddTransient<AddCategoryDetailViewModel>();
             services.AddTransient<AddCategoryDetailPage>();
             services.AddTransient<AddCategoryViewModel>();

@@ -18,9 +18,9 @@ public class PageService : IPageService
         Configure<CategoriesViewModel, CategoriesPage>();
         Configure<AddCategoryViewModel, AddCategoryPage>();
         Configure<AddCategoryDetailViewModel, AddCategoryDetailPage>();
-        Configure<BooksViewModel, BooksPage>();
-        Configure<AddBookViewModel, AddBookPage>();
-        Configure<AddBookDetailViewModel, AddBookDetailPage>();
+        Configure<ShoesViewModel, ShoesPage>();
+        Configure<AddShoesViewModel, AddShoesPage>();
+        Configure<AddShoesDetailViewModel, AddShoesDetailPage>();
         Configure<OrdersViewModel, OrdersPage>();
         Configure<AddOrderViewModel, AddOrderPage>();
         Configure<AddOrderDetailViewModel, AddOrderDetailPage>();
