@@ -10,5 +10,11 @@ module.exports = {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE,
     },
+    migrations: {
+      directory: './migrations',
+    },
+    seeds: {
+      directory: './seeds',
+    },
   }
 };
