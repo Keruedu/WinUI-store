@@ -43,9 +43,13 @@ public interface IDao
 
     public Tuple<List<User>, long> GetUsers(
         int page, int rowsPerPage,
-        Dictionary<string, string> whereOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
         Dictionary<string, SortType> sortOptions);
 
     public User GetUserByID(
         int userID);
+
+    public Tuple<bool, string> DeleteShoesByID(int shoesID);
+    public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes);
 }

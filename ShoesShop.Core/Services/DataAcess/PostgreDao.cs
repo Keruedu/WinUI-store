@@ -45,6 +45,64 @@ public class PostgreDao : IDao
         dbConnection.Close();
     }
 
+    private string CreateInsertFields(string[] fields)
+    {
+        //expect output:(f1,f2,f3)
+        var insertedFields = "(";
+        for (int i = 0; i < fields.Length; i++)
+        {
+            if (i != 0)
+            {
+                insertedFields += ", ";
+            }
+            insertedFields += $"\"{fields[i]}\"";
+        }
+        insertedFields += ")";
+        return insertedFields; 
+    }
+
+    private string CreateInsertedValues(string[] values, string[] valueTypes)
+    {
+        var insertedValues = "(";
+        for(int i=0;i < values.Length; i++)
+        {
+            if(i != 0)
+            {
+                insertedValues += ", ";
+            }
+            if (valueTypes[i] == "string")
+            {
+                insertedValues += $"\'{values[i]}\'";
+            }
+            else if(valueTypes[i] == "integer")
+            {
+                var temp = int.Parse(values[i]);
+                insertedValues += $"{temp}";
+            }
+            else if(valueTypes[i] == "decimal")
+            {
+                var temp = decimal.Parse(values[i]);
+                insertedValues += $"{temp}";
+            }
+        }
+        insertedValues += ")";
+        return insertedValues;
+    }
+    private string CreateInsertQuery(string tableName,string[] fields, string[] values, string[] valueTypes)
+    {
+        if(!(fields.Length==values.Length && fields.Length==valueTypes.Length) || fields.Length <= 0)
+        {
+            return "";
+        }
+        var insertedFields=CreateInsertFields(fields);
+        var insertedValues=CreateInsertedValues(values,valueTypes);
+        var sqlQuery = $"""
+            INSERT INTO "{tableName}" {insertedFields}
+            VALUES {insertedValues};
+            """;
+        return sqlQuery;
+    }
+
     private string GetSortString(string[] sortFields, Dictionary<string, SortType> sortOptions)
     {
         var sortString = "ORDER BY ";
@@ -334,7 +392,7 @@ public class PostgreDao : IDao
             shoes.Color = (string)reader["Color"];
             shoes.Price = (decimal)reader["Price"];
             shoes.Stock = (int)reader["Stock"];
-            //shoes.Avatar = (string)reader["Avatar"];
+            shoes.Image = (string)reader["Image"];
             result.Add(shoes);
         }
         reader.Close();
@@ -342,6 +400,69 @@ public class PostgreDao : IDao
             result, totalShoes
         );
     }
+
+    public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes)
+    {
+        try
+        {
+            if (newShoes == null)
+            {
+                return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
+            }
+            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price","Stock","Image" };
+            var values=new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
+            $"{newShoes.Stock}",$"{newShoes.Image}"};
+            var types = new string[] { "integer", "string", "string", "string", "decimal","integer","string" };
+            var query = CreateInsertQuery("Order", fields, values, types);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var reader=command.ExecuteReader();
+            var shoes = new Shoes();
+            if (reader.Read()) {
+                shoes.ID = (int)reader["ShoeID"];
+                shoes.CategoryID=(int)reader["CategoryID"];
+                shoes.Name= (string)reader["Name"];
+                shoes.Size=(string)reader["Size"];
+                shoes.Color = (string)reader["Color"];
+                shoes.Price = (decimal)reader["Price"];
+                shoes.Stock = (int)reader["Stock"];
+                shoes.Image = (string)reader["Image"];
+            }
+            reader.Close();
+            var result = true;
+            var msg = "";
+            return new Tuple<bool, string, Shoes>(result, msg, shoes);
+        }
+        catch(Exception e)
+        {
+            return new Tuple<bool, string, Shoes>(false,e.Message, null);
+        }
+    }
+
+    public Tuple<bool,string> DeleteShoesByID(int shoesID)
+    {
+        try
+        {
+            bool result = false;
+            var sqlQuery = $"""
+            DELETE FROM "Shoes" 
+            WHERE "ShoeID"=@id
+            """;
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.Add("@id", NpgsqlDbType.Integer)
+                .Value = shoesID;
+            var row = command.ExecuteNonQuery();
+            if (row != -1)
+            {
+                result = true;
+            }
+            var msg = result ? "Delete success" : "can't find shoes with given ID";
+            return new Tuple<bool, string>(result, msg);
+        }
+        catch (Exception ex) {
+            return new Tuple<bool,string>(false, ex.Message);
+        }
+    }
+
     public User GetUserByID(int userID)
     {
         var sqlQuery = $"""
@@ -365,5 +486,60 @@ public class PostgreDao : IDao
         reader.Close();
         return user;
     }
-    public Tuple<List<User>, long> GetUsers(int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
+    public Tuple<List<User>, long> GetUsers(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions)
+    {
+
+        var userTextFields = new string[]
+        {
+            "Name","Email","PhoneNumber"
+        };
+        var userNumberFields = new string[]
+        {
+            "UserID","AddressID"
+        };
+        var userFields = userTextFields.Concat(userNumberFields).ToArray();
+        var sortString = GetSortString(userFields, sortOptions);
+        //tech-debt: re-factory
+        var emptyfields = new string[0] { };
+        var noUsage = new Dictionary<string, Tuple<string, string>>();
+        //
+        var whereString = GetWhereCondition(emptyfields, noUsage, userNumberFields, numberFieldsOptions, userTextFields, textFieldsOptions);
+        //var selectFieldsString = GetSelectFields(categoryFields);
+        var sqlQuery = $"""
+            SELECT count(*) over() as Total,"UserID","Name","Password","Email","PhoneNumber","AddressID"
+            FROM "User" {whereString} {sortString}
+            LIMIT @Take 
+            OFFSET @Skip
+            """;
+        var command = new NpgsqlCommand(sqlQuery, dbConnection);
+        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
+            .Value = (page - 1) * rowsPerPage;
+        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
+            .Value = rowsPerPage;
+        var reader = command.ExecuteReader();
+        var users = new List<User>();
+        long totalUsers = 0;
+        while (reader.Read())
+        {
+            if (totalUsers == 0)
+            {
+                totalUsers = (long)reader["Total"];
+            }
+            var user = new User();
+            user.ID = (int)reader["UserID"];
+            user.Name = (string)reader["Name"];
+            user.Email=(string)reader["Email"];
+            user.Password=(string)reader["Password"];
+            user.PhoneNumber=(string)reader["PhoneNumber"];
+            user.AddressID = (int)reader["AddressID"];
+            users.Add(user);
+        }
+        reader.Close();
+        return new Tuple<List<User>, long>(users, totalUsers);
+    }
+    
 }

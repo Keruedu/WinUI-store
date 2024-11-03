@@ -50,15 +50,16 @@ public partial class App : Application
     {
         //test
         Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
-        textFieldsOptions.Add("Name", "Men");
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
-        numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(1,1));
-        var dateFieldsOptions = new Dictionary<string, Tuple<string,string >>();
-        dateFieldsOptions.Add("OrderDate", new Tuple<string, string>("2023-10-31", "2023-10-31"));
         Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
-        var res = testiDao.GetOrders(1,3,dateFieldsOptions, numberFieldsOptions, textFieldsOptions,sortOptions);
-        var res1 = testiDao.GetUserByID(1);
-
+        var res1 = testiDao.GetUsers(1, 2, numberFieldsOptions, textFieldsOptions,sortOptions);
+        //var dateFieldsOptions = new Dictionary<string, Tuple<string,string >>();
+        //dateFieldsOptions.Add("OrderDate", new Tuple<string, string>("2023-10-31", "2023-10-31"));
+        
+        //var res = testiDao.GetOrders(1,3,dateFieldsOptions, numberFieldsOptions, textFieldsOptions,sortOptions);
+        //var res1 = testiDao.GetUserByID(1);
+        //var res = testiDao.DeleteShoesByID(4);
+        var flag = true;
         //numberFieldsOptions.Add("", new Tuple<decimal, decimal>(1, 1));
         //Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
         //sortOptions.Add("CategoryID", IDao.SortType.Ascending);
@@ -81,7 +82,6 @@ public partial class App : Application
         //Dictionary<string, IDao.SortType> shoessortOptions = new Dictionary<string, IDao.SortType>();
         //shoessortOptions.Add("Price",IDao.SortType.Ascending);
         //var res2=testiDao.GetShoes(1,1,whereShoes,shoessortOptions);
-        var flag = true;
         //test
         InitializeComponent();
 

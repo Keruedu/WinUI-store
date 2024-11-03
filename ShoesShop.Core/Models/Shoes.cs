@@ -36,7 +36,7 @@ public class Shoes
     {
         get; set;
     }
-    public string Avatar
+    public string Image
     {
         get; set;
     }
