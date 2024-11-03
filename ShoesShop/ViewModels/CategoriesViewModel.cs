@@ -10,29 +10,80 @@ namespace ShoesShop.ViewModels;
 
 public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 {
-    private readonly ISampleDataService _sampleDataService;
+    //private readonly ICategoryDataService _categoryDataService;
 
     [ObservableProperty]
-    private SampleOrder? selected;
+    public Category? selected;
 
-    public ObservableCollection<SampleOrder> SampleItems { get; private set; } = new ObservableCollection<SampleOrder>();
+    [ObservableProperty]
+    public bool isLoading = true;
 
-    public CategoriesViewModel(ISampleDataService sampleDataService)
+    [ObservableProperty]
+    public bool isContentReady = false;
+
+    public ObservableCollection<Category> CategoryList { get; private set; } = new();
+
+    public CategoriesViewModel(/*ICategoryDataService categoryDataService*/)
     {
-        _sampleDataService = sampleDataService;
+        //_categoryDataService = categoryDataService;
+        CategoryList.Add(new Category
+        {
+            ID = 1,
+            Name = "Sneakers",
+            Description = "Comfortable and stylish sneakers for everyday wear."
+        });
+
+        CategoryList.Add(new Category
+        {
+            ID = 2,
+            Name = "Boots",
+            Description = "Durable boots suitable for hiking and rough terrains."
+        });
+
+        CategoryList.Add(new Category
+        {
+            ID = 3,
+            Name = "Sandals",
+            Description = "Lightweight sandals perfect for warm weather."
+        });
+
+        CategoryList.Add(new Category
+        {
+            ID = 4,
+            Name = "Formal Shoes",
+            Description = "Elegant formal shoes for office and special occasions."
+        });
+
+        CategoryList.Add(new Category
+        {
+            ID = 5,
+            Name = "Slippers",
+            Description = "Cozy slippers for indoor comfort."
+        });
     }
 
-    public async void OnNavigatedTo(object parameter)
+
+    public async void LoadCategories()
     {
-        SampleItems.Clear();
+        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        //var (categories, _, _) = _categoryDataService.GetData();
 
-        // TODO: Replace with real data.
-        var data = await _sampleDataService.GetListDetailsDataAsync();
+        //if (categories is not null)
+        //{
+        //    foreach (var category in categories)
+        //    {
+        //        CategoryList.Add(category);
+        //    }
+        //}
 
-        foreach (var item in data)
-        {
-            SampleItems.Add(item);
-        }
+        IsLoading = false;
+        IsContentReady = true;
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        LoadCategories();
+        EnsureItemSelected();
     }
 
     public void OnNavigatedFrom()
@@ -41,6 +92,9 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 
     public void EnsureItemSelected()
     {
-        Selected ??= SampleItems.First();
+        if (CategoryList.Count > 0)
+        {
+            Selected ??= CategoryList[0];
+        }
     }
 }

@@ -68,6 +68,7 @@ public partial class App : Application
             // Core Services
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<ICategoryDataService, CategoryDataService>();
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();
@@ -92,6 +93,7 @@ public partial class App : Application
             services.AddTransient<AddCategoryPage>();
             services.AddTransient<CategoriesViewModel>();
             services.AddTransient<CategoriesPage>();
+            services.AddTransient<CategoryDetailControlViewModel>();
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<DashboardPage>();
             services.AddTransient<ShellPage>();

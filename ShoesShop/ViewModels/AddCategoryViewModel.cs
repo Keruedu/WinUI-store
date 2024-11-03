@@ -11,42 +11,76 @@ using ShoesShop.Core.Models;
 
 namespace ShoesShop.ViewModels;
 
-public partial class AddCategoryViewModel : ObservableRecipient, INavigationAware
+public partial class AddCategoryViewModel : ObservableRecipient
 {
-    private readonly INavigationService _navigationService;
-    private readonly ISampleDataService _sampleDataService;
+    //private readonly ICategoryDataService _categoryDataService;
 
-    public ObservableCollection<SampleOrder> Source { get; } = new ObservableCollection<SampleOrder>();
+    [ObservableProperty]
+    private Category newCategory = new();
 
-    public AddCategoryViewModel(INavigationService navigationService, ISampleDataService sampleDataService)
+    [ObservableProperty]
+    private bool isLoading = false;
+
+    [ObservableProperty]
+    private string errorMessage = string.Empty;
+
+    [ObservableProperty]
+    private string successMessage = string.Empty;
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+    public bool HasSuccess => !string.IsNullOrEmpty(SuccessMessage);
+
+    public RelayCommand AddCategoryButtonCommand
     {
-        _navigationService = navigationService;
-        _sampleDataService = sampleDataService;
+        get; set;
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public RelayCommand CancelButtonCommand
     {
-        Source.Clear();
-
-        // TODO: Replace with real data.
-        var data = await _sampleDataService.GetContentGridDataAsync();
-        foreach (var item in data)
-        {
-            Source.Add(item);
-        }
+        get; set;
     }
 
-    public void OnNavigatedFrom()
+    public AddCategoryViewModel(/*ICategoryDataService categoryDataService*/)
     {
+        //_categoryDataService = categoryDataService;
+        //AddCategoryButtonCommand = new RelayCommand(OnAddCategoryButtonCommandAsync);
+        //CancelButtonCommand = new RelayCommand(OnCancelButtonCommand);
     }
 
-    [RelayCommand]
-    private void OnItemClick(SampleOrder? clickedItem)
+    private async void OnAddCategoryButtonCommandAsync()
     {
-        if (clickedItem != null)
-        {
-            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(AddCategoryDetailViewModel).FullName!, clickedItem.OrderID);
-        }
+
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        NotifyChanges();
+
+        //var (_, message, ERROR_CODE) = await _categoryDataService.AddCategoryAsync(NewCategory);
+
+        //if (ERROR_CODE == 0)
+        //{
+        //    SuccessMessage = message;
+        //    OnCancelButtonCommand();
+        //}
+        //else
+        //{
+        //    ErrorMessage = message;
+        //}
+
+        IsLoading = false;
+        NotifyChanges();
+    }
+
+    private void OnCancelButtonCommand()
+    {
+        NewCategory = new Category();
+    }
+
+    private void NotifyChanges()
+    {
+        AddCategoryButtonCommand.NotifyCanExecuteChanged();
+
+        OnPropertyChanged(nameof(HasError));
+        OnPropertyChanged(nameof(HasSuccess));
     }
 }
