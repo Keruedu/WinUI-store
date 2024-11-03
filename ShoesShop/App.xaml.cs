@@ -49,16 +49,20 @@ public partial class App : Application
     public App()
     {
         //test
-        Dictionary<string, string> whereOptions = new Dictionary<string, string>();
+        Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
+        textFieldsOptions.Add("Name", "Men");
+
+        Dictionary<string,Tuple<decimal,decimal>> numberFieldsOptions=new Dictionary<string,Tuple<decimal,decimal>>();
+        numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(1, 1));
         Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
-        var result = testiDao.GetCategories(2, 1, whereOptions, sortOptions);
+        var result = testiDao.GetCategories(1, 1,numberFieldsOptions, textFieldsOptions, sortOptions);
         var res1 = testiDao.GetUserByID(1);
 
-        Dictionary<string,string> whereShoes=new Dictionary<string,string>();
-        whereShoes.Add("Name", "Nike");
-        Dictionary<string, IDao.SortType> shoessortOptions = new Dictionary<string, IDao.SortType>();
-        shoessortOptions.Add("Price",IDao.SortType.Ascending);
-        var res2=testiDao.GetShoes(1,1,whereShoes,shoessortOptions);
+        //Dictionary<string,string> whereShoes=new Dictionary<string,string>();
+        //whereShoes.Add("Name", "Nike");
+        //Dictionary<string, IDao.SortType> shoessortOptions = new Dictionary<string, IDao.SortType>();
+        //shoessortOptions.Add("Price",IDao.SortType.Ascending);
+        //var res2=testiDao.GetShoes(1,1,whereShoes,shoessortOptions);
         var flag = true;
         //test
         InitializeComponent();
