@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 
 using ShoesShop.Contracts.Services;
 using ShoesShop.Views;
-using static ShoesShop.IDao;
+using static ShoesShop.Core.Services.DataAcess.IDao;
 
 namespace ShoesShop.ViewModels;
 

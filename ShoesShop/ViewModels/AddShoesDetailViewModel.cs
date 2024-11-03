@@ -3,18 +3,21 @@
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services.DataAcess;
 
 namespace ShoesShop.ViewModels;
 
 public partial class AddShoesDetailViewModel : ObservableRecipient, INavigationAware
 {
     private readonly ISampleDataService _sampleDataService;
+    
 
     [ObservableProperty]
     private SampleOrder? item;
 
     public AddShoesDetailViewModel(ISampleDataService sampleDataService)
     {
+        
         _sampleDataService = sampleDataService;
     }
 

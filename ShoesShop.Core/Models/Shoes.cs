@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShoesShop;
-public class Shoes : INotifyPropertyChanged
+namespace ShoesShop.Core.Models;
+public class Shoes
 {
     public int ID
     {
         get; set;
     }
-    public string CategoryID
+    public int CategoryID
     {
         get; set;
     }
@@ -28,15 +28,17 @@ public class Shoes : INotifyPropertyChanged
     {
         get; set;
     }
-    public float Price
+    public decimal Price
     {
         get; set;
     }
-
     public int Stock
     {
         get; set;
     }
-
+    public string Image
+    {
+        get; set;
+    }
     public event PropertyChangedEventHandler PropertyChanged;
 }

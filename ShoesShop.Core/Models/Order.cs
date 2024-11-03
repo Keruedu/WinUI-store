@@ -1,37 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class User : INotifyPropertyChanged
+public class Order
 {
     public int ID
     {
         get; set;
     }
-    public int AddressID 
-    {
-        get; set; 
-    }
-    public string Name
+    public int UserID
     {
         get; set;
     }
-    public string Email
+    public int AddressID
     {
         get; set;
     }
-    public string Password
-    {
-        get; set; 
-    }
-    public string PhoneNumber
+    public string OrderDate
     {
         get; set;
     }
-
-    public event PropertyChangedEventHandler PropertyChanged;
+    public string Status
+    {
+        get; set;
+    }
+    public decimal TotalAmount
+    {
+        get; set;
+    }
 }

@@ -6,6 +6,7 @@ using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Services;
+using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
 using ShoesShop.Services;
@@ -42,8 +43,64 @@ public partial class App : Application
 
     public static UIElement? AppTitlebar { get; set; }
 
+    //test
+    private IDao testiDao = new PostgreDao();
+    //test
     public App()
     {
+        //test
+
+        var shoes = new Core.Models.Shoes
+        {
+            ID = 14,
+            CategoryID = 1,
+            Name = "Running Shoes",
+            Size = "10",
+            Color = "Blue",
+            Price = 80.5m,
+            Stock = 77,
+            Image = "http://example.com/images/running_shoes.jpg"
+        };
+        var res = testiDao.UpdateShoes(shoes);
+
+
+
+        //Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
+        //Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        //Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
+        //var res1 = testiDao.GetUsers(1, 2, numberFieldsOptions, textFieldsOptions,sortOptions);
+
+
+        //var dateFieldsOptions = new Dictionary<string, Tuple<string,string >>();
+        //dateFieldsOptions.Add("OrderDate", new Tuple<string, string>("2023-10-31", "2023-10-31"));
+
+        //var res = testiDao.GetOrders(1,3,dateFieldsOptions, numberFieldsOptions, textFieldsOptions,sortOptions);
+        //var res1 = testiDao.GetUserByID(1);
+        //var res = testiDao.DeleteShoesByID(4);
+        var flag = true;
+        //numberFieldsOptions.Add("", new Tuple<decimal, decimal>(1, 1));
+        //Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
+        //sortOptions.Add("CategoryID", IDao.SortType.Ascending);
+        //var result = testiDao.GetCategories(1, 3, numberFieldsOptions, textFieldsOptions, sortOptions);
+        //var res1 = testiDao.GetUserByID(1);
+
+
+        //Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
+        //textFieldsOptions.Add("Name", "Men");
+
+        //Dictionary<string,Tuple<decimal,decimal>> numberFieldsOptions=new Dictionary<string,Tuple<decimal,decimal>>();
+        //numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(1, 1));
+        //Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
+        //sortOptions.Add("CategoryID",IDao.SortType.Ascending);
+        //var result = testiDao.GetCategories(1, 1,numberFieldsOptions, textFieldsOptions, sortOptions);
+        //var res1 = testiDao.GetUserByID(1);
+
+        //Dictionary<string,string> whereShoes=new Dictionary<string,string>();
+        //whereShoes.Add("Name", "Nike");
+        //Dictionary<string, IDao.SortType> shoessortOptions = new Dictionary<string, IDao.SortType>();
+        //shoessortOptions.Add("Price",IDao.SortType.Ascending);
+        //var res2=testiDao.GetShoes(1,1,whereShoes,shoessortOptions);
+        //test
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.

@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using ShoesShop.Core.Models;
 
-namespace ShoesShop;
+namespace ShoesShop.Core.Services.DataAcess;
 public interface IDao
 {
     public enum SortType
@@ -14,14 +15,43 @@ public interface IDao
         Ascending,
         Descending
     }
-    Tuple<List<Shoes>, int> GetShoes(
+    
+    public Tuple<List<Shoes>, long> GetShoes(
         int page, int rowsPerPage,
-        string keyword,
-        Dictionary<string, SortType> sortOptions
-    );
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions);
 
-    bool DeleteShoes(int id);
-    bool AddShoes(Shoes info);
+    public Tuple<List<Order>, long>  GetOrders(
+        int page, int rowsPerPage,
+        Dictionary<string,Tuple<string,string>> dateFieldsOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions);
 
-    bool UpdateShoes(Shoes info);
+    public Tuple<List<Category>, long> GetCategories(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions);
+
+    public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(
+        int orderID,
+        int page, int rowsPerPage,
+        Dictionary<string, string> whereOptions,
+        Dictionary<string, SortType> sortOptions);
+
+    public Tuple<List<User>, long> GetUsers(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, SortType> sortOptions);
+
+    public User GetUserByID(
+        int userID);
+
+    public Tuple<bool, string> DeleteShoesByID(int shoesID);
+    public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes);
+
+    public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes);
 }
