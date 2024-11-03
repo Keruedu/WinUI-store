@@ -45,6 +45,32 @@ public class PostgreDao : IDao
         dbConnection.Close();
     }
 
+    private string CreateSetForUpdate(string[] fields, string[] values) { 
+        if(fields.Length!=values.Length || fields.Length==0)
+        {
+            return "";
+        }
+        var setString = "";
+        for(int i=0; i<fields.Length; i++)
+        {
+            if (i != 0)
+            {
+                setString += ", ";
+            }
+            setString += $"\"{fields[i]}\" = \'{values[i]}\'";
+        }
+        return setString;
+    }
+    private string CreateUpdateQuery(string tableName,string idColumnName,int id,string[] fields, string[] values)
+    {
+        var setString=CreateSetForUpdate(fields, values);
+        var updateQuery = $"""
+            UPDATE "{tableName}"
+            SET {setString}
+            WHERE "{idColumnName}"='{id}'
+            """;
+        return updateQuery;
+    }
     private string CreateInsertFields(string[] fields)
     {
         //expect output:(f1,f2,f3)
@@ -88,7 +114,7 @@ public class PostgreDao : IDao
         insertedValues += ")";
         return insertedValues;
     }
-    private string CreateInsertQuery(string tableName,string[] fields, string[] values, string[] valueTypes)
+    private string CreateInsertQuery(string tableName,string columnIDName ,string[] fields, string[] values, string[] valueTypes)
     {
         if(!(fields.Length==values.Length && fields.Length==valueTypes.Length) || fields.Length <= 0)
         {
@@ -98,7 +124,7 @@ public class PostgreDao : IDao
         var insertedValues=CreateInsertedValues(values,valueTypes);
         var sqlQuery = $"""
             INSERT INTO "{tableName}" {insertedFields}
-            VALUES {insertedValues};
+            VALUES {insertedValues} RETURNING "{columnIDName}";
             """;
         return sqlQuery;
     }
@@ -413,28 +439,41 @@ public class PostgreDao : IDao
             var values=new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
             $"{newShoes.Stock}",$"{newShoes.Image}"};
             var types = new string[] { "integer", "string", "string", "string", "decimal","integer","string" };
-            var query = CreateInsertQuery("Order", fields, values, types);
+            var query = CreateInsertQuery("Shoes","ShoeID" ,fields, values, types);
             var command = new NpgsqlCommand(query, dbConnection);
-            var reader=command.ExecuteReader();
-            var shoes = new Shoes();
-            if (reader.Read()) {
-                shoes.ID = (int)reader["ShoeID"];
-                shoes.CategoryID=(int)reader["CategoryID"];
-                shoes.Name= (string)reader["Name"];
-                shoes.Size=(string)reader["Size"];
-                shoes.Color = (string)reader["Color"];
-                shoes.Price = (decimal)reader["Price"];
-                shoes.Stock = (int)reader["Stock"];
-                shoes.Image = (string)reader["Image"];
-            }
-            reader.Close();
+            var id=command.ExecuteScalar();
+            newShoes.ID = (int)id;
             var result = true;
             var msg = "";
-            return new Tuple<bool, string, Shoes>(result, msg, shoes);
+            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
         }
         catch(Exception e)
         {
             return new Tuple<bool, string, Shoes>(false,e.Message, null);
+        }
+    }
+
+    public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes)
+    {
+        try
+        {
+            if (newShoes == null)
+            {
+                return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
+            }
+            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
+            var values = new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
+            $"{newShoes.Stock}",$"{newShoes.Image}"};
+            var query = CreateUpdateQuery("Shoes", "ShoeID",newShoes.ID, fields, values);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var reader=command.ExecuteReader();
+            var result = true;
+            var msg = "";
+            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<bool, string, Shoes>(false, e.Message, null);
         }
     }
 
@@ -480,7 +519,7 @@ public class PostgreDao : IDao
             user.ID = (int)reader["UserID"];
             user.Name = (string)reader["Name"];
             user.Email = (string)reader["Email"];
-            //user.Password = (string)reader["Password"];
+            user.Password = (string)reader["Password"];
             user.PhoneNumber = (string)reader["PhoneNumber"];
         }
         reader.Close();

@@ -49,13 +49,31 @@ public partial class App : Application
     public App()
     {
         //test
-        Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
-        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
-        Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
-        var res1 = testiDao.GetUsers(1, 2, numberFieldsOptions, textFieldsOptions,sortOptions);
+
+        var shoes = new Core.Models.Shoes
+        {
+            ID = 14,
+            CategoryID = 1,
+            Name = "Running Shoes",
+            Size = "10",
+            Color = "Blue",
+            Price = 80.5m,
+            Stock = 77,
+            Image = "http://example.com/images/running_shoes.jpg"
+        };
+        var res = testiDao.UpdateShoes(shoes);
+
+
+
+        //Dictionary<string, string> textFieldsOptions = new Dictionary<string, string>();
+        //Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        //Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
+        //var res1 = testiDao.GetUsers(1, 2, numberFieldsOptions, textFieldsOptions,sortOptions);
+
+
         //var dateFieldsOptions = new Dictionary<string, Tuple<string,string >>();
         //dateFieldsOptions.Add("OrderDate", new Tuple<string, string>("2023-10-31", "2023-10-31"));
-        
+
         //var res = testiDao.GetOrders(1,3,dateFieldsOptions, numberFieldsOptions, textFieldsOptions,sortOptions);
         //var res1 = testiDao.GetUserByID(1);
         //var res = testiDao.DeleteShoesByID(4);

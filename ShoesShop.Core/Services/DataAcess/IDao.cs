@@ -52,4 +52,6 @@ public interface IDao
 
     public Tuple<bool, string> DeleteShoesByID(int shoesID);
     public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes);
+
+    public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes);
 }

@@ -15,8 +15,8 @@ exports.seed = async function(knex) {
 
   // Insert seed entries for User
   await knex('User').insert([
-    { UserID: 1, Name: 'John Doe', Email: 'john.doe@example.com', PhoneNumber: '123-456-7890', AddressID: 1 },
-    { UserID: 2, Name: 'Jane Smith', Email: 'jane.smith@example.com', PhoneNumber: '987-654-3210', AddressID: 2 }
+    { UserID: 1, Name: 'John Doe', Password: '123', Email: 'john.doe@example.com', PhoneNumber: '123-456-7890', AddressID: 1 },
+    { UserID: 2, Name: 'Jane Smith',  Password: '123', Email: 'jane.smith@example.com', PhoneNumber: '987-654-3210', AddressID: 2 }
   ]);
 
   // Insert seed entries for Category
@@ -28,9 +28,9 @@ exports.seed = async function(knex) {
 
   // Insert seed entries for Shoes
   await knex('Shoes').insert([
-    { ShoeID: 1, CategoryID: 1, Name: 'Nike Air Max', Size: '10', Color: 'Black', Price: 120.00, Stock: 50 },
-    { ShoeID: 2, CategoryID: 2, Name: 'Adidas Ultraboost', Size: '8', Color: 'White', Price: 150.00, Stock: 30 },
-    { ShoeID: 3, CategoryID: 3, Name: 'Puma Running', Size: '9', Color: 'Blue', Price: 100.00, Stock: 20 }
+    { ShoeID: 1, CategoryID: 1, Name: 'Nike Air Max', Size: '10', Color: 'Black', Price: 120.00, Stock: 50, Image: '9411512a20253ecdb4fc7049454e44ae426082' },
+    { ShoeID: 2, CategoryID: 2, Name: 'Adidas Ultraboost', Size: '8', Color: 'White', Price: 150.00, Stock: 30, Image: 'ae426082' },
+    { ShoeID: 3, CategoryID: 3, Name: 'Puma Running', Size: '9', Color: 'Blue', Price: 100.00, Stock: 20, Image: '504e471cb08a70000000049454e44ae426082' }
   ]);
 
   // Insert seed entries for Order
