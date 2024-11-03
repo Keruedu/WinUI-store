@@ -18,13 +18,16 @@ public interface IDao
     
     public Tuple<List<Shoes>, long> GetShoes(
         int page, int rowsPerPage,
-        Dictionary<string,string> whereOptions,
-        Dictionary<string, SortType> sortOptions);
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions);
 
     public Tuple<List<Order>, long>  GetOrders(
         int page, int rowsPerPage,
-        Dictionary<string,string> whereOptions,
-        Dictionary<string, SortType> sortOptions);
+        Dictionary<string,Tuple<string,string>> dateFieldsOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions);
 
     public Tuple<List<Category>, long> GetCategories(
         int page, int rowsPerPage,

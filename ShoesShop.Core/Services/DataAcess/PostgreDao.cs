@@ -77,6 +77,24 @@ public class PostgreDao : IDao
         return sortString;
     }
 
+    private string GetWhereConditionDateFields(string[] dateFields, Dictionary<string, Tuple<string, string>> dateOptions)
+    {
+        var result = "";
+        var countNumberFields = 0;
+        foreach (var item in dateOptions)
+        {
+            if (dateFields.Contains(item.Key))
+            {
+                if (countNumberFields > 0)
+                {
+                    result += " AND ";
+                }
+                result += $"\"{item.Key}\" BETWEEN \'{item.Value.Item1}\' AND \'{item.Value.Item2}\'";
+                countNumberFields++;
+            }
+        }
+        return result; 
+    }
     private string GetWhereConditionNumberFields(string[] numberFields, Dictionary<string, Tuple<decimal, decimal>> numberOptions)
     {
         string result = "";
@@ -112,26 +130,37 @@ public class PostgreDao : IDao
         return whereString;
     }
 
-    private string GetWhereCondition(string[] numberFields, Dictionary<string, Tuple<decimal, decimal>> numberOptions,
+    private List<string> AddWhereConditions(params string[] conditions) { 
+        var res=new List<string>();
+        foreach (var condition in conditions) {
+            if (condition != "")
+            {
+                res.Add(condition);
+            }
+        }
+        return res;
+    }
+    private string GetWhereCondition(
+        string[] dateFields, Dictionary<string, Tuple<string, string>> dateOptions,
+        string[] numberFields, Dictionary<string, Tuple<decimal, decimal>> numberOptions,
         string[] textFields, Dictionary<string, string> textOptions)
     {
         var res = "";
+        var dateFieldsCondition = GetWhereConditionDateFields(dateFields, dateOptions);
         var textFieldsCondition=GetWhereConditionTextFields(textFields, textOptions);
         var numberFieldsCondition=GetWhereConditionNumberFields(numberFields,numberOptions);
-        if(numberFieldsCondition != "" && textFieldsCondition != "")
-        {
-            res +=$"WHERE {numberFieldsCondition} AND {textFieldsCondition}";
-        }
-        else if(numberFieldsCondition !="" || textFieldsCondition != "")
-        {
-            if(numberFieldsCondition != "")
+        var whereConditions = AddWhereConditions(dateFieldsCondition, textFieldsCondition,numberFieldsCondition);
+        var countCondition = 0;
+        foreach(var condition in whereConditions) { 
+            if(countCondition == 0)
             {
-                res += $"WHERE {numberFieldsCondition}";
+                res += "WHERE ";
             }
-            else
-            {
-                res += $"WHERE {textFieldsCondition}";
+            if (countCondition > 0) {
+                res += " AND ";
             }
+            res += condition;
+            countCondition++;
         }
         return res;
     }
@@ -165,12 +194,15 @@ public class PostgreDao : IDao
         var categoryFields = categoryTextFields.Concat(categoryNumberFields).ToArray();
         var result = new List<Category>();
         var sortString = GetSortString(categoryFields, sortOptions);
-        var whereString = GetWhereCondition(categoryNumberFields,numberFieldsOptions,categoryTextFields,textFieldsOptions);
+        //tech-debt: re-factory
+        var emptyfields= new string[0] {};
+        var noUsage=new Dictionary<string,Tuple<string,string>>();
+        //
+        var whereString = GetWhereCondition(emptyfields, noUsage,categoryNumberFields, numberFieldsOptions,categoryTextFields,textFieldsOptions);
         //var selectFieldsString = GetSelectFields(categoryFields);
         var sqlQuery = $"""
             SELECT count(*) over() as Total, "CategoryID","Name","Description"
-            FROM "Category" {whereString}
-            {sortString}
+            FROM "Category" {whereString} {sortString}
             LIMIT @Take 
             OFFSET @Skip
             """;
@@ -199,52 +231,113 @@ public class PostgreDao : IDao
         );
     }
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(int orderID, int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
-    public Tuple<List<Order>, long> GetOrders(int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
-    public Tuple<List<Shoes>, long> GetShoes(int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions)
+    public Tuple<List<Order>, long> GetOrders(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<string, string>> dateFieldsOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions)
     {
-        //var shoesFields = new string[]{
-        //    "ID", "Name", "Size", "Color"
-        //};
-        ////var shoesFields = new string[]{
-        ////    "ID", "CategoryID", "Name", "Size", "Color", "Price", "Stock"
-        ////};
-        
-        //var sortString = GetSortString(shoesFields, sortOptions);
-        //var whereString = GetWhereString(shoesFields, whereOptions);
-        //var sqlQuery = $"""
-        //    SELECT count(*) over() as Total,"ShoeID","CategoryID","Name","Size","Color","Price","Stock" 
-        //    FROM "Shoes" {whereString}
-        //    {sortString} 
-        //    LIMIT @Take
-        //    OFFSET @Skip
-        //""";
-        //var command = new NpgsqlCommand(sqlQuery, dbConnection);
-        //command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-        //    .Value = (page - 1) * rowsPerPage;
-        //command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-        //    .Value = rowsPerPage;
-        //var reader = command.ExecuteReader();
+        var orderTextFields = new string[]{
+            "Status"
+        };
+        var orderNumberFields = new string[]
+        {
+            "OrderID","UserID","AddressID","TotalAmount"
+        };
+        var orderDateFields = new string[]
+        {
+            "OrderDate",
+        };
+        var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
+        var sortString = GetSortString(categoryFields, sortOptions);
+        var whereString = GetWhereCondition(orderDateFields,dateFieldsOptions,orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
+        //var selectFieldsString = GetSelectFields(categoryFields);
+        var sqlQuery = $"""
+            SELECT count(*) over() as Total, "OrderID","UserID","OrderDate","Status","AddressID","TotalAmount"
+            FROM "Order" {whereString} {sortString}
+            LIMIT @Take 
+            OFFSET @Skip
+            """;
+        var command = new NpgsqlCommand(sqlQuery, dbConnection);
+        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
+            .Value = (page - 1) * rowsPerPage;
+        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
+            .Value = rowsPerPage;
+        var reader = command.ExecuteReader();
+        var orders = new List<Order>();
+        long totalOrders = 0;
+        while (reader.Read())
+        {
+            if (totalOrders == 0)
+            {
+                totalOrders = (long)reader["Total"];
+            }
+            var order= new Order();
+            order.ID=(int)reader["OrderID"];
+            order.UserID = (int)reader["UserID"];
+            var t = (DateTime)reader["OrderDate"];
+            order.Status=(string)reader["Status"];
+            order.OrderDate = $"{t.Year}-{t.Month}-{t.Day}";
+            order.AddressID = (int)reader["AddressID"];
+            order.TotalAmount = (decimal)reader["TotalAmount"];
+            orders.Add(order);
+        }
+        reader.Close();
+        return new Tuple<List<Order>, long>(orders, totalOrders);
+    }
+    public Tuple<List<Shoes>, long> GetShoes(int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions)
+    {
+        var shoesTextFields = new string[]{
+            "Name", "Size", "Color"
+        };
+        var shoesNumberFields = new string[]
+        {
+            "ID", "CategoryID", "Price", "Stock"
+        };
+        var shoesFields = shoesTextFields.Concat(shoesNumberFields).ToArray();
+        var sortString = GetSortString(shoesFields, sortOptions);
+        //tech-debt: re-factory
+        var emptyfields = new string[0] { };
+        var noUsage = new Dictionary<string, Tuple<string, string>>();
+        //
+        var whereString = GetWhereCondition(emptyfields,noUsage,shoesNumberFields, numberFieldsOptions, shoesTextFields, textFieldsOptions);
+        var sqlQuery = $"""
+            SELECT count(*) over() as Total,"ShoeID","CategoryID","Name","Size","Color","Price","Stock" 
+            FROM "Shoes" {whereString} {sortString} 
+            LIMIT @Take
+            OFFSET @Skip
+        """;
+        var command = new NpgsqlCommand(sqlQuery, dbConnection);
+        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
+            .Value = (page - 1) * rowsPerPage;
+        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
+            .Value = rowsPerPage;
+        var reader = command.ExecuteReader();
         long totalShoes = 0;
         var result = new List<Shoes>();
-        //while (reader.Read())
-        //{
-        //    if (totalShoes == -1)
-        //    {
-        //        totalShoes = (int)reader["Total"];
-        //    }
+        while (reader.Read())
+        {
+            if (totalShoes == -1)
+            {
+                totalShoes = (int)reader["Total"];
+            }
 
-        //    var shoes = new Shoes();
-        //    shoes.ID = (int)reader["ShoeID"];
-        //    shoes.CategoryID = (int)reader["CategoryID"];
-        //    shoes.Name = (string)reader["Name"];
-        //    shoes.Size = (string)reader["Size"];
-        //    shoes.Color = (string)reader["Color"];
-        //    shoes.Price = (decimal)reader["Price"];
-        //    shoes.Stock = (int)reader["Stock"];
-        //    //shoes.Avatar = (string)reader["Avatar"];
-        //    result.Add(shoes);
-        //}
-        //reader.Close();
+            var shoes = new Shoes();
+            shoes.ID = (int)reader["ShoeID"];
+            shoes.CategoryID = (int)reader["CategoryID"];
+            shoes.Name = (string)reader["Name"];
+            shoes.Size = (string)reader["Size"];
+            shoes.Color = (string)reader["Color"];
+            shoes.Price = (decimal)reader["Price"];
+            shoes.Stock = (int)reader["Stock"];
+            //shoes.Avatar = (string)reader["Avatar"];
+            result.Add(shoes);
+        }
+        reader.Close();
         return new Tuple<List<Shoes>, long>(
             result, totalShoes
         );
@@ -260,13 +353,15 @@ public class PostgreDao : IDao
         command.Parameters.Add("@id", NpgsqlDbType.Integer)
             .Value = userID;
         var reader=command.ExecuteReader();
-        reader.Read();
         var user = new User();
-        user.ID = (int)reader["UserID"];
-        user.Name = (string)reader["Name"];
-        user.Email = (string)reader["Email"];
-        //user.Password = (string)reader["Password"];
-        user.PhoneNumber = (string)reader["PhoneNumber"];
+        if (reader.Read())
+        {
+            user.ID = (int)reader["UserID"];
+            user.Name = (string)reader["Name"];
+            user.Email = (string)reader["Email"];
+            //user.Password = (string)reader["Password"];
+            user.PhoneNumber = (string)reader["PhoneNumber"];
+        }
         reader.Close();
         return user;
     }
