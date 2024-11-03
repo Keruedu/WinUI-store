@@ -50,9 +50,16 @@ public partial class App : Application
     {
         //test
         Dictionary<string, string> whereOptions = new Dictionary<string, string>();
-        var asc = IDao.SortType.Ascending;
         Dictionary<string, IDao.SortType> sortOptions = new Dictionary<string, IDao.SortType>();
-        var result = testiDao.GetCategories(1,3, whereOptions, sortOptions);
+        var result = testiDao.GetCategories(2, 1, whereOptions, sortOptions);
+        var res1 = testiDao.GetUserByID(1);
+
+        Dictionary<string,string> whereShoes=new Dictionary<string,string>();
+        whereShoes.Add("Name", "Nike");
+        Dictionary<string, IDao.SortType> shoessortOptions = new Dictionary<string, IDao.SortType>();
+        shoessortOptions.Add("Price",IDao.SortType.Ascending);
+        var res2=testiDao.GetShoes(1,1,whereShoes,shoessortOptions);
+        var flag = true;
         //test
         InitializeComponent();
 
