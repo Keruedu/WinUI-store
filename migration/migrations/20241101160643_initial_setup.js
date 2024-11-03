@@ -12,10 +12,12 @@ exports.up = async function(knex) {
     await knex.schema.createTable('User', (table) => {
       table.increments('UserID').primary();
       table.string('Name', 255).notNullable();
+      table.string('Password', 255).notNullable();
       table.string('Email', 255).notNullable().unique();
       table.string('PhoneNumber', 50);
       table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
     });
+  
   
     await knex.schema.createTable('Category', (table) => {
       table.increments('CategoryID').primary();
