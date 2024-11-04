@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,37 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class Shoes
+public class OrderDetail
 {
     public int ID
     {
         get; set;
     }
-    public int CategoryID
+    public int OrderID
     {
         get; set;
     }
-    public string Name
+    public int ShoesID
     {
         get; set;
     }
-    public string Size
-    {
-        get; set;
-    }
-    public string Color
+    public int Quantity
     {
         get; set;
     }
     public decimal Price
-    {
-        get; set;
-    }
-    public int Stock
-    {
-        get; set;
-    }
-    public byte[] Avatar
     {
         get; set;
     }

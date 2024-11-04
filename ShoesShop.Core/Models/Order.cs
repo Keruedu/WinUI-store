@@ -1,36 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class Address
+public class Order
 {
     public int ID
     {
         get; set;
     }
-    public string Street
+    public int UserID
     {
         get; set;
     }
-    public string City
+    public int AddressID
     {
         get; set;
     }
-    public string State
+    public string OrderDate
     {
         get; set;
     }
-    public string ZipCode
+    public string Status
     {
         get; set;
     }
-    public string Country
+    public decimal TotalAmount
     {
         get; set;
     }
-    public event PropertyChangedEventHandler PropertyChanged;
 }

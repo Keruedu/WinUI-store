@@ -60,6 +60,7 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
             Name = "Slippers",
             Description = "Cozy slippers for indoor comfort."
         });
+
     }
 
 
