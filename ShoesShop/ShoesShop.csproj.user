@@ -12,6 +12,12 @@
   <ItemGroup>
     <Page Update="Styles\ColorTheme.xaml">
       <SubType>Designer</SubType>
+<<<<<<< HEAD
+=======
+    </None>
+    <Page Update="Styles\ColorTheme.xaml">
+      <SubType>Designer</SubType>
+>>>>>>> ce7204eb8e27ba2ff6e532e78a4034b1df177635
     </Page>
   </ItemGroup>
 </Project>

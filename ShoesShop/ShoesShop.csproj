@@ -15,6 +15,9 @@
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Styles\ColorTheme.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Page Remove="Styles\ColorBrushes.xaml" />
     <Page Remove="Views\PaginationControl.xaml" />
   </ItemGroup>
@@ -49,6 +52,9 @@
     <None Update="Styles\ColorBrushes.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Styles\ColorTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
