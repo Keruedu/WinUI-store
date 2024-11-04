@@ -243,8 +243,7 @@
 
                         <controls:AdaptiveGridView.ItemTemplate>
                             <DataTemplate x:DataType="models:Shoes">
-                                <Border x:Name="ShoesBorder" BorderThickness="4" CornerRadius="6">
-                                    <!--Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}"-->
+                                <Border x:Name="ShoesBorder" Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="4" CornerRadius="6">
                                     <StackPanel x:Name="itemThumbnail" Padding="12">
                                         <Border CornerRadius="6" HorizontalAlignment="Center">
                                             <!--<Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Avatar}" />-->

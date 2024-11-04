@@ -8,8 +8,10 @@
     <None Update="Controls\PaginationControl.xaml">
       <SubType>Designer</SubType>
     </None>
-    <None Update="Styles\ColorBrushes.xaml">
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Styles\ColorTheme.xaml">
       <SubType>Designer</SubType>
-    </None>
+    </Page>
   </ItemGroup>
 </Project>
