@@ -12,9 +12,15 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
+<<<<<<< HEAD
     public int AddressID 
     {
         get; set; 
+=======
+    public int AddressID
+    {
+        get; set;
+>>>>>>> new-main
     }
     public string Name
     {

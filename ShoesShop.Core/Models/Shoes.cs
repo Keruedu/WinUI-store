@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -36,7 +36,11 @@ public class Shoes
     {
         get; set;
     }
+<<<<<<< HEAD
     public string Image
+=======
+    public byte[] Avatar
+>>>>>>> new-main
     {
         get; set;
     }

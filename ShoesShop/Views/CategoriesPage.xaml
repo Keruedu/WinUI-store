@@ -11,24 +11,17 @@
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="ItemTemplate" x:DataType="models:SampleOrder">
+        <DataTemplate x:Key="ItemTemplate" x:DataType="models:Category">
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <FontIcon
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    FontSize="32"
-                    Glyph="{x:Bind Symbol}"
-                    AutomationProperties.Name="{x:Bind SymbolName}" />
                 <StackPanel
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind Company}" Style="{StaticResource ListTitleStyle}" />
-                    <TextBlock Text="{x:Bind Status}" Style="{StaticResource ListSubTitleStyle}" />
+                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource ListTitleStyle}" />
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -42,7 +35,7 @@
         <DataTemplate x:Key="NoSelectionContentTemplate">
             <Grid>
                 <TextBlock
-                    x:Uid="Categories_NoSelection"
+                    x:Uid="Category_NoSelection"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     TextAlignment="Center"
@@ -83,14 +76,24 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+
+        <!--Loading-->
+        <ProgressRing 
+            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+            Width="60"
+            Margin="0, 20, 0, 20"
+            Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
         <controls:ListDetailsView
-            x:Uid="Categories"
+            Visibility="{x:Bind ViewModel.IsContentReady, Mode=OneWay}" 
+            x:Uid="Category"
             x:Name="ListDetailsViewControl"
             BackButtonBehavior="Manual"
             Background="Transparent"
             BorderBrush="Transparent"
             DetailsTemplate="{StaticResource DetailsTemplate}"
-            ItemsSource="{x:Bind ViewModel.SampleItems}"
+            ItemsSource="{x:Bind ViewModel.CategoryList, Mode=OneWay}"
             ItemTemplate="{StaticResource ItemTemplate}"
             ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"

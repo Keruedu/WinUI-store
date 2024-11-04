@@ -6,9 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+<<<<<<< HEAD
 using NpgsqlTypes;
 using ShoesShop.Core.Models;
 using static ShoesShop.Core.Services.DataAcess.IDao;
+=======
+using ShoesShop.Core.Models;
+>>>>>>> new-main
 
 namespace ShoesShop.Core.Services.DataAcess;
 public class PostgreDao : IDao

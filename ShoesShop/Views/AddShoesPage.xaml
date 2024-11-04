@@ -4,40 +4,65 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:models="using:ShoesShop.Core.Models"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea">
-        <controls:AdaptiveGridView
-            animations:Connected.ListItemElementName="itemThumbnail"
-            animations:Connected.ListItemKey="animationKeyContentGrid"
-            DesiredWidth="180"
-            ItemHeight="160"
-            IsItemClickEnabled="True"
-            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
-            StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:SampleOrder">
-                    <Grid
-                        x:Name="itemThumbnail"
-                        Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <FontIcon
-                                Glyph="{x:Bind Symbol}"
-                                AutomationProperties.Name="{x:Bind SymbolName}" />
-                            <TextBlock
-                                Margin="{StaticResource XXSmallTopMargin}"
-                                HorizontalAlignment="Center"
-                                Style="{ThemeResource BodyTextStyle}"
-                                Text="{x:Bind Company}" />
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>
-    </Grid>
+    <ScrollViewer Margin="0,0,0,40">
+        <Grid>
+            <StackPanel x:Name="ContentArea" Spacing="16" MaxWidth="600" Padding="0, 20, 0, 20">
+                <TextBox Header="Shoes title" PlaceholderText="Title" Text="{x:Bind ViewModel.NewShoes.Name, Mode=TwoWay}" />
+                <TextBox Header="Author" PlaceholderText="Author name" Text="{x:Bind ViewModel.NewShoes.ID, Mode=TwoWay}" />
+                <!--<NumberBox Header="Published year" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.NewShoes.PublishedYear, Mode=TwoWay}" />-->
+                <NumberBox Header="Available quantity" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.NewShoes.Stock, Mode=TwoWay}"/>
+                <TextBox Header="Description" Height="120" PlaceholderText="Write Shoes description" Text="{x:Bind ViewModel.NewShoes.Name, Mode=TwoWay}" />
+                <!--<NumberBox Header="Purchase price" Value="{x:Bind ViewModel.NewShoes.Price, Mode=TwoWay}" SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
+                <!--<NumberBox Header="Selling price" Value="{x:Bind ViewModel.NewShoes.SellingPrice, Mode=TwoWay}"  SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
+                <ComboBox 
+                    x:Name="CategoryCombobox" 
+                    SelectionChanged="CategoryCombobox_SelectionChanged" 
+                    Header="Category" Width="200" 
+                    ItemsSource="{x:Bind ViewModel.CategoryOptions, Mode=OneWay}"
+                    DisplayMemberPath="Name"  />
+                <StackPanel VerticalAlignment="Top">
+                    <TextBlock Text="Shoes photo" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button  Content="Select a picture" Command="{x:Bind ViewModel.SelectImageButtonCommand}" />
+                        <TextBlock FontWeight="Medium" Text="{x:Bind ViewModel.SelectedImageName, Mode=OneWay}" TextWrapping="Wrap" Padding="20,5,0,0"/>
+                        <Button VerticalAlignment="Center" Visibility="{x:Bind ViewModel.IsImageSelected, Mode=OneWay}" Margin="4,0,0,0" Command="{x:Bind ViewModel.RemoveImageButtonCommand}">
+                            <FontIcon Glyph="&#xE8BB;" FontSize="12" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+
+                <!--Loading-->
+                <ProgressRing 
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                    Width="60"
+                    Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+                <!--Error & Info-->
+                <InfoBarPanel>
+                    <InfoBar 
+                        Title="Error Creating Shoes"
+                        Severity="Error"
+                        IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                        />
+
+                    <InfoBar
+                        Title="Ting"
+                        Severity="Success"
+                        IsOpen="{x:Bind ViewModel.HasSuccess, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
+                        />
+                </InfoBarPanel>
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="12">
+                    <Button Style="{StaticResource AccentButtonStyle}" Content="Add Shoes" Command="{x:Bind ViewModel.AddShoesButtonCommand}" />
+                    <Button Content="Reset" Command="{x:Bind ViewModel.ResetButtonCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

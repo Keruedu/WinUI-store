@@ -21,4 +21,8 @@ public class Category
         get; set;
     }
     public event PropertyChangedEventHandler PropertyChanged;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> new-main

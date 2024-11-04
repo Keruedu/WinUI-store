@@ -29,4 +29,8 @@ public class OrderDetail
         get; set;
     }
     public event PropertyChangedEventHandler PropertyChanged;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> new-main

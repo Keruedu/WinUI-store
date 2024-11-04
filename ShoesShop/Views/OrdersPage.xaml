@@ -9,27 +9,41 @@
     xmlns:views="using:ShoesShop.Views"
     xmlns:behaviors="using:ShoesShop.Behaviors"
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
+    xmlns:ShoesControls="using:ShoesShop.Controls"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="ItemTemplate" x:DataType="models:SampleOrder">
+        <DataTemplate x:Key="ItemTemplate" x:DataType="models:Order">
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+
                 <FontIcon
                     Grid.Column="0"
+                    FontFamily="{StaticResource SymbolThemeFontFamily}"
+                    Glyph="&#xEE92;"
+                    Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center"
-                    FontSize="32"
-                    Glyph="{x:Bind Symbol}"
-                    AutomationProperties.Name="{x:Bind SymbolName}" />
+                    Foreground="{StaticResource SystemControlForegroundBaseHighBrush}" />
+
                 <StackPanel
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind Company}" Style="{StaticResource ListTitleStyle}" />
+                    <TextBlock Text="{x:Bind OrderDate}" Style="{StaticResource ListTitleStyle}" />
                     <TextBlock Text="{x:Bind Status}" Style="{StaticResource ListSubTitleStyle}" />
                 </StackPanel>
+
+                <StackPanel
+                    Grid.Column="2"
+                    Margin="{StaticResource SmallLeftMargin}"
+                    VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind UserID}" Style="{StaticResource ListTitleStyle}" />
+                    <!--<TextBlock Text="{x:Bind FinalPrice, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource ListSubTitleStyle}" />-->
+                </StackPanel>
+
             </Grid>
         </DataTemplate>
 
@@ -69,32 +83,74 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid x:Name="ContentArea">
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <!--641 is the default CompactModeThresholdWidth in NavigationView -->
-                        <AdaptiveTrigger MinWindowWidth="641" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        <controls:ListDetailsView
-            x:Uid="Orders"
-            x:Name="ListDetailsViewControl"
-            BackButtonBehavior="Manual"
-            Background="Transparent"
-            BorderBrush="Transparent"
-            DetailsTemplate="{StaticResource DetailsTemplate}"
-            ItemsSource="{x:Bind ViewModel.SampleItems}"
-            ItemTemplate="{StaticResource ItemTemplate}"
-            ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
-            NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
-            SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
-            ViewStateChanged="OnViewStateChanged"/>
-    </Grid>
+    <ScrollViewer>
+
+        <Grid x:Name="ContentArea">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState>
+                        <VisualState.StateTriggers>
+                            <!--641 is the default CompactModeThresholdWidth in NavigationView -->
+                            <AdaptiveTrigger MinWindowWidth="641" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <!--Loading-->
+            <ProgressRing 
+            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+            Width="60"
+            Margin="0, 20, 0, 20"
+            Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+            <StackPanel
+            Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}" 
+            Spacing="20"
+            Padding="0, 20, 0, 20">
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,20" HorizontalAlignment="Right">
+                    <CalendarDatePicker PlaceholderText="Pick a date" Header="From" x:Name="FromDate" DateChanged="FromDate_DateChanged" />
+                    <CalendarDatePicker PlaceholderText="Pick a date" Header="To" x:Name="ToDate" DateChanged="ToDate_DateChanged" />
+                    <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFilterCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                            <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                            <TextBlock Text="Apply" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <controls:ListDetailsView
+                x:Uid="Orders"
+                x:Name="ListDetailsViewControl"
+                BackButtonBehavior="Manual"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                DetailsTemplate="{StaticResource DetailsTemplate}"
+                ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                ItemTemplate="{StaticResource ItemTemplate}"
+                ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
+                NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
+                SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
+                ViewStateChanged="OnViewStateChanged"/>
+
+                <!--Pagination-->
+                <ShoesControls:PaginationControl 
+                    TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}" 
+                    CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
+                    TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                    ItemsPerPage="{x:Bind ViewModel.ItemsPerPage, Mode=OneWay}"
+                    From="{x:Bind ViewModel.From, Mode=OneWay}"
+                    To="{x:Bind ViewModel.To, Mode=OneWay}"
+                    HasPreviousPage="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                    HasNextPage="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                    GoToPreviousPageCommand="{x:Bind ViewModel.GoToPreviousPageCommand}"
+                    GoToNextPageCommand="{x:Bind ViewModel.GoToNextPageCommand}"
+                    />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

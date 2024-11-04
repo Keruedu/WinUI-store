@@ -7,6 +7,7 @@
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:ShoesShop.Core.Models"
     xmlns:views="using:ShoesShop.Views"
+<<<<<<< HEAD
     xmlns:behaviors="using:ShoesShop.Behaviors"
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
     mc:Ignorable="d">
@@ -96,5 +97,283 @@
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
             ViewStateChanged="OnViewStateChanged"/>
+=======
+    xmlns:myControls="using:ShoesShop.Controls"
+    xmlns:behaviors="using:ShoesShop.Behaviors"
+    xmlns:helpers="using:ShoesShop.Helpers"
+    behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+    </Page.Resources>
+
+    <Grid x:Name="ContentArea">
+        <Grid.Resources>
+            <Style x:Key="FiltersAndSearchPanelStyle" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="Spacing" Value="12" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Margin" Value="0, 0, 0, 20" />
+            </Style>
+
+            <Style x:Key="SmallFiltersAndSearchPanelStyle" TargetType="Expander">
+                <Setter Property="Width" Value="240" />
+                <Setter Property="ExpandDirection" Value="Down" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="Margin" Value="0, 0, 0, 20" />
+            </Style>
+
+            <Style TargetType="Image" x:Key="ShoesPosterStyle">
+                <Setter Property="Width" Value="127" />
+                <Setter Property="Height" Value="127" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ShoesTitleStyle">
+                <Setter Property="Margin" Value="0, 16, 0, 0" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+                <Setter Property="LineHeight" Value="20" />
+                <Setter Property="Height" Value="40" />
+                <Setter Property="MaxHeight" Value="40" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ShoesPriceStyle">
+                <Setter Property="Margin" Value="0, 8, 0, 0" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+                <Setter Property="LineHeight" Value="20" />
+                <Setter Property="MaxHeight" Value="40" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ShoesPYStyle">
+                <Setter Property="Margin" Value="0, 8, 0, 0" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="ShoesAuthorStyle">
+                <Setter Property="Margin" Value="0, 8, 0, 0" />
+                <Setter Property="FontStyle" Value="Italic" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+                <Setter Property="LineHeight" Value="20" />
+                <Setter Property="MaxHeight" Value="20" />
+            </Style>
+        </Grid.Resources>
+
+        <ScrollViewer IsTabStop="True">
+            <StackPanel>
+                <!--Filters and Search-->
+                <Grid>
+                    <StackPanel 
+                        x:Name="FiltersAndSearchPanel" 
+                        Style="{StaticResource FiltersAndSearchPanelStyle}">
+                        <ComboBox 
+                            x:Name="CategoryCombobox" 
+                            SelectionChanged="CategoryCombobox_SelectionChanged" 
+                            Header="Category" Width="200" 
+                            ItemsSource="{x:Bind ViewModel.CategoryFilters, Mode=OneWay}"
+                            DisplayMemberPath="Name" 
+                            SelectedIndex="0" />
+
+                        <NumberBox 
+                            x:Name="MinPriceTextBox"
+                            Header="Min Price"
+                            ValueChanged="MinPriceTextBox_ValueChanged"
+                            SpinButtonPlacementMode="Compact"
+                            SmallChange="1000"
+                            LargeChange="100000"
+                            Value="0"
+                            MinWidth="140"
+                            MaxWidth="280" />
+
+                        <NumberBox 
+                            x:Name="MaxPriceTextBox"
+                            Header="Max Price"
+                            ValueChanged="MaxPriceTextBox_ValueChanged"
+                            SpinButtonPlacementMode="Compact"
+                            SmallChange="1000"
+                            LargeChange="100000"
+                            MinWidth="140"
+                            MaxWidth="280" />
+
+                        <TextBox 
+                            x:Name="SearchTextBox"
+                            TextChanged="SearchTextBox_TextChanged"
+                            KeyDown="SearchTextBox_KeyDown"
+                            Header="Search"
+                            PlaceholderText="Shoes title"
+                            IsSpellCheckEnabled="True"
+                            MinWidth="140"
+                            MaxWidth="280" />
+
+                        <ComboBox 
+                            SelectionChanged="SortByComboBox_SelectionChanged"
+                            ItemsSource="{x:Bind ViewModel.SortOptions}"
+                            DisplayMemberPath="Name"
+                            SelectedIndex="0"
+                            Header="SortBy" 
+                            x:Name="SortByComboBox"
+                            Width="200"/>
+
+                        <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                                <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                                <TextBlock Text="Apply" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!--I have code duplication, but huhhuhuhuhu-->
+                    <Expander
+                        Header="Search box with filters"
+                        x:Name="SmallFiltersAndSearchPanel"
+                        Style="{StaticResource SmallFiltersAndSearchPanelStyle}">
+                        <StackPanel Spacing="12" HorizontalAlignment="Left">
+                            <ComboBox 
+                                SelectionChanged="SortByComboBox_SelectionChanged"
+                                ItemsSource="{Binding ElementName=SortByComboBox,Path=ItemsSource}"
+                                SelectedIndex="{Binding ElementName=SortByComboBox,Path=SelectedIndex, Mode=TwoWay}"
+                                DisplayMemberPath="Name"
+                                Header="Sort by" 
+                                Width="200"/>
+
+                            <NumberBox 
+                                Header="Min Price"
+                                ValueChanged="MinPriceTextBox_ValueChanged"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1000"
+                                LargeChange="100000"
+                                Value="{Binding ElementName=MinPriceTextBox, Path=Value, Mode=TwoWay}"
+                                MinWidth="140"
+                                MaxWidth="280" />
+
+                            <NumberBox 
+                                Header="Max Price"
+                                ValueChanged="MaxPriceTextBox_ValueChanged"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding ElementName=MaxPriceTextBox, Path=Value, Mode=TwoWay}"
+                                SmallChange="1000"
+                                LargeChange="100000"
+                                MinWidth="140"
+                                MaxWidth="280" />
+
+                            <TextBox 
+                                TextChanged="SearchTextBox_TextChanged"
+                                KeyDown="SearchTextBox_KeyDown"
+                                Header="Search"
+                                Text="{Binding ElementName=SearchTextBox, Path=Text, Mode=TwoWay}"
+                                PlaceholderText="Shoes title"
+                                IsSpellCheckEnabled="True"
+                                MinWidth="140"
+                                MaxWidth="280" />
+
+
+                            <Button HorizontalAlignment="Right" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                                    <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                                    <TextBlock Text="Apply" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Expander>
+                </Grid>
+
+                <!--Loading-->
+                <ProgressRing 
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                    Width="60"
+                    Margin="0, 20, 0, 20"
+                    Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+                <!--Error & Info-->
+                <InfoBarPanel>
+                    <InfoBar 
+                        x:Name="ErrorInfoBar"
+                        Title="Error Loading Shoess"
+                        Severity="Error"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                        Margin="0, 20, 0, 20"
+                        />
+
+                    <InfoBar
+                        x:Name="InfoInfoBar"
+                        Title="Info"
+                        Severity="Warning"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasInfo, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.InfoMessage, Mode=OneWay}"
+                        Margin="0, 20, 0, 20"
+                        />
+                </InfoBarPanel>
+
+                <!--Shoess-->
+                <StackPanel Spacing="20" Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}">
+                    <controls:AdaptiveGridView
+                        Margin="0, 16, 0, 16"
+                        DesiredWidth="240"
+                        IsItemClickEnabled="True"
+                        ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
+                        ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
+                        SelectionMode="None"
+                        StretchContentForSingleRow="False">
+
+                        <controls:AdaptiveGridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="Margin" Value="6, 8, 6, 8"/>
+                            </Style>
+                        </controls:AdaptiveGridView.ItemContainerStyle>
+
+                        <controls:AdaptiveGridView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Shoes">
+                                <Border x:Name="ShoesBorder" BorderThickness="4" CornerRadius="6">
+                                    <!--Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}"-->
+                                    <StackPanel x:Name="itemThumbnail" Padding="12">
+                                        <Border CornerRadius="6" HorizontalAlignment="Center">
+                                            <!--<Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Avatar}" />-->
+                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="Assets/Square150x150Logo.scale-200" />
+                                        </Border>
+                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource ShoesTitleStyle}" />
+                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
+                                            <Run Text="(" />
+                                            <Run Text="{x:Bind Size}" />
+                                            <Run Text=")" />
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Bind Color}" Style="{StaticResource ShoesAuthorStyle}" />
+                                        <!--<TextBlock Text="{x:Bind Price, Converter={StaticResource VietnamesePriceConverter}}"  Style="{StaticResource ShoesPriceStyle}">
+                                        </TextBlock>-->
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </controls:AdaptiveGridView.ItemTemplate>
+                    </controls:AdaptiveGridView>
+
+                    <!--Pagination-->
+                    <myControls:PaginationControl 
+                        Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
+                        TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}" 
+                        CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
+                        TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+                        ItemsPerPage="{x:Bind ViewModel.ItemsPerPage, Mode=OneWay}"
+                        From="{x:Bind ViewModel.From, Mode=OneWay}"
+                        To="{x:Bind ViewModel.To, Mode=OneWay}"
+                        HasPreviousPage="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+                        HasNextPage="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+                        GoToPreviousPageCommand="{x:Bind ViewModel.GoToPreviousPageCommand}"
+                        GoToNextPageCommand="{x:Bind ViewModel.GoToNextPageCommand}"
+                        />
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+>>>>>>> new-main
     </Grid>
 </Page>
