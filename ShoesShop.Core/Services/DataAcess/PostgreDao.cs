@@ -22,10 +22,10 @@ public class PostgreDao : IDao
     {
         var connectionConfig = """
             Host = localhost;
-            Port=5433;
-            Database = supershop;
-            User ID = root;
-            Password = root;
+            Port=5432;
+            Database = demoshoesshop;
+            User ID = postgres;
+            Password = 123;
         """;
         dbConnection = new NpgsqlConnection(connectionConfig);
         dbConnection.Open();
