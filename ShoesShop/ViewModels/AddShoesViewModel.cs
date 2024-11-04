@@ -1,52 +1,174 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
-using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
+using ShoesShop;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace ShoesShop.ViewModels;
 
 public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 {
-    private readonly INavigationService _navigationService;
-    private readonly ISampleDataService _sampleDataService;
+    private readonly IShoesDataService _ShoesDataService;
+    private readonly ICategoryDataService _categoryDataService;
 
-    public ObservableCollection<SampleOrder> Source { get; } = new ObservableCollection<SampleOrder>();
-
-    public AddShoesViewModel(INavigationService navigationService, ISampleDataService sampleDataService)
+    [ObservableProperty]
+    private Shoes newShoes = new()
     {
-        _navigationService = navigationService;
-        _sampleDataService = sampleDataService;
+        Stock = 1,
+        Price = 1000,
+        Color = "White",
+    };
+
+    [ObservableProperty]
+    public List<Category> categoryOptions = new();
+
+    [ObservableProperty]
+    private bool isLoading = false;
+
+    [ObservableProperty]
+    private string errorMessage = string.Empty;
+
+    [ObservableProperty]
+    private string successMessage = string.Empty;
+
+    [ObservableProperty]
+    private string selectedImageName = string.Empty;
+
+    public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+    public bool HasSuccess => !string.IsNullOrEmpty(SuccessMessage);
+
+
+    public RelayCommand SelectImageButtonCommand
+    {
+        get; set;
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public RelayCommand RemoveImageButtonCommand
     {
-        Source.Clear();
+        get; set;
+    }
 
-        // TODO: Replace with real data.
-        var data = await _sampleDataService.GetContentGridDataAsync();
-        foreach (var item in data)
+    public RelayCommand AddShoesButtonCommand
+    {
+        get; set;
+    }
+
+    public RelayCommand ResetButtonCommand
+    {
+        get; set;
+    }
+
+    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService)
+    {
+        _ShoesDataService = ShoesDataService;
+        _categoryDataService = categoryDataService;
+
+        SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
+        RemoveImageButtonCommand = new RelayCommand(RemoveImage, () => IsImageSelected);
+        AddShoesButtonCommand = new RelayCommand(AddShoes, () => !IsLoading);
+        ResetButtonCommand = new RelayCommand(Reset, () => !IsLoading);
+    }
+
+    public async void SelectImage()
+    {
+        var picker = new FileOpenPicker
         {
-            Source.Add(item);
+            ViewMode = PickerViewMode.Thumbnail,
+            SuggestedStartLocation = PickerLocationId.PicturesLibrary
+        };
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
+
+        var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+        InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            SelectedImageName = file.Name;
+            using var stream = await file.OpenStreamForReadAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            NewShoes.Avatar = memoryStream.ToArray();
         }
+
+        NotfifyChanges();
+    }
+
+    public void RemoveImage()
+    {
+        NewShoes.Avatar = null;
+        SelectedImageName = string.Empty;
+
+        NotfifyChanges();
+    }
+
+    public async void AddShoes()
+    {
+        IsLoading = true;
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        NotfifyChanges();
+
+        var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
+
+        if (ERROR_CODE == 0)
+        {
+            SuccessMessage = message;
+            Reset();
+        }
+        else
+        {
+            ErrorMessage = message;
+        }
+
+        IsLoading = false;
+        NotfifyChanges();
+    }
+
+    public async void LoadCategories()
+    {
+        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        var (categories, _, _) = _categoryDataService.GetData();
+
+        if (categories is not null)
+        {
+            CategoryOptions = (List<Category>)categories;
+        }
+    }
+
+    public void Reset()
+    {
+        NewShoes = new()
+        {
+            Stock = 1,
+            Price = 1000,
+            Color = "White"
+        };
+        SelectedImageName = string.Empty;
+        NotfifyChanges();
+    }
+
+    public void NotfifyChanges()
+    {
+        SelectImageButtonCommand.NotifyCanExecuteChanged();
+        RemoveImageButtonCommand.NotifyCanExecuteChanged();
+
+        OnPropertyChanged(nameof(IsImageSelected));
+        OnPropertyChanged(nameof(HasError));
+        OnPropertyChanged(nameof(HasSuccess));
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        LoadCategories();
     }
 
     public void OnNavigatedFrom()
     {
-    }
-
-    [RelayCommand]
-    private void OnItemClick(SampleOrder? clickedItem)
-    {
-        if (clickedItem != null)
-        {
-            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(AddShoesDetailViewModel).FullName!, clickedItem.OrderID);
-        }
     }
 }

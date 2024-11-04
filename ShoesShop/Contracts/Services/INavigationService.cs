@@ -21,5 +21,7 @@ public interface INavigationService
 
     bool GoBack();
 
+    bool Refresh();
+
     void SetListDataItemForNextConnectedAnimation(object item);
 }

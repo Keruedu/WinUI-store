@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using ShoesShop.Core.Models;
 
 namespace ShoesShop;
 public interface IDao

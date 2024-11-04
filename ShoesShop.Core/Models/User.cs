@@ -6,9 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-internal class User : INotifyPropertyChanged
+public class User : INotifyPropertyChanged
 {
     public int ID
+    {
+        get; set;
+    }
+    public int AddressID
     {
         get; set;
     }
@@ -20,11 +24,11 @@ internal class User : INotifyPropertyChanged
     {
         get; set;
     }
-    public string Phone
+    public string Password
     {
         get; set;
     }
-    public string Address
+    public string PhoneNumber
     {
         get; set;
     }

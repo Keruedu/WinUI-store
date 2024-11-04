@@ -8,6 +8,7 @@ using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Services;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
+using ShoesShop.Controls;
 using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
@@ -60,14 +61,19 @@ public partial class App : Application
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
-
+            services.AddTransient<IShoesDataService, ShoesDataService>();
+            services.AddTransient<IStorePageSettingsService, StorePageSettingsService>();
+            services.AddTransient<IStoreLastOpenPageService, StoreLastOpenPageService>();
             services.AddSingleton<IActivationService, ActivationService>();
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
+            services.AddTransient<IReviewDataService, ReviewDataService>();
+
 
             // Core Services
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<ICategoryDataService, CategoryDataService>();
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();
@@ -80,18 +86,17 @@ public partial class App : Application
             services.AddTransient<AddOrderPage>();
             services.AddTransient<OrdersViewModel>();
             services.AddTransient<OrdersPage>();
-            services.AddTransient<AddShoesDetailViewModel>();
-            services.AddTransient<AddShoesDetailPage>();
             services.AddTransient<AddShoesViewModel>();
             services.AddTransient<AddShoesPage>();
             services.AddTransient<ShoesViewModel>();
             services.AddTransient<ShoesPage>();
-            services.AddTransient<AddCategoryDetailViewModel>();
-            services.AddTransient<AddCategoryDetailPage>();
+            services.AddTransient<ShoesDetailViewModel>();
+            services.AddTransient<ShoesDetailPage>();
             services.AddTransient<AddCategoryViewModel>();
             services.AddTransient<AddCategoryPage>();
             services.AddTransient<CategoriesViewModel>();
             services.AddTransient<CategoriesPage>();
+            services.AddTransient<CategoryDetailControlViewModel>();
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<DashboardPage>();
             services.AddTransient<ShellPage>();

@@ -1,15 +1,22 @@
 ﻿<Application
     x:Class="ShoesShop.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="using:ShoesShop.Helpers">
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!--<ResourceDictionary Source="/Styles/ColorBrushes.xaml" />-->
                 <ResourceDictionary Source="/Styles/FontSizes.xaml" />
                 <ResourceDictionary Source="/Styles/Thickness.xaml" />
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!--<helpers:ComboxBoxContentToString x:Key="ComboBoxContentToStringConverter" />-->
+            <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
+

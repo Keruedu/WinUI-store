@@ -4,40 +4,45 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:models="using:ShoesShop.Core.Models"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea">
-        <controls:AdaptiveGridView
-            animations:Connected.ListItemElementName="itemThumbnail"
-            animations:Connected.ListItemKey="animationKeyContentGrid"
-            DesiredWidth="180"
-            ItemHeight="160"
-            IsItemClickEnabled="True"
-            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
-            StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:SampleOrder">
-                    <Grid
-                        x:Name="itemThumbnail"
-                        Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <FontIcon
-                                Glyph="{x:Bind Symbol}"
-                                AutomationProperties.Name="{x:Bind SymbolName}" />
-                            <TextBlock
-                                Margin="{StaticResource XXSmallTopMargin}"
-                                HorizontalAlignment="Center"
-                                Style="{ThemeResource BodyTextStyle}"
-                                Text="{x:Bind Company}" />
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>
-    </Grid>
+	<ScrollViewer Margin="0,0,0,40">
+		<Grid x:Name="ContentArea">
+			<StackPanel Spacing="16" MaxWidth="600" Padding="0, 20, 0, 20">
+				<!--<TextBox Header="Category name" PlaceholderText="Name" Text="{x:Bind ViewModel.NewCategory.Name, Mode=TwoWay}" />
+				<TextBox Header="Description" Height="120" PlaceholderText="Write category description" Text="{x:Bind ViewModel.NewCategory.Description, Mode=TwoWay}" />-->
+                <TextBox Header="Category name" PlaceholderText="Name" />
+                <TextBox Header="Description" Height="120" PlaceholderText="Write category description" />
+
+                <!--Loading-->
+				<ProgressRing
+					IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+					Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+					Width="60"
+					Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+				<!--Error & Info-->
+				<InfoBarPanel>
+					<InfoBar
+						Title="Error Adding Category"
+						Severity="Error"
+						IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+						Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                        />
+
+					<InfoBar
+						Title="Ting"
+						Severity="Success"
+						IsOpen="{x:Bind ViewModel.HasSuccess, Mode=OneWay}"
+						Message="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}"
+                        />
+				</InfoBarPanel>
+
+				<StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="12" Margin="0,10,0,0">
+					<Button Style="{StaticResource AccentButtonStyle}" Content="Add category" Command="{x:Bind ViewModel.AddCategoryButtonCommand}"/>
+					<Button Content="Reset" Command="{x:Bind ViewModel.CancelButtonCommand}"  />
+				</StackPanel>
+			</StackPanel>
+		</Grid>
+	</ScrollViewer>
 </Page>

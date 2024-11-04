@@ -17,13 +17,11 @@ public class PageService : IPageService
         Configure<DashboardViewModel, DashboardPage>();
         Configure<CategoriesViewModel, CategoriesPage>();
         Configure<AddCategoryViewModel, AddCategoryPage>();
-        Configure<AddCategoryDetailViewModel, AddCategoryDetailPage>();
         Configure<ShoesViewModel, ShoesPage>();
+        Configure<ShoesDetailViewModel, ShoesDetailPage>();
         Configure<AddShoesViewModel, AddShoesPage>();
-        Configure<AddShoesDetailViewModel, AddShoesDetailPage>();
         Configure<OrdersViewModel, OrdersPage>();
         Configure<AddOrderViewModel, AddOrderPage>();
-        Configure<AddOrderDetailViewModel, AddOrderDetailPage>();
         Configure<ImportDataViewModel, ImportDataPage>();
         Configure<SettingsViewModel, SettingsPage>();
     }

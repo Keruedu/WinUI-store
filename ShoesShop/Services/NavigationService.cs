@@ -16,6 +16,7 @@ namespace ShoesShop.Services;
 public class NavigationService : INavigationService
 {
     private readonly IPageService _pageService;
+    private readonly IStoreLastOpenPageService _storeLastOpenPageService;
     private object? _lastParameterUsed;
     private Frame? _frame;
 
@@ -45,9 +46,10 @@ public class NavigationService : INavigationService
     [MemberNotNullWhen(true, nameof(Frame), nameof(_frame))]
     public bool CanGoBack => Frame != null && Frame.CanGoBack;
 
-    public NavigationService(IPageService pageService)
+    public NavigationService(IPageService pageService, IStoreLastOpenPageService storeLastOpenPageService)
     {
         _pageService = pageService;
+        _storeLastOpenPageService = storeLastOpenPageService;
     }
 
     private void RegisterFrameEvents()
@@ -86,6 +88,7 @@ public class NavigationService : INavigationService
     public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
     {
         var pageType = _pageService.GetPageType(pageKey);
+        _storeLastOpenPageService.SaveLastOpenPageAsync(pageKey);
 
         if (_frame != null && (_frame.Content?.GetType() != pageType || (parameter != null && !parameter.Equals(_lastParameterUsed))))
         {
@@ -127,4 +130,25 @@ public class NavigationService : INavigationService
     }
 
     public void SetListDataItemForNextConnectedAnimation(object item) => Frame.SetListDataItemForNextConnectedAnimation(item);
+
+    public bool Refresh()
+    {
+        if (Frame != null)
+        {
+            var vmBeforeNavigation = _frame?.GetPageViewModel();
+            var navigated = _frame.Navigate(_frame.Content.GetType(), _lastParameterUsed);
+
+            if (navigated)
+            {
+                if (vmBeforeNavigation is INavigationAware navigationAware)
+                {
+                    navigationAware.OnNavigatedFrom();
+                }
+            }
+
+            return navigated;
+        }
+
+        return false;
+    }
 }

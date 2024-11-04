@@ -1,37 +1,110 @@
 ﻿using System.Collections.ObjectModel;
-
-using CommunityToolkit.Mvvm.ComponentModel;
-
+using CommunityToolkit.Mvvm.Input;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Models;
-
+using ShoesShop.Core.Services;
+using ShoesShop.Services;
 namespace ShoesShop.ViewModels;
 
-public partial class ShoesViewModel : ObservableRecipient, INavigationAware
+public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 {
-    private readonly ISampleDataService _sampleDataService;
+    private readonly INavigationService _navigationService;
+    private readonly IShoesDataService _ShoesDataService;
+    private readonly ICategoryDataService _categoryDataService;
 
-    [ObservableProperty]
-    private SampleOrder? selected;
+    public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
 
-    public ObservableCollection<SampleOrder> SampleItems { get; private set; } = new ObservableCollection<SampleOrder>();
-
-    public ShoesViewModel(ISampleDataService sampleDataService)
+    public ShoesViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
-        _sampleDataService = sampleDataService;
+        Source.Add(new Shoes { ID = 1, CategoryID = 1, Name = "Shoes 1", Size = "8", Color = "Black", Price = 49.99m, Stock = 10, Avatar = null });
+        Source.Add(new Shoes { ID = 2, CategoryID = 2, Name = "Shoes 2", Size = "9", Color = "White", Price = 59.99m, Stock = 5, Avatar = null });
+        Source.Add(new Shoes { ID = 3, CategoryID = 1, Name = "Shoes 3", Size = "7", Color = "Red", Price = 39.99m, Stock = 8, Avatar = null });
+        Source.Add(new Shoes { ID = 4, CategoryID = 3, Name = "Shoes 4", Size = "10", Color = "Blue", Price = 69.99m, Stock = 3, Avatar = null });
+        Source.Add(new Shoes { ID = 5, CategoryID = 2, Name = "Shoes 5", Size = "8.5", Color = "Green", Price = 54.99m, Stock = 12, Avatar = null });
+
+        _navigationService = navigationService;
+        _ShoesDataService = ShoesDataService;
+        _categoryDataService = categoryDataService;
+        FunctionOnCommand = LoadData;
+
+        SortOptions = new List<SortObject>
+        {
+            new() { Name = "Default", Value = "default", IsAscending = true },
+            new() { Name = "Title (A-Z)", Value = "name", IsAscending = true },
+            new() { Name = "Title (Z-A)", Value="name", IsAscending = false },
+            new() { Name = "Price (Low - High)", Value="sellingPrice", IsAscending = true },
+            new() { Name = "Price (High - Low)", Value="sellingPrice", IsAscending = false },
+            new() { Name = "PublishYear (Past)", Value="publishedYear", IsAscending = true },
+            new() { Name = "PublishYear (Recent)", Value="publishedYear", IsAscending = false },
+        };
+        SelectedSortOption = SortOptions[0];
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public async void LoadCategories()
     {
-        SampleItems.Clear();
+        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        var (categories, _, _) = _categoryDataService.GetData();
 
-        // TODO: Replace with real data.
-        var data = await _sampleDataService.GetListDetailsDataAsync();
-
-        foreach (var item in data)
+        if (categories is not null)
         {
-            SampleItems.Add(item);
+            foreach (var category in categories)
+            {
+                CategoryFilters.Add(category);
+            }
+        }
+
+    }
+
+    public async void LoadData()
+    {
+        IsDirty = false;
+        IsLoading = true;
+        InfoMessage = string.Empty;
+        ErrorMessage = string.Empty;
+        NotfifyChanges();
+
+        _ShoesDataService.SearchParams = await BuildSearchParamsAsync();
+
+        await Task.Run(async () => await _ShoesDataService.LoadDataAsync());
+
+        var (data, totalItems, message, ERROR_CODE) = _ShoesDataService.GetData();
+
+        if (data is not null)
+        {
+            Source.Clear();
+
+            foreach (var item in data)
+            {
+                Source.Add(item);
+            }
+
+            TotalItems = totalItems;
+
+            if (TotalItems == 0)
+            {
+                InfoMessage = "No Shoes found";
+            }
+        }
+        else
+        {
+            if (ERROR_CODE != 0)
+            {
+                ErrorMessage = message;
+            }
+        }
+
+        IsLoading = false;
+        NotfifyChanges();
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        if (Source.Count <= 0)
+        {
+            LoadData();
+            LoadCategories();
         }
     }
 
@@ -39,8 +112,19 @@ public partial class ShoesViewModel : ObservableRecipient, INavigationAware
     {
     }
 
-    public void EnsureItemSelected()
+    [RelayCommand]
+    private void OnItemClick(Shoes? clickedItem)
     {
-        Selected ??= SampleItems.First();
+        if (clickedItem != null)
+        {
+            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
+            _navigationService.NavigateTo(typeof(ShoesDetailViewModel).FullName!, clickedItem);
+        }
+    }
+
+    [RelayCommand]
+    private void OnApplyFiltersAndSearch()
+    {
+        LoadData();
     }
 }
