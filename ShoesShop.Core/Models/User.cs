@@ -26,7 +26,7 @@ public class User : INotifyPropertyChanged
     }
     public string Password
     {
-        get; set;
+        get; set; 
     }
     public string PhoneNumber
     {

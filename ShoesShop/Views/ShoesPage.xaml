@@ -79,7 +79,7 @@
             <StackPanel>
                 <!--Filters and Search-->
                 <Grid>
-                    <StackPanel 
+                <StackPanel
                         x:Name="FiltersAndSearchPanel" 
                         Style="{StaticResource FiltersAndSearchPanelStyle}">
                         <ComboBox 
@@ -189,9 +189,9 @@
                                     <TextBlock Text="Apply" />
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
+                </StackPanel>
                     </Expander>
-                </Grid>
+            </Grid>
 
                 <!--Loading-->
                 <ProgressRing 
@@ -260,7 +260,7 @@
                                         </TextBlock>-->
                                     </StackPanel>
                                 </Border>
-                            </DataTemplate>
+        </DataTemplate>
                         </controls:AdaptiveGridView.ItemTemplate>
                     </controls:AdaptiveGridView>
 

@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using ShoesShop.Core.Models;
 using ShoesShop.ViewModels;
+
 namespace ShoesShop.Views;
 
 public sealed partial class ShoesPage : Page
@@ -96,7 +97,7 @@ public sealed partial class ShoesPage : Page
         else
         {
             ViewModel.SetMaxPrice((int)sender.Value);
-        }
+    }
     }
 
     private void CategoryCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)

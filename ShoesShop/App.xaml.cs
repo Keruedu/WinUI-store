@@ -4,7 +4,10 @@ using Microsoft.UI.Xaml;
 
 using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
+using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Core.Http;
+using ShoesShop.Core.Repository;
 using ShoesShop.Core.Services;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
@@ -57,6 +60,17 @@ public partial class App : Application
 
             // Other Activation Handlers
 
+            // Http clients
+            services.AddHttpClient("Backend", client =>
+            {
+                var host = App.GetService<IStoreServerOriginService>().Host;
+                var port = App.GetService<IStoreServerOriginService>().Port;
+
+                client.BaseAddress = new Uri(@$"{host}:{port}/api/v1/");
+            }).AddHttpMessageHandler<AccessTokenHandler>().AddHttpMessageHandler<AuthenticationResponseHandler>();
+
+
+
             // Services
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
@@ -74,6 +88,10 @@ public partial class App : Application
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<ICategoryDataService, CategoryDataService>();
+            services.AddSingleton<IStatisticDataService, StatisticDataService>();
+            services.AddSingleton<IStatisticRepository, StatisticRepository>();
+            services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
+
 
             // Views and ViewModels
             services.AddTransient<SettingsViewModel>();
@@ -109,6 +127,12 @@ public partial class App : Application
 
         UnhandledException += App_UnhandledException;
     }
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddTransient<IStatisticDataService, StatisticDataService>();
+        // Các đăng ký dịch vụ khác
+    }
+
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {

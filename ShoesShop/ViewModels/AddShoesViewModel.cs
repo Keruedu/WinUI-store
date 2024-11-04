@@ -93,7 +93,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
             using var stream = await file.OpenStreamForReadAsync();
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
-            NewShoes.Avatar = memoryStream.ToArray();
+            NewShoes.Image = "kk";
         }
 
         NotfifyChanges();
@@ -101,7 +101,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 
     public void RemoveImage()
     {
-        NewShoes.Avatar = null;
+        NewShoes.Image = "";
         SelectedImageName = string.Empty;
 
         NotfifyChanges();

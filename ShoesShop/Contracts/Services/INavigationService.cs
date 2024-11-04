@@ -24,4 +24,5 @@ public interface INavigationService
     bool Refresh();
 
     void SetListDataItemForNextConnectedAnimation(object item);
+
 }

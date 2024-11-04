@@ -36,7 +36,7 @@ public class Shoes
     {
         get; set;
     }
-    public byte[] Avatar
+    public string Image
     {
         get; set;
     }

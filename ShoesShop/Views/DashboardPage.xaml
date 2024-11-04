@@ -4,9 +4,223 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:ShoesShop.Helpers"
+    xmlns:models="using:ShoesShop.Core.Models"
+    xmlns:oxy="using:OxyPlot"
+    
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <ResourceDictionary>
+            <helpers:DateTimeToDateTimeOffsetConverter x:Key="DateTimeToDateTimeOffsetConverter"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="LightGray"/>
+        </ResourceDictionary>
+    </Page.Resources>
+
     <Grid x:Name="ContentArea">
-        
+
+        <ProgressRing
+                IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                Width="60"
+                Margin="0, 20, 0, 20"
+                Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+        <ScrollViewer
+            Name="ForegroundElement"
+            HorizontalAlignment="Stretch"
+            VerticalScrollMode="Enabled"
+            IsTabStop="True">
+            <Grid  Visibility="{x:Bind ViewModel.IsContentReady, Mode=OneWay}" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" HorizontalAlignment="Right" Margin="20"  Orientation="Horizontal">
+                    <RadioButton Margin="-20" Content="Day" Checked="TimeFrame_Checked" GroupName="TimeFrame" IsChecked="True"/>
+                    <RadioButton Margin="-20" Content="Week" Checked="TimeFrame_Checked" GroupName="TimeFrame"/>
+                    <RadioButton Margin="-20" Content="Month" Checked="TimeFrame_Checked" GroupName="TimeFrame"/>
+                    <RadioButton Margin="-20" Content="Year" Checked="TimeFrame_Checked" GroupName="TimeFrame"/>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0" CornerRadius="10" Background="{ThemeResource CardBackgroundBrush}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                     Margin="30 0" BorderBrush="LightGray" BorderThickness="1" Padding="20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="80">
+                                <Border Background="#FFDF31" CornerRadius="10" Padding="6 0 6 2">
+                                    <TextBlock Text="Total Shoes:" Foreground="Black" FontWeight="Bold"/>
+                                </Border>
+
+                                <!-- Replace with your icon source -->
+                                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" HorizontalAlignment="Right"
+                          Foreground="#FFDF31" Margin="10 0" Glyph="&#xE780;" FontSize="20"/>
+
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Text="{x:Bind ViewModel.CountSellingShoes, Mode=OneWay}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+
+                            <Border Background="#FFDF31" CornerRadius="5" Height="2" Margin="5 30 5 0"/>
+
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="80 0 0 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Spacing="130">
+                        <!-- Card for Sessions -->
+                        <Border CornerRadius="10" Background="{ThemeResource CardBackgroundBrush}" BorderBrush="LightGray" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Spacing="80">
+                                    <Border Background="#DC3545" CornerRadius="10" Padding="6 0 6 2">
+                                        <TextBlock Text="Shoes Sold" Foreground="White" FontWeight="Bold"/>
+                                    </Border>
+
+                                    <!-- Replace with your icon source -->
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" HorizontalAlignment="Right"
+                                  Foreground="#DC3545" Margin="10 0" Glyph="&#xE780;" FontSize="20"/>
+
+                                </StackPanel>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                         Text="{x:Bind ViewModel.CountSellingShoes, Mode=OneWay}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+
+                                <Border Background="#DC3545" CornerRadius="5" Height="2" Margin="5 30 5 0"/>
+
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card for Average Sessions -->
+                        <Border CornerRadius="10" Background="{ThemeResource CardBackgroundBrush}" BorderBrush="LightGray" BorderThickness="1" Padding="20">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="80">
+                                    <Border Background="#085CFF" CornerRadius="10" Padding="6 0 6 2">
+                                        <TextBlock Text="New Order" Foreground="White" FontWeight="Bold"/>
+                                    </Border>
+
+                                    <!-- Replace with your icon source -->
+                                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" HorizontalAlignment="Right"
+                                    Foreground="#085CFF" Margin="10 0" Glyph="&#xE8A4;" FontSize="20"/>
+                                </StackPanel>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.CountNewOrders, Mode= OneWay}" FontSize="28" FontWeight="Bold" Margin="0,10,0,0"/>
+
+                                <Border Background="#085CFF" CornerRadius="5" Height="2" Margin="5 30 5 0"/>
+
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+                <!--Graph-->
+                <Grid Grid.Row="2" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"
+                                        />
+
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Visibility="{x:Bind ViewModel.PickRangeDate, Mode=OneWay}">
+                        <StackPanel  Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 20 0 0" Spacing="20" VerticalAlignment="Bottom">
+
+                            <TextBlock Text="Date Range(Max 30 Days):" VerticalAlignment="Center" Margin="0 24 0 0"/>
+                            <CalendarDatePicker
+                                    Header="Start Date:"
+                                    x:Name="StartDate"
+                                    DateChanged="StartDate_DateChanged"
+                                  />
+
+                            <CalendarDatePicker
+                                     Header="Last Date:"
+                                    x:Name="EndDate"
+                                     DateChanged="EndDate_DateChanged"
+                                   />
+
+                            <Button Content="Apply" Margin="0 24 24 0"
+                                        Command="{x:Bind ViewModel.LoadDataRangeDateCommand}"
+                                        IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}"
+                                        />
+                        </StackPanel>
+
+                        <TextBlock x:Name="PickDateError" Text="{x:Bind ViewModel.ErrorMessage}" Foreground="Red"/>
+                    </StackPanel>
+
+
+                    <StackPanel Grid.Row="1" Visibility="{x:Bind ViewModel.GrapVisibility, Mode=OneWay}">
+                        <oxy:PlotView MinHeight="500" Margin="48 48 48 10" Model="{x:Bind ViewModel.Revenue_ProfitGraph, Mode=OneWay}"/>
+
+                        <StackPanel Margin="0 0 0 20" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" >
+                            <TextBlock Text="Curreny Unit: 100,000 VND" VerticalAlignment="Center"/>
+                            <Ellipse Width="10" Height="10" Fill="Blue" Margin="10,0,5,0"/>
+                            <TextBlock Text="Revenue" VerticalAlignment="Center"/>
+                            <Ellipse Width="10" Height="10" Fill="Green" Margin="20,0,5,0"/>
+                            <TextBlock Text="Profit" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2"  Visibility="{x:Bind ViewModel.GrapVisibility, Mode=OneWay}"
+                                Margin="10">
+                        <TextBlock Text="Shoes Sale Stat" FontWeight="Bold" FontSize="20"
+                                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20"/>
+                        <Grid Background="Orange" HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="5*" />
+                                <ColumnDefinition Width="1.5*" />
+
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Image" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Style="{StaticResource ListTitleStyle}" Margin="10"/>
+                            <TextBlock Grid.Column="1" Text="Shoes Title" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Style="{StaticResource ListTitleStyle}" Margin="10"/>
+                            <TextBlock Grid.Column="2" Text="Sold Quantity" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Style="{StaticResource ListTitleStyle}" Margin="10"/>
+
+                        </Grid>
+
+                        <!-- ListView -->
+                        <ListView x:Name="OrderDetailsListView" HorizontalAlignment="Stretch" Margin="30" MaxHeight="400"
+                                  ScrollViewer.VerticalScrollMode="Enabled"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ItemsSource="{x:Bind ViewModel.ShoesSaleStats, Mode=OneWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:ShoesSaleStat">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <!-- Hình ảnh -->
+                                            <ColumnDefinition Width="5*" />
+                                            <!-- Tên sách -->
+                                            <ColumnDefinition Width="1.5*" />
+                                            <!-- Số lượng -->
+
+                                            <!-- Giá -->
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"
+                             Source="{x:Bind Image}" Width="100" Height="100"/>
+                                        <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                TextWrapping="Wrap" Text="{x:Bind Name}" Margin="10" />
+                                        <TextBlock Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                 Text="{x:Bind SoldQuantity}" Margin="10" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+
+                </Grid>
+
+
+            </Grid>
+
+        </ScrollViewer>
     </Grid>
 </Page>

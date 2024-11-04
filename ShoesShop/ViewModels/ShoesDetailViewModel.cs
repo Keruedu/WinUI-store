@@ -130,7 +130,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             using var stream = await file.OpenStreamForReadAsync();
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
-            EditShoes.Avatar = memoryStream.ToArray();
+            EditShoes.Image = "kk";
         }
 
         NotifyThisChanges();
@@ -138,7 +138,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
 
     public void RemoveImage()
     {
-        EditShoes.Avatar = null;
+        EditShoes.Image = null;
         SelectedImageName = string.Empty;
 
         NotifyThisChanges();
