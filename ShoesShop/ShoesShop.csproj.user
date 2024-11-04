@@ -11,5 +11,8 @@
     <None Update="Styles\ColorBrushes.xaml">
       <SubType>Designer</SubType>
     </None>
+    <Page Update="Styles\ColorTheme.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 </Project>
