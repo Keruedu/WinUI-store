@@ -17,6 +17,10 @@ using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
 using ShoesShop.Core.Services.DataAcess;
+<<<<<<< HEAD
+=======
+using ShoesShop.Core.Models;
+>>>>>>> 1c765fcf050535b5786f504e45a49f7b206f21d0
 
 namespace ShoesShop;
 
@@ -50,6 +54,20 @@ public partial class App : Application
 
     public App()
     {
+
+        //test dtb
+        IDao dao = new PostgreDao();
+
+        var category = new Category()
+        {
+            ID = 5,
+            Name = "TheShy-No1",
+            Description = "?Best top lane in the world=> it true"
+        };
+        var res=dao.DeleteCategory(category);
+        var flag = true;
+
+        //test dtb
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
