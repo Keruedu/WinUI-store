@@ -18,10 +18,10 @@ public class PostgreDao : IDao
     {
         var connectionConfig = """
             Host = localhost;
-            Port=5432;
-            Database = demoshoesshop;
-            User ID = postgres;
-            Password = 123;
+            Port=5433;
+            Database = postgres;
+            User ID = root;
+            Password = root;
         """;
         dbConnection = new NpgsqlConnection(connectionConfig);
         dbConnection.Open();
@@ -315,6 +315,38 @@ public class PostgreDao : IDao
         );
     }
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(int orderID, int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
+
+    public Tuple<Category, string, int> AddCategory(Category newCategory)
+    {
+        try
+        {
+            if (newCategory == null)
+            {
+                return new Tuple<Category, string, int>(null, "Can't add null Category", 1);
+            }
+
+            // Các trường trong bảng Category
+            var fields = new string[] { "Name", "Description" };
+            var values = new string[] { $"{newCategory.Name}", $"{newCategory.Description}" };
+            var types = new string[] { "string", "string" };
+
+            // Tạo câu lệnh INSERT
+            var query = CreateInsertQuery("Category", "CategoryID", fields, values, types);
+            var command = new NpgsqlCommand(query, dbConnection);
+            // Thực hiện câu lệnh và lấy ID của danh mục vừa thêm
+            var id = command.ExecuteScalar();
+            newCategory.ID = (int)id; // Gán ID cho đối tượng Category
+
+            // Trả về kết quả thành công
+            return new Tuple<Category, string, int>(newCategory, "success", 0);
+        }
+        catch (Exception e)
+        {
+            // Trả về kết quả không thành công cùng thông báo lỗi
+            return new Tuple<Category, string, int>(null, e.Message, 0);
+        }
+    }
+
     public Tuple<List<Order>, long> GetOrders(
         int page, int rowsPerPage,
         Dictionary<string, Tuple<string, string>> dateFieldsOptions,
@@ -370,6 +402,7 @@ public class PostgreDao : IDao
         reader.Close();
         return new Tuple<List<Order>, long>(orders, totalOrders);
     }
+
     public Tuple<List<Shoes>, long> GetShoes(int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,

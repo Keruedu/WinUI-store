@@ -35,6 +35,8 @@ public interface IDao
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions);
 
+    public Tuple<Category, string, int> AddCategory(Category newCategory);
+
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(
         int orderID,
         int page, int rowsPerPage,

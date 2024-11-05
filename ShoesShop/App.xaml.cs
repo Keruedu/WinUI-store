@@ -6,6 +6,7 @@ using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Core.Http;
 using ShoesShop.Core.Repository;
 using ShoesShop.Core.Services;
@@ -16,7 +17,10 @@ using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
 using ShoesShop.Core.Services.DataAcess;
+<<<<<<< HEAD
+=======
 using ShoesShop.Core.Models;
+>>>>>>> 1c765fcf050535b5786f504e45a49f7b206f21d0
 
 namespace ShoesShop;
 
@@ -88,6 +92,7 @@ public partial class App : Application
 
 
             // Services
+            
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
@@ -95,18 +100,21 @@ public partial class App : Application
             services.AddTransient<IStorePageSettingsService, StorePageSettingsService>();
             services.AddTransient<IStoreLastOpenPageService, StoreLastOpenPageService>();
             services.AddSingleton<IActivationService, ActivationService>();
+            services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<IReviewDataService, ReviewDataService>();
 
 
             // Core Services
+            services.AddSingleton<IDao, PostgreDao>();
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<ICategoryDataService, CategoryDataService>();
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
             services.AddSingleton<IStatisticRepository, StatisticRepository>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
+            
 
 
             // Views and ViewModels
@@ -159,7 +167,6 @@ public partial class App : Application
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
-
         await App.GetService<IActivationService>().ActivateAsync(args);
     }
 }
