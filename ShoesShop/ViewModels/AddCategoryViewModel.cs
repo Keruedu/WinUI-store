@@ -13,7 +13,7 @@ namespace ShoesShop.ViewModels;
 
 public partial class AddCategoryViewModel : ObservableRecipient
 {
-    //private readonly ICategoryDataService _categoryDataService;
+    private readonly ICategoryDataService _categoryDataService;
 
     [ObservableProperty]
     private Category newCategory = new();
@@ -40,11 +40,11 @@ public partial class AddCategoryViewModel : ObservableRecipient
         get; set;
     }
 
-    public AddCategoryViewModel(/*ICategoryDataService categoryDataService*/)
+    public AddCategoryViewModel(ICategoryDataService categoryDataService)
     {
-        //_categoryDataService = categoryDataService;
-        //AddCategoryButtonCommand = new RelayCommand(OnAddCategoryButtonCommandAsync);
-        //CancelButtonCommand = new RelayCommand(OnCancelButtonCommand);
+        _categoryDataService = categoryDataService;
+        AddCategoryButtonCommand = new RelayCommand(OnAddCategoryButtonCommandAsync);
+        CancelButtonCommand = new RelayCommand(OnCancelButtonCommand);
     }
 
     private async void OnAddCategoryButtonCommandAsync()
@@ -55,17 +55,17 @@ public partial class AddCategoryViewModel : ObservableRecipient
         SuccessMessage = string.Empty;
         NotifyChanges();
 
-        //var (_, message, ERROR_CODE) = await _categoryDataService.AddCategoryAsync(NewCategory);
+        var (_, message, ERROR_CODE) = await _categoryDataService.AddCategoryAsync(NewCategory);
 
-        //if (ERROR_CODE == 0)
-        //{
-        //    SuccessMessage = message;
-        //    OnCancelButtonCommand();
-        //}
-        //else
-        //{
-        //    ErrorMessage = message;
-        //}
+        if (ERROR_CODE == 0)
+        {
+            SuccessMessage = message;
+            OnCancelButtonCommand();
+        }
+        else
+        {
+            ErrorMessage = message;
+        }
 
         IsLoading = false;
         NotifyChanges();

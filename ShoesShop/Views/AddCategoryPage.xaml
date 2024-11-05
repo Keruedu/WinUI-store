@@ -9,10 +9,9 @@
 	<ScrollViewer Margin="0,0,0,40">
 		<Grid x:Name="ContentArea">
 			<StackPanel Spacing="16" MaxWidth="600" Padding="0, 20, 0, 20">
-				<!--<TextBox Header="Category name" PlaceholderText="Name" Text="{x:Bind ViewModel.NewCategory.Name, Mode=TwoWay}" />
-				<TextBox Header="Description" Height="120" PlaceholderText="Write category description" Text="{x:Bind ViewModel.NewCategory.Description, Mode=TwoWay}" />-->
-                <TextBox Header="Category name" PlaceholderText="Name" />
-                <TextBox Header="Description" Height="120" PlaceholderText="Write category description" />
+                <TextBox Header="Category ID" PlaceholderText="Name" Text="{x:Bind ViewModel.NewCategory.ID, Mode=TwoWay}" />
+				<TextBox Header="Category name" PlaceholderText="Name" Text="{x:Bind ViewModel.NewCategory.Name, Mode=TwoWay}" />
+                <TextBox Header="Description" Height="120" PlaceholderText="Write category description" Text="{x:Bind ViewModel.NewCategory.Description, Mode=TwoWay}" />
 
                 <!--Loading-->
 				<ProgressRing

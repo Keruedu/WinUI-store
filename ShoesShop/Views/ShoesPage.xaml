@@ -260,7 +260,7 @@
                                         </TextBlock>-->
                                     </StackPanel>
                                 </Border>
-        </DataTemplate>
+                            </DataTemplate>
                         </controls:AdaptiveGridView.ItemTemplate>
                     </controls:AdaptiveGridView>
 

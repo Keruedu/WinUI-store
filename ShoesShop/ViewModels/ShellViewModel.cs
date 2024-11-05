@@ -3,6 +3,8 @@
 using Microsoft.UI.Xaml.Navigation;
 
 using ShoesShop.Contracts.Services;
+using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Services;
 using ShoesShop.Views;
 using static ShoesShop.Core.Services.DataAcess.IDao;
 
@@ -25,6 +27,8 @@ public partial class ShellViewModel : ObservableRecipient
     {
         get;
     }
+
+
 
     private Dictionary<string, SortType> _sortOptions = new();
     public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService)
