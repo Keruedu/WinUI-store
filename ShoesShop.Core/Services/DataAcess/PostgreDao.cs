@@ -19,7 +19,7 @@ public class PostgreDao : IDao
         var connectionConfig = """
             Host = localhost;
             Port=5433;
-            Database = postgres;
+            Database = shop;
             User ID = root;
             Password = root;
         """;
@@ -30,10 +30,10 @@ public class PostgreDao : IDao
     public PostgreDao(string serverUrl,int port, string databaseName, string userId, string password)
     {
         var connectionConfig = $"""
-            Server = {serverUrl};
+            Host = {serverUrl};
             Port={port};
             Database = {databaseName};
-            User Id = {userId};
+            User ID = {userId};
             Password = {password};
         """;
         var dbConnection = new NpgsqlConnection(connectionConfig);
@@ -329,27 +329,21 @@ public class PostgreDao : IDao
                 return new Tuple<Category, string, int>(null, "Can't add null Category", 1);
             }
 
-            // Các trường trong bảng Category
             var fields = new string[] { "Name", "Description" };
             var values = new string[] { $"{newCategory.Name}", $"{newCategory.Description}" };
             var types = new string[] { "string", "string" };
 
-            // Tạo câu lệnh INSERT
             var query = CreateInsertQuery("Category", "CategoryID", fields, values, types);
 
             using (var command = new NpgsqlCommand(query, dbConnection))
             {
-                // Thực hiện câu lệnh và lấy ID của danh mục vừa thêm
                 var id = command.ExecuteScalar();
-                newCategory.ID = (int)id; // Gán ID cho đối tượng Category
+                newCategory.ID = (int)id; 
             }
-
-            // Trả về kết quả thành công
             return new Tuple<Category, string, int>(newCategory, "success", 1);
         }
         catch (Exception e)
         {
-            // Trả về kết quả không thành công cùng thông báo lỗi
             return new Tuple<Category, string, int>(null, e.Message, 0);
         }
     }
@@ -372,7 +366,7 @@ public class PostgreDao : IDao
             {
                 using (var reader = command.ExecuteReader())
                 {
-                    // Process the reader if needed
+
                 }
             }
 
@@ -480,7 +474,7 @@ public class PostgreDao : IDao
         Dictionary<string, IDao.SortType> sortOptions)
     {
         var shoesTextFields = new string[]{
-            "Name", "Size", "Color"
+            "Name", "Size", "Color","Image"
         };
         var shoesNumberFields = new string[]
         {
@@ -494,7 +488,7 @@ public class PostgreDao : IDao
         //
         var whereString = GetWhereCondition(emptyfields,noUsage,shoesNumberFields, numberFieldsOptions, shoesTextFields, textFieldsOptions);
         var sqlQuery = $"""
-            SELECT count(*) over() as Total,"ShoeID","CategoryID","Name","Size","Color","Price","Stock" 
+            SELECT count(*) over() as Total,"ShoeID","CategoryID","Name","Size","Color","Price","Stock","Image"
             FROM "Shoes" {whereString} {sortString} 
             LIMIT @Take
             OFFSET @Skip
@@ -528,6 +522,7 @@ public class PostgreDao : IDao
                     };
                     result.Add(shoes);
                 }
+                reader.Close();
                 return new Tuple<List<Shoes>, long>(result, totalShoes);
             }
         }
