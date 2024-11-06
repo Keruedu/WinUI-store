@@ -290,30 +290,34 @@ public class PostgreDao : IDao
             LIMIT @Take 
             OFFSET @Skip
             """;
-        var command = new NpgsqlCommand(sqlQuery, dbConnection);
-        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-            .Value = (page - 1) * rowsPerPage;
-        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-            .Value = rowsPerPage;
-        var reader = command.ExecuteReader();
-        long totalCategories = 0;
-        while (reader.Read())
+        using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
         {
-            if (totalCategories == 0)
+            command.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+            command.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
+
+            using (var reader = command.ExecuteReader())
             {
-                totalCategories = (long)reader["Total"];
+                long totalCategories = 0;
+                while (reader.Read())
+                {
+                    if (totalCategories == 0)
+                    {
+                        totalCategories = (long)reader["Total"];
+                    }
+                    var category = new Category
+                    {
+                        ID = (int)reader["CategoryID"],
+                        Name = (string)reader["Name"],
+                        Description = (string)reader["Description"]
+                    };
+                    result.Add(category);
+                }
+                return new Tuple<List<Category>, long>(result, totalCategories);
             }
-            var category = new Category();
-            category.ID = (int)reader["CategoryID"];
-            category.Name = (string)reader["Name"];
-            category.Description = (string)reader["Description"];
-            result.Add(category);
         }
-        reader.Close();
-        return new Tuple<List<Category>, long>(
-            result, totalCategories
-        );
     }
+
+
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(int orderID, int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
 
     public Tuple<Category, string, int> AddCategory(Category newCategory)
@@ -332,13 +336,16 @@ public class PostgreDao : IDao
 
             // Tạo câu lệnh INSERT
             var query = CreateInsertQuery("Category", "CategoryID", fields, values, types);
-            var command = new NpgsqlCommand(query, dbConnection);
-            // Thực hiện câu lệnh và lấy ID của danh mục vừa thêm
-            var id = command.ExecuteScalar();
-            newCategory.ID = (int)id; // Gán ID cho đối tượng Category
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                // Thực hiện câu lệnh và lấy ID của danh mục vừa thêm
+                var id = command.ExecuteScalar();
+                newCategory.ID = (int)id; // Gán ID cho đối tượng Category
+            }
 
             // Trả về kết quả thành công
-            return new Tuple<Category, string, int>(newCategory, "success", 0);
+            return new Tuple<Category, string, int>(newCategory, "success", 1);
         }
         catch (Exception e)
         {
@@ -346,6 +353,70 @@ public class PostgreDao : IDao
             return new Tuple<Category, string, int>(null, e.Message, 0);
         }
     }
+
+
+    public Tuple<Category, string, int> UpdateCategory(Category newCategory)
+    {
+        try
+        {
+            if (newCategory == null)
+            {
+                return new Tuple<Category, string, int>(null, "Can't update null Category", 0);
+            }
+
+            var fields = new string[] { "Name", "Description" };
+            var values = new string[] { $"{newCategory.Name}", $"{newCategory.Description}" };
+            var query = CreateUpdateQuery("Category", "CategoryID", newCategory.ID, fields, values);
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    // Process the reader if needed
+                }
+            }
+
+            var msg = "";
+            return new Tuple<Category, string, int>(newCategory, msg, 1);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<Category, string, int>(null, e.Message, 0);
+        }
+    }
+
+    public Tuple<string, int> DeleteCategory(int categoryId)
+    {
+        try
+        {
+            if (categoryId <= 0)
+            {
+                return new Tuple<string, int>("Invalid Category ID", 0);
+            }
+
+            var query = $"DELETE FROM \"Category\" WHERE \"CategoryID\" = @CategoryId";
+
+            using var command = new NpgsqlCommand(query, dbConnection);
+            command.Parameters.AddWithValue("@CategoryId", categoryId);
+            var rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected > 0)
+            {
+                return new Tuple<string, int>("Category deleted successfully", rowsAffected);
+            }
+            else
+            {
+                return new Tuple<string, int>("Category not found", 0);
+            }
+        }
+        catch (Exception e)
+        {
+            return new Tuple<string, int>(e.Message, 0);
+        }
+    }
+
+
+
 
     public Tuple<List<Order>, long> GetOrders(
         int page, int rowsPerPage,
@@ -428,36 +499,38 @@ public class PostgreDao : IDao
             LIMIT @Take
             OFFSET @Skip
         """;
-        var command = new NpgsqlCommand(sqlQuery, dbConnection);
-        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-            .Value = (page - 1) * rowsPerPage;
-        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-            .Value = rowsPerPage;
-        var reader = command.ExecuteReader();
-        long totalShoes = 0;
-        var result = new List<Shoes>();
-        while (reader.Read())
+        using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
         {
-            if (totalShoes == -1)
-            {
-                totalShoes = (int)reader["Total"];
-            }
+            command.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+            command.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
 
-            var shoes = new Shoes();
-            shoes.ID = (int)reader["ShoeID"];
-            shoes.CategoryID = (int)reader["CategoryID"];
-            shoes.Name = (string)reader["Name"];
-            shoes.Size = (string)reader["Size"];
-            shoes.Color = (string)reader["Color"];
-            shoes.Price = (decimal)reader["Price"];
-            shoes.Stock = (int)reader["Stock"];
-            shoes.Image = (string)reader["Image"];
-            result.Add(shoes);
+            using (var reader = command.ExecuteReader())
+            {
+                long totalShoes = 0;
+                var result = new List<Shoes>();
+                while (reader.Read())
+                {
+                    if (totalShoes == 0)
+                    {
+                        totalShoes = (long)reader["Total"];
+                    }
+
+                    var shoes = new Shoes
+                    {
+                        ID = (int)reader["ShoeID"],
+                        CategoryID = (int)reader["CategoryID"],
+                        Name = (string)reader["Name"],
+                        Size = (string)reader["Size"],
+                        Color = (string)reader["Color"],
+                        Price = (decimal)reader["Price"],
+                        Stock = (int)reader["Stock"],
+                        Image = reader["Image"] as string
+                    };
+                    result.Add(shoes);
+                }
+                return new Tuple<List<Shoes>, long>(result, totalShoes);
+            }
         }
-        reader.Close();
-        return new Tuple<List<Shoes>, long>(
-            result, totalShoes
-        );
     }
 
     public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes)
@@ -468,21 +541,23 @@ public class PostgreDao : IDao
             {
                 return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
             }
-            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price","Stock","Image" };
-            var values=new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
-            $"{newShoes.Stock}",$"{newShoes.Image}"};
-            var types = new string[] { "integer", "string", "string", "string", "decimal","integer","string" };
-            var query = CreateInsertQuery("Shoes","ShoeID" ,fields, values, types);
-            var command = new NpgsqlCommand(query, dbConnection);
-            var id=command.ExecuteScalar();
-            newShoes.ID = (int)id;
-            var result = true;
-            var msg = "";
-            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
+
+            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
+            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}" };
+            var types = new string[] { "integer", "string", "string", "string", "decimal", "integer", "string" };
+            var query = CreateInsertQuery("Shoes", "ShoeID", fields, values, types);
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                var id = command.ExecuteScalar();
+                newShoes.ID = Convert.ToInt32(id);
+            }
+
+            return new Tuple<bool, string, Shoes>(true, string.Empty, newShoes);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            return new Tuple<bool, string, Shoes>(false,e.Message, null);
+            return new Tuple<bool, string, Shoes>(false, e.Message, null);
         }
     }
 
@@ -494,21 +569,25 @@ public class PostgreDao : IDao
             {
                 return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
             }
+
             var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
-            var values = new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
-            $"{newShoes.Stock}",$"{newShoes.Image}"};
-            var query = CreateUpdateQuery("Shoes", "ShoeID",newShoes.ID, fields, values);
-            var command = new NpgsqlCommand(query, dbConnection);
-            var reader=command.ExecuteReader();
-            var result = true;
-            var msg = "";
-            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
+            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}" };
+            var query = CreateUpdateQuery("Shoes", "ShoeID", newShoes.ID, fields, values);
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                command.ExecuteNonQuery();
+            }
+
+            return new Tuple<bool, string, Shoes>(true, string.Empty, newShoes);
         }
         catch (Exception e)
         {
             return new Tuple<bool, string, Shoes>(false, e.Message, null);
         }
     }
+
+
 
     public Tuple<bool,string> DeleteShoesByID(int shoesID)
     {
@@ -519,7 +598,7 @@ public class PostgreDao : IDao
             DELETE FROM "Shoes" 
             WHERE "ShoeID"=@id
             """;
-            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            using var command = new NpgsqlCommand(sqlQuery, dbConnection);
             command.Parameters.Add("@id", NpgsqlDbType.Integer)
                 .Value = shoesID;
             var row = command.ExecuteNonQuery();

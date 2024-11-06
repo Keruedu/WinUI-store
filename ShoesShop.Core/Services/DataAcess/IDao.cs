@@ -36,6 +36,8 @@ public interface IDao
         Dictionary<string, IDao.SortType> sortOptions);
 
     public Tuple<Category, string, int> AddCategory(Category newCategory);
+    public Tuple<Category, string, int> UpdateCategory(Category newCategory);
+    public Tuple<string, int> DeleteCategory(int categoryId);
 
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(
         int orderID,

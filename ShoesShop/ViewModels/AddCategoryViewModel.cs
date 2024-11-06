@@ -57,7 +57,7 @@ public partial class AddCategoryViewModel : ObservableRecipient
 
         var (_, message, ERROR_CODE) = await _categoryDataService.AddCategoryAsync(NewCategory);
 
-        if (ERROR_CODE == 0)
+        if (ERROR_CODE == 1)
         {
             SuccessMessage = message;
             OnCancelButtonCommand();

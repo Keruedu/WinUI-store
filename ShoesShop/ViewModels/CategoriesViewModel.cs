@@ -28,41 +28,6 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
     public CategoriesViewModel(ICategoryDataService categoryDataService)
     {
         _categoryDataService = categoryDataService;
-        CategoryList.Add(new Category
-        {
-            ID = 1,
-            Name = "Sneakers",
-            Description = "Comfortable and stylish sneakers for everyday wear."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 2,
-            Name = "Boots",
-            Description = "Durable boots suitable for hiking and rough terrains."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 3,
-            Name = "Sandals",
-            Description = "Lightweight sandals perfect for warm weather."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 4,
-            Name = "Formal Shoes",
-            Description = "Elegant formal shoes for office and special occasions."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 5,
-            Name = "Slippers",
-            Description = "Cozy slippers for indoor comfort."
-        });
-
     }
 
 

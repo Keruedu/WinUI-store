@@ -68,7 +68,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
 
         var (returnedBook, message, ERROR_CODE) = await _categoryDataservice.UpdateCategoryAsync(EditCategory);
 
-        if (ERROR_CODE == 0)
+        if (ERROR_CODE == 1)
         {
             Item = returnedBook;
             OnCancelEdit();
@@ -86,7 +86,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
     {
         var (_, ERROR_CODE) = await _categoryDataservice.DeleteCategoryAsync(Item);
 
-        if (ERROR_CODE == 0)
+        if (ERROR_CODE == 1)
         {
             _navigationService.Refresh();
         }

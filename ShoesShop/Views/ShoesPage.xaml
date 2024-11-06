@@ -247,7 +247,7 @@
                                     <StackPanel x:Name="itemThumbnail" Padding="12">
                                         <Border CornerRadius="6" HorizontalAlignment="Center">
                                             <!--<Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Avatar}" />-->
-                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="Assets/Square150x150Logo.scale-200" />
+                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="Assets/Square150x150Logo.scale-200.png" />
                                         </Border>
                                         <TextBlock Text="{x:Bind Name}" Style="{StaticResource ShoesTitleStyle}" />
                                         <TextBlock Style="{StaticResource ShoesPYStyle}">

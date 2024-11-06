@@ -18,12 +18,6 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
     public ShoesViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
-        Source.Add(new Shoes { ID = 1, CategoryID = 1, Name = "Shoes 1", Size = "8", Color = "Black", Price = 49.99m, Stock = 10, Image = null });
-        Source.Add(new Shoes { ID = 2, CategoryID = 2, Name = "Shoes 2", Size = "9", Color = "White", Price = 59.99m, Stock = 5, Image = null });
-        Source.Add(new Shoes { ID = 3, CategoryID = 1, Name = "Shoes 3", Size = "7", Color = "Red", Price = 39.99m, Stock = 8, Image = null });
-        Source.Add(new Shoes { ID = 4, CategoryID = 3, Name = "Shoes 4", Size = "10", Color = "Blue", Price = 69.99m, Stock = 3, Image = null });
-        Source.Add(new Shoes { ID = 5, CategoryID = 2, Name = "Shoes 5", Size = "8.5", Color = "Green", Price = 54.99m, Stock = 12, Image = null });
-
         _navigationService = navigationService;
         _ShoesDataService = ShoesDataService;
         _categoryDataService = categoryDataService;
@@ -40,6 +34,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
             new() { Name = "PublishYear (Recent)", Value="publishedYear", IsAscending = false },
         };
         SelectedSortOption = SortOptions[0];
+        LoadCategories();
     }
 
     public async void LoadCategories()

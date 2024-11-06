@@ -50,14 +50,16 @@ public class CategoryDataService : ICategoryDataService
     {
         IsDirty = true;
         //return Task.Run(async () => await _categoryRepository.UpdateCategoryAsync(category));
-        return Task.FromResult((category, "Success", 1));
+        var result = _dao.UpdateCategory(category);
+        return Task.FromResult((result.Item1, result.Item2, result.Item3));
     }
 
     public Task<(string, int)> DeleteCategoryAsync(Category category)
     {
         IsDirty = true;
         //return Task.Run(async () => await _categoryRepository.DeleteCategoryAsync(category));
-        return Task.FromResult(("Success", 1));
+        var result = _dao.DeleteCategory(category.ID);
+        return Task.FromResult((result.Item1, result.Item2));
     }
 
     public Task<(string, int)> ImportDataAsync(IEnumerable<Category> categories)
