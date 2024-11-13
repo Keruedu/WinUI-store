@@ -47,6 +47,13 @@ public interface IDao
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, SortType> sortOptions);
 
+    public Tuple<List<Address>, long> GetAddresses(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, SortType> sortOptions);
+
+
     public User GetUserByID(
         int userID);
 

@@ -739,5 +739,61 @@ public class PostgreDao : IDao
         reader.Close();
         return new Tuple<List<User>, long>(users, totalUsers);
     }
-    
+
+
+    public Tuple<List<Address>, long> GetAddresses(
+        int page, int rowsPerPage,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, SortType> sortOptions)
+    {
+        var addressTextFields = new string[]{
+            "Street", "City", "State","ZipCode","Country"
+        };
+        var addressNumberFields = new string[]
+        {
+            "ID"
+        };
+        var addressFields = addressNumberFields.Concat(addressTextFields).ToArray();
+        var sortString = GetSortString(addressFields, sortOptions);
+        //tech-debt: re-factory
+        var emptyfields = new string[0] { };
+        var noUsage = new Dictionary<string, Tuple<string, string>>();
+        //
+        var whereString = GetWhereCondition(emptyfields, noUsage, addressNumberFields, numberFieldsOptions, addressTextFields, textFieldsOptions);
+        var sqlQuery = $"""
+            SELECT count(*) over() as Total,"AddressID","Street","City","State","ZipCode","Country" 
+            FROM "Address" {whereString} {sortString} 
+            LIMIT @Take
+            OFFSET @Skip
+        """;
+        var command = new NpgsqlCommand(sqlQuery, dbConnection);
+        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
+            .Value = (page - 1) * rowsPerPage;
+        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
+            .Value = rowsPerPage;
+        var reader = command.ExecuteReader();
+        long totalShoes = 0;
+        var result = new List<Address>();
+        while (reader.Read())
+        {
+            if (totalShoes == -1)
+            {
+                totalShoes = (int)reader["Total"];
+            }
+
+            var address = new Address();
+            address.ID = (int)reader["AddressID"];
+            address.Street= (string)reader["Street"];
+            address.City = (string)reader["City"];
+            address.State = (string)reader["State"];
+            address.ZipCode = (string)reader["ZipCode"];
+            address.Country = (string)reader["Country"];
+            result.Add(address);
+        }
+        reader.Close();
+        return new Tuple<List<Address>, long>(
+            result, totalShoes
+        );
+    }
 }
