@@ -18,10 +18,10 @@ public class PostgreDao : IDao
     {
         var connectionConfig = """
             Host = localhost;
-            Port=5432;
-            Database = demoshoesshop;
-            User ID = postgres;
-            Password = 123;
+            Port=5433;
+            Database = shop;
+            User ID = root;
+            Password = root;
         """;
         dbConnection = new NpgsqlConnection(connectionConfig);
         dbConnection.Open();
@@ -314,6 +314,88 @@ public class PostgreDao : IDao
             result, totalCategories
         );
     }
+
+    public Tuple<Category, string, bool> AddCategory(Category category)
+    {
+        try
+        {
+            if (category == null)
+            {
+                return new Tuple<Category, string, bool>(null, "Can't add null category", false);
+            }
+            var fields = new string[] { "Name", "Description" };
+            var values = new string[] { $"{category.Name}", $"{category.Description}" };
+            var types = new string[] { "string", "string" };
+            var query = CreateInsertQuery("Category", "CategoryID", fields, values, types);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var id = command.ExecuteScalar();
+            category.ID = (int)id;
+            var result = true;
+            var msg = "";
+            return new Tuple<Category, string, bool>(category, msg, result);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<Category, string, bool>(null, e.Message, false);
+        }
+    }
+
+    public Tuple<Category, string, bool> UpdateCategory(Category category)
+    {
+        try
+        {
+            if (category == null)
+            {
+                return new Tuple<Category, string, bool>(null, "Can't update null category", false);
+            }
+            var fields = new string[] { "Name", "Description" };
+            var values = new string[] { $"{category.Name}", $"{category.Description}" };
+            var query = CreateUpdateQuery("Category", "CategoryID", category.ID, fields, values);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var reader = command.ExecuteReader();
+            var result = true;
+            var msg = "";
+            reader.Close();
+            return new Tuple<Category, string, bool>(category, msg, result);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<Category, string, bool>(null, e.Message, false);
+        }
+    }
+
+    public Tuple<string, bool> DeleteCategory(Category category)
+    {
+        try
+        {
+            if (category == null)
+            {
+                return new Tuple<string, bool>("Can't delete null category", false);
+            }
+            var categoryID = category.ID;
+            bool result = false;
+            var sqlQuery = $"""
+            DELETE FROM "Category" 
+            WHERE "CategoryID"=@id
+            """;
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.Add("@id", NpgsqlDbType.Integer)
+                .Value = categoryID;
+            var row = command.ExecuteNonQuery();
+            if (row != -1)
+            {
+                result = true;
+            }
+            var msg = result ? "Delete success" : "can't find shoes with given ID";
+            return new Tuple<string, bool>(msg, result);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<string, bool>(ex.Message, false);
+        }
+    }
+
+
     public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(int orderID, int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
     public Tuple<List<Order>, long> GetOrders(
         int page, int rowsPerPage,
@@ -427,13 +509,89 @@ public class PostgreDao : IDao
         );
     }
 
-    public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes)
+    public Tuple<Order,string, bool> AddOrder(Order order)
+    {
+        try
+        {
+            if (order == null)
+            {
+                return new Tuple<Order, string, bool>(null, "Can't add null order", false);
+            }
+            var fields = new string[] { "UserID", "OrderDate", "Status", "AddressID", "TotalAmount"};
+            var values = new string[] {$"{order.UserID}",$"{order.OrderDate}",$"{order.Status}",$"{order.AddressID}",$"{order.TotalAmount}"};
+            var types = new string[] { "integer", "string", "string", "integer", "decimal"};
+            var query = CreateInsertQuery("Order", "OrderID", fields, values, types);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var id = command.ExecuteScalar();
+            order.ID = (int)id;
+            var result = true;
+            var msg = "Adding order successfully";
+            return new Tuple<Order, string, bool>(order, msg, result);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<Order, string, bool>(null, e.Message, false);
+        }
+    }
+    public Tuple<Order, string, bool> UpdateOrder(Order newOrder)
+    {
+        try
+        {
+            if (newOrder== null)
+            {
+                return new Tuple<Order, string, bool>(null, "Can't update null order", false);
+            }
+            var fields = new string[] { "UserID", "OrderDate", "Status", "AddressID", "TotalAmount" };
+            var values = new string[] { $"{newOrder.UserID}", $"{newOrder.OrderDate}", $"{newOrder.Status}", 
+                $"{newOrder.AddressID}", $"{newOrder.TotalAmount}" };
+            var types = new string[] { "integer", "string", "string", "integer", "decimal" };
+            var query = CreateUpdateQuery("Order", "OrderID", newOrder.ID, fields, values);
+            var command = new NpgsqlCommand(query, dbConnection);
+            var reader = command.ExecuteReader();
+            var result = true;
+            var msg = "";
+            return new Tuple<Order, string, bool>(newOrder, msg, result);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<Order, string, bool>(null, e.Message, false);
+        }
+    }
+    public Tuple<string, bool> DeleteOrder(Order order)
+    {
+        try
+        {
+            var orderID= order.ID;
+            bool result = false;
+            var sqlQuery = $"""
+            DELETE FROM "Order" 
+            WHERE "OrderID"=@id
+            """;
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.Add("@id", NpgsqlDbType.Integer)
+                .Value = orderID;
+            var row = command.ExecuteNonQuery();
+            if (row != -1)
+            {
+                result = true;
+            }
+            var msg = result ? "Delete success" : "can't find order with given ID";
+            return new Tuple<string, bool>(msg, result);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<string, bool>(ex.Message, false);
+        }
+    }
+
+
+    public Tuple<Shoes, string, bool> AddShoes(Shoes newShoes)
     {
         try
         {
             if (newShoes == null)
             {
-                return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
+                return new Tuple<Shoes, string, bool>(null, "Can't add null Shoes", false);
             }
             var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price","Stock","Image" };
             var values=new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
@@ -445,21 +603,21 @@ public class PostgreDao : IDao
             newShoes.ID = (int)id;
             var result = true;
             var msg = "";
-            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
+            return new Tuple<Shoes, string, bool>(newShoes, msg, result);
         }
         catch(Exception e)
         {
-            return new Tuple<bool, string, Shoes>(false,e.Message, null);
+            return new Tuple<Shoes, string, bool>(null,e.Message, false);
         }
     }
 
-    public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes)
+    public Tuple<Shoes, string, bool> UpdateShoes(Shoes newShoes)
     {
         try
         {
             if (newShoes == null)
             {
-                return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
+                return new Tuple<Shoes, string, bool>(null, "Can't add null Shoes", false);
             }
             var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
             var values = new string[] {$"{newShoes.CategoryID}",$"{newShoes.Name}",$"{newShoes.Size}",$"{newShoes.Color}",$"{newShoes.Price}",
@@ -469,18 +627,19 @@ public class PostgreDao : IDao
             var reader=command.ExecuteReader();
             var result = true;
             var msg = "";
-            return new Tuple<bool, string, Shoes>(result, msg, newShoes);
+            return new Tuple<Shoes, string, bool>(newShoes, msg, result);
         }
         catch (Exception e)
         {
-            return new Tuple<bool, string, Shoes>(false, e.Message, null);
+            return new Tuple<Shoes, string, bool>(null, e.Message, false);
         }
     }
 
-    public Tuple<bool,string> DeleteShoesByID(int shoesID)
+    public Tuple<string, bool> DeleteShoes(Shoes shoes)
     {
         try
         {
+            var shoesID = shoes.ID;
             bool result = false;
             var sqlQuery = $"""
             DELETE FROM "Shoes" 
@@ -495,10 +654,10 @@ public class PostgreDao : IDao
                 result = true;
             }
             var msg = result ? "Delete success" : "can't find shoes with given ID";
-            return new Tuple<bool, string>(result, msg);
+            return new Tuple<string, bool>(msg, result);
         }
         catch (Exception ex) {
-            return new Tuple<bool,string>(false, ex.Message);
+            return new Tuple<string,bool>(ex.Message, false);
         }
     }
 

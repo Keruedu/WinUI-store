@@ -50,8 +50,19 @@ public interface IDao
     public User GetUserByID(
         int userID);
 
-    public Tuple<bool, string> DeleteShoesByID(int shoesID);
-    public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes);
+    public Tuple<string, bool> DeleteShoes(Shoes shoes);
+    public Tuple<Shoes, string, bool> AddShoes(Shoes newShoes);
+    public Tuple<Shoes, string, bool> UpdateShoes(Shoes newShoes);
 
-    public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes);
+
+    public Tuple<Category, string, bool> UpdateCategory(Category newCategory);
+    public Tuple<Category, string, bool> AddCategory(Category newCategory);
+    public Tuple<string, bool> DeleteCategory(Category category);
+
+
+    public Tuple<Order,string, bool> AddOrder(Order order);
+    public Tuple<Order,string,bool> UpdateOrder(Order newOrder);
+    public Tuple<string,bool> DeleteOrder(Order newOrder);
+
 }
+

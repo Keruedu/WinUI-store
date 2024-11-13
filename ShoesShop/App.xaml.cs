@@ -15,6 +15,8 @@ using ShoesShop.Controls;
 using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
+using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Models;
 
 namespace ShoesShop;
 
@@ -45,11 +47,28 @@ public partial class App : Application
     public static WindowEx MainWindow { get; } = new MainWindow();
 
     public static UIElement? AppTitlebar { get; set; }
-
+    //test
+    //private IDao dao = new PostgreDao(); 
+    //test
     public App()
     {
-        InitializeComponent();
 
+        //test
+        //var order = new Order
+        //{
+        //    ID=5,
+        //    UserID=1,
+        //    OrderDate = "2024-12-10",
+        //    Status="pending",
+        //    AddressID=1,
+        //    TotalAmount=250,
+        //};
+
+        //var res = dao.UpdateOrder(order);
+        //var falg = true;
+        //test
+
+        InitializeComponent();
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
@@ -57,7 +76,7 @@ public partial class App : Application
         {
             // Default Activation Handler
             services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
-
+            
             // Other Activation Handlers
 
             // Http clients
