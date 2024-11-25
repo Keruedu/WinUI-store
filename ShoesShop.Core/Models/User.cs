@@ -33,5 +33,9 @@ public class User : INotifyPropertyChanged
         get; set;
     }
 
+    public string Role
+    {
+        get; set;
+    }
     public event PropertyChangedEventHandler PropertyChanged;
 }

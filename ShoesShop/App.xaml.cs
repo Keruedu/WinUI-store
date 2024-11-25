@@ -83,6 +83,10 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<IReviewDataService, ReviewDataService>();
 
+            services.AddTransient<IStoreLoginCredentialsService,StoreCredentialsService>();
+            services.AddTransient<ILocalSettingServiceUsingApplicationData,LocalSettingsServiceUsingApplicationData>();
+            
+
 
             // Core Services
             services.AddSingleton<ISampleDataService, SampleDataService>();
@@ -91,6 +95,8 @@ public partial class App : Application
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
             services.AddSingleton<IStatisticRepository, StatisticRepository>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
+
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 
             // Views and ViewModels
@@ -120,6 +126,8 @@ public partial class App : Application
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 
+            services.AddTransient<LoginControl>();
+            services.AddTransient<LoginControllViewModel>();
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).

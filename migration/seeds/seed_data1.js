@@ -15,8 +15,8 @@ exports.seed = async function(knex) {
 
   // Insert seed entries for User
   await knex('User').insert([
-    { UserID: 1, Name: 'John Doe', Password: '123', Email: 'john.doe@example.com', PhoneNumber: '123-456-7890', AddressID: 1 },
-    { UserID: 2, Name: 'Jane Smith',  Password: '123', Email: 'jane.smith@example.com', PhoneNumber: '987-654-3210', AddressID: 2 }
+    { UserID: 1, Name: 'John Doe', Password: '$2y$10$ZJudqmaIdV9TIIn/Ae0qpeOao.xo5lgYeBMPCvhgCgikiElK1pPh2', Email: 'john.doe@example.com', PhoneNumber: '123-456-7890', AddressID: 1 ,Role:"manager"},
+    { UserID: 2, Name: 'Jane Smith',  Password: '$2y$10$ZJudqmaIdV9TIIn/Ae0qpeOao.xo5lgYeBMPCvhgCgikiElK1pPh2', Email: 'jane.smith@example.com', PhoneNumber: '987-654-3210', AddressID: 2,Role:"admin" }
   ]);
 
   // Insert seed entries for Category

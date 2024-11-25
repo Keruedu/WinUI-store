@@ -18,10 +18,10 @@ public class PostgreDao : IDao
     {
         var connectionConfig = """
             Host = localhost;
-            Port=5432;
-            Database = demoshoesshop;
-            User ID = postgres;
-            Password = 123;
+            Port=5433;
+            Database = fuck;
+            User ID = root;
+            Password = root;
         """;
         dbConnection = new NpgsqlConnection(connectionConfig);
         dbConnection.Open();
@@ -580,5 +580,38 @@ public class PostgreDao : IDao
         reader.Close();
         return new Tuple<List<User>, long>(users, totalUsers);
     }
-    
+
+    public User GetUserByName(string username)
+    {
+        try
+        {
+            var sqlQuery = $"""
+            SELECT "UserID","Name","Email","Password","PhoneNumber" ,"AddressID","Role"
+            FROM "User" 
+            WHERE "Email" ='{username}'
+            """;
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            //command.Parameters.Add("@username", NpgsqlDbType.Text)
+            //    .Value = username;
+            var reader = command.ExecuteReader();
+            var user = new User();
+            if (reader.Read())
+            {
+                user.ID = (int)reader["UserID"];
+                user.Name = (string)reader["Name"];
+                user.Email = (string)reader["Email"];
+                user.Password = (string)reader["Password"];
+                user.PhoneNumber = (string)reader["PhoneNumber"];
+                user.AddressID = (int)reader["AddressID"];
+                user.Role = (string)reader["Role"];
+            }
+            reader.Close();
+            return user;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
 }

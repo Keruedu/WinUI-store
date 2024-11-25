@@ -16,6 +16,7 @@ exports.up = async function(knex) {
     table.string('Email', 255).notNullable().unique();
     table.string('PhoneNumber', 50);
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
+    table.string('Role', 50).defaultTo('manager');
   });
 
 

@@ -50,6 +50,8 @@ public interface IDao
     public User GetUserByID(
         int userID);
 
+    public User GetUserByName(string username);
+
     public Tuple<bool, string> DeleteShoesByID(int shoesID);
     public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes);
 
