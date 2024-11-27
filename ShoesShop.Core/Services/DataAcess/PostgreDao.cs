@@ -19,7 +19,7 @@ public class PostgreDao : IDao
         var connectionConfig = """
             Host = localhost;
             Port=5433;
-            Database = shop;
+            Database = postgres;
             User ID = root;
             Password = root;
         """;
@@ -312,13 +312,12 @@ public class PostgreDao : IDao
                     };
                     result.Add(category);
                 }
+                reader.Close();
                 return new Tuple<List<Category>, long>(result, totalCategories);
             }
         }
     }
 
-
-    public Tuple<List<OrderDetail>, long> GetOrderDetailsByID(int orderID, int page, int rowsPerPage, Dictionary<string, string> whereOptions, Dictionary<string, IDao.SortType> sortOptions) => throw new NotImplementedException();
 
     public Tuple<Category, string, int> AddCategory(Category newCategory)
     {
@@ -409,72 +408,13 @@ public class PostgreDao : IDao
         }
     }
 
-
-
-
-    public Tuple<List<Order>, long> GetOrders(
-        int page, int rowsPerPage,
-        Dictionary<string, Tuple<string, string>> dateFieldsOptions,
-        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
-        Dictionary<string, string> textFieldsOptions,
-        Dictionary<string, IDao.SortType> sortOptions)
-    {
-        var orderTextFields = new string[]{
-            "Status"
-        };
-        var orderNumberFields = new string[]
-        {
-            "OrderID","UserID","AddressID","TotalAmount"
-        };
-        var orderDateFields = new string[]
-        {
-            "OrderDate",
-        };
-        var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
-        var sortString = GetSortString(categoryFields, sortOptions);
-        var whereString = GetWhereCondition(orderDateFields,dateFieldsOptions,orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
-        //var selectFieldsString = GetSelectFields(categoryFields);
-        var sqlQuery = $"""
-            SELECT count(*) over() as Total, "OrderID","UserID","OrderDate","Status","AddressID","TotalAmount"
-            FROM "Order" {whereString} {sortString}
-            LIMIT @Take 
-            OFFSET @Skip
-            """;
-        var command = new NpgsqlCommand(sqlQuery, dbConnection);
-        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-            .Value = (page - 1) * rowsPerPage;
-        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-            .Value = rowsPerPage;
-        var reader = command.ExecuteReader();
-        var orders = new List<Order>();
-        long totalOrders = 0;
-        while (reader.Read())
-        {
-            if (totalOrders == 0)
-            {
-                totalOrders = (long)reader["Total"];
-            }
-            var order= new Order();
-            order.ID=(int)reader["OrderID"];
-            order.UserID = (int)reader["UserID"];
-            var t = (DateTime)reader["OrderDate"];
-            order.Status=(string)reader["Status"];
-            order.OrderDate = $"{t.Year}-{t.Month}-{t.Day}";
-            order.AddressID = (int)reader["AddressID"];
-            order.TotalAmount = (decimal)reader["TotalAmount"];
-            orders.Add(order);
-        }
-        reader.Close();
-        return new Tuple<List<Order>, long>(orders, totalOrders);
-    }
-
     public Tuple<List<Shoes>, long> GetShoes(int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions)
     {
         var shoesTextFields = new string[]{
-            "Name", "Size", "Color","Image"
+            "Name","Brand", "Size", "Color","Image", "Description"
         };
         var shoesNumberFields = new string[]
         {
@@ -486,9 +426,10 @@ public class PostgreDao : IDao
         var emptyfields = new string[0] { };
         var noUsage = new Dictionary<string, Tuple<string, string>>();
         //
-        var whereString = GetWhereCondition(emptyfields,noUsage,shoesNumberFields, numberFieldsOptions, shoesTextFields, textFieldsOptions);
+        var whereString = GetWhereCondition(emptyfields,noUsage,shoesNumberFields, 
+            numberFieldsOptions, shoesTextFields, textFieldsOptions);
         var sqlQuery = $"""
-            SELECT count(*) over() as Total,"ShoeID","CategoryID","Name","Size","Color","Price","Stock","Image"
+            SELECT count(*) over() as Total,"ShoesID","CategoryID","Name","Brand","Size","Color","Price","Stock","Image","Description"
             FROM "Shoes" {whereString} {sortString} 
             LIMIT @Take
             OFFSET @Skip
@@ -511,14 +452,16 @@ public class PostgreDao : IDao
 
                     var shoes = new Shoes
                     {
-                        ID = (int)reader["ShoeID"],
+                        ID = (int)reader["ShoesID"],
                         CategoryID = (int)reader["CategoryID"],
                         Name = (string)reader["Name"],
+                        Brand = (string)reader["Brand"],
                         Size = (string)reader["Size"],
                         Color = (string)reader["Color"],
                         Price = (decimal)reader["Price"],
                         Stock = (int)reader["Stock"],
-                        Image = reader["Image"] as string
+                        Image = reader["Image"] as string,
+                        Description = (string)reader["Description"],
                     };
                     result.Add(shoes);
                 }
@@ -537,10 +480,13 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
             }
 
-            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
-            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}" };
-            var types = new string[] { "integer", "string", "string", "string", "decimal", "integer", "string" };
-            var query = CreateInsertQuery("Shoes", "ShoeID", fields, values, types);
+            var fields = new string[] { "CategoryID", "Name", "Brand",
+                "Size", "Color", "Price", "Stock", "Image", "Description" };
+            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}",
+                $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}" };
+            var types = new string[] { "integer", "string", "string", 
+                "string", "string", "decimal", "integer", "string", "string" };
+            var query = CreateInsertQuery("Shoes", "ShoesID", fields, values, types);
 
             using (var command = new NpgsqlCommand(query, dbConnection))
             {
@@ -565,9 +511,9 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
             }
 
-            var fields = new string[] { "CategoryID", "Name", "Size", "Color", "Price", "Stock", "Image" };
-            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}" };
-            var query = CreateUpdateQuery("Shoes", "ShoeID", newShoes.ID, fields, values);
+            var fields = new string[] { "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description" };
+            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}" };
+            var query = CreateUpdateQuery("Shoes", "ShoesID", newShoes.ID, fields, values);
 
             using (var command = new NpgsqlCommand(query, dbConnection))
             {
@@ -591,7 +537,7 @@ public class PostgreDao : IDao
             bool result = false;
             var sqlQuery = $"""
             DELETE FROM "Shoes" 
-            WHERE "ShoeID"=@id
+            WHERE "ShoesID"=@id
             """;
             using var command = new NpgsqlCommand(sqlQuery, dbConnection);
             command.Parameters.Add("@id", NpgsqlDbType.Integer)
@@ -608,6 +554,916 @@ public class PostgreDao : IDao
             return new Tuple<bool,string>(false, ex.Message);
         }
     }
+
+    //public Tuple<List<Order>, long> GetOrders(
+    //int page, int rowsPerPage,
+    //Dictionary<string, Tuple<string, string>> dateFieldsOptions,
+    //Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+    //Dictionary<string, string> textFieldsOptions,
+    //Dictionary<string, IDao.SortType> sortOptions)
+    //{
+    //    var orderTextFields = new string[]{
+    //        "Status"
+    //    };
+    //    var orderNumberFields = new string[]
+    //    {
+    //        "OrderID","UserID","AddressID","TotalAmount"
+    //    };
+    //    var orderDateFields = new string[]
+    //    {
+    //        "OrderDate",
+    //    };
+    //    var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
+    //    var sortString = GetSortString(categoryFields, sortOptions);
+    //    var whereString = GetWhereCondition(orderDateFields, dateFieldsOptions, orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
+    //    //var selectFieldsString = GetSelectFields(categoryFields);
+    //    var sqlQuery = $"""
+    //        SELECT count(*) over() as Total, "OrderID","UserID","OrderDate","Status","AddressID","TotalAmount"
+    //        FROM "Order" {whereString} {sortString}
+    //        LIMIT @Take 
+    //        OFFSET @Skip
+    //        """;
+    //    var command = new NpgsqlCommand(sqlQuery, dbConnection);
+    //    command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
+    //        .Value = (page - 1) * rowsPerPage;
+    //    command.Parameters.Add("@Take", NpgsqlDbType.Integer)
+    //        .Value = rowsPerPage;
+    //    var reader = command.ExecuteReader();
+    //    var orders = new List<Order>();
+    //    long totalOrders = 0;
+    //    while (reader.Read())
+    //    {
+    //        if (totalOrders == 0)
+    //        {
+    //            totalOrders = (long)reader["Total"];
+    //        }
+    //        var order = new Order();
+    //        order.ID = (int)reader["OrderID"];
+    //        order.UserID = (int)reader["UserID"];
+    //        var t = (DateTime)reader["OrderDate"];
+    //        order.Status = (string)reader["Status"];
+    //        order.OrderDate = $"{t.Year}-{t.Month}-{t.Day}";
+    //        order.AddressID = (int)reader["AddressID"];
+    //        order.TotalAmount = (decimal)reader["TotalAmount"];
+    //        orders.Add(order);
+    //    }
+    //    reader.Close();
+    //    return new Tuple<List<Order>, long>(orders, totalOrders);
+    //}
+
+    //private List<Detail> GetDetailsByOrderIds(List<int> orderIds)
+    //{
+    //    var sqlQueryDetails = $"""
+    //    SELECT "OrderID", "ShoesID", "Quantity", "Price"
+    //    FROM "Detail"
+    //    WHERE "OrderID" = ANY(@OrderIDs);
+    //    """;
+
+    //    var commandDetails = new NpgsqlCommand(sqlQueryDetails, dbConnection);
+    //    commandDetails.Parameters.Add("@OrderIDs", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = orderIds.ToArray();
+
+    //    var details = new List<Detail>();
+
+    //    using (var reader = commandDetails.ExecuteReader())
+    //    {
+    //        while (reader.Read())
+    //        {
+    //            var detail = new Detail
+    //            {
+    //                OrderID = (int)reader["OrderID"],
+    //                ShoesID = (int)reader["ShoesID"],
+    //                Quantity = (int)reader["Quantity"],
+    //                Price = (decimal)reader["Price"]
+    //            };
+
+    //            details.Add(detail);
+    //        }
+    //    }
+    //    return details;
+    //}
+
+    public Tuple<bool, string, List<Detail>> GetDetailsByOrderIds(List<int> orderIds)
+    {
+        try
+        {
+            if (!orderIds.Any())
+                return new Tuple<bool, string, List<Detail>>(true, string.Empty, new List<Detail>());
+
+            var sqlQuery = $"""
+            SELECT "DetailID", "OrderID", "ShoesID", "Quantity", "Price"
+            FROM "Detail"
+            WHERE "OrderID" = ANY(@OrderIds);
+            """;
+
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.AddWithValue("@OrderIds", orderIds);
+
+            var details = new List<Detail>();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var detail = new Detail
+                    {
+                        ID = (int)reader["DetailID"],
+                        OrderID = (int)reader["OrderID"],
+                        ShoesID = (int)reader["ShoesID"],
+                        Quantity = (int)reader["Quantity"],
+                        Price = (decimal)reader["Price"]
+                    };
+                    details.Add(detail);
+                }
+            }
+
+            return new Tuple<bool, string, List<Detail>>(true, string.Empty, details);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, List<Detail>>(false, ex.Message, null);
+        }
+    }
+
+
+    //private Dictionary<int, Shoes> GetShoesByIds(List<int> shoesIds)
+    //{
+    //    var sqlQueryShoes = $"""
+    //    SELECT "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description"
+    //    FROM "Shoes"
+    //    WHERE "ShoesID" = ANY(@ShoesIDs);
+    //    """;
+
+    //    var commandShoes = new NpgsqlCommand(sqlQueryShoes, dbConnection);
+    //    commandShoes.Parameters.Add("@ShoesIDs", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = shoesIds.ToArray();
+
+    //    var shoesDictionary = new Dictionary<int, Shoes>();
+
+    //    using (var reader = commandShoes.ExecuteReader())
+    //    {
+    //        while (reader.Read())
+    //        {
+    //            var shoes = new Shoes
+    //            {
+    //                ID = (int)reader["ShoesID"],
+    //                CategoryID = (int)reader["CategoryID"],
+    //                Name = (string)reader["Name"],
+    //                Brand = (string)reader["Brand"],
+    //                Size = (string)reader["Size"],
+    //                Color = (string)reader["Color"],
+    //                Price = (decimal)reader["Price"],
+    //                Stock = (int)reader["Stock"],
+    //                Image = (string)reader["Image"],
+    //                Description = (string)reader["Description"]
+    //            };
+
+    //            shoesDictionary[shoes.ID] = shoes;
+    //        }
+    //    }
+    //    return shoesDictionary;
+    //}
+
+    public Tuple<bool, string, Dictionary<int, Shoes>> GetShoesByIds(List<int> shoesIds)
+    {
+        try
+        {
+            if (!shoesIds.Any())
+                return new Tuple<bool, string, Dictionary<int, Shoes>>(true, string.Empty, new Dictionary<int, Shoes>());
+
+            var sqlQuery = $"""
+            SELECT "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description"
+            FROM "Shoes"
+            WHERE "ShoesID" = ANY(@ShoesIDs);
+            """;
+
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.AddWithValue("@ShoesIds", shoesIds);
+
+            var shoesDictionary = new Dictionary<int, Shoes>();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var shoes = new Shoes
+                    {
+                        ID = (int)reader["ShoesID"],
+                        CategoryID = (int)reader["CategoryID"],
+                        Name = (string)reader["Name"],
+                        Brand = (string)reader["Brand"],
+                        Size = (string)reader["Size"],
+                        Color = (string)reader["Color"],
+                        Price = (decimal)reader["Price"],
+                        Stock = (int)reader["Stock"],
+                        Image = (string)reader["Image"],
+                        Description = (string)reader["Description"]
+                    };
+                    shoesDictionary[shoes.ID] = shoes;
+                }
+            }
+
+            return new Tuple<bool, string, Dictionary<int, Shoes>>(true, string.Empty, shoesDictionary);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, Dictionary<int, Shoes>>(false, ex.Message, null);
+        }
+    }
+
+
+    //private Dictionary<int, User> GetUserByIds(List<int> userIds)
+    //{
+    //    if (userIds == null || userIds.Count == 0)
+    //    {
+    //        return new Dictionary<int, User>();
+    //    }
+
+    //    var sqlQueryUsers = $"""
+    //    SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber"
+    //    FROM "User"
+    //    WHERE "UserID" = ANY(@UserIds);
+    //    """;
+
+    //    var commandUsers = new NpgsqlCommand(sqlQueryUsers, dbConnection);
+    //    commandUsers.Parameters.Add("@UserIds", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = userIds.ToArray();
+
+    //    var users = new Dictionary<int, User>();
+    //    var addressIds = new List<int>();
+    //    using (var reader = commandUsers.ExecuteReader())
+    //    {
+    //        while (reader.Read())
+    //        {
+    //            var user = new User
+    //            {
+    //                ID = (int)reader["UserID"],
+    //                AddressID = (int)reader["AddressID"],
+    //                Name = (string)reader["Name"],
+    //                Email = (string)reader["Email"],
+    //                Password = (string)reader["Password"],
+    //                PhoneNumber = (string)reader["PhoneNumber"]
+    //            };
+
+    //            users[user.ID] = user; // Thêm user vào từ điển với UserID làm key
+    //            addressIds.Add(user.AddressID);
+    //        }
+    //    }
+
+    //    // Lấy thông tin địa chỉ bằng AddressID
+    //    var addressDictionary = GetAddressesByIds(addressIds);
+
+    //    // Gán Address vào User
+    //    foreach (var user in users.Values)
+    //    {
+    //        if (addressDictionary.ContainsKey(user.AddressID))
+    //        {
+    //            user.Address = addressDictionary[user.AddressID];
+    //        }
+    //    }
+
+    //    return users;
+    //}
+
+    public Tuple<bool, string, Dictionary<int, User>> GetUserByIds(List<int> userIds)
+    {
+        try
+        {
+            if (!userIds.Any())
+                return new Tuple<bool, string, Dictionary<int, User>>(true, string.Empty, new Dictionary<int, User>());
+
+            var sqlQuery = $"""
+            SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber"
+            FROM "User"
+            WHERE "UserID" = ANY(@UserIds);
+            """;
+
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.AddWithValue("@UserIds", userIds);
+
+            var userDictionary = new Dictionary<int, User>();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var user = new User
+                    {
+                        ID = (int)reader["UserID"],
+                        AddressID = (int)reader["AddressID"],
+                        Name = (string)reader["Name"],
+                        Email = (string)reader["Email"],
+                        Password = (string)reader["Password"],
+                        PhoneNumber = (string)reader["PhoneNumber"]
+                    };
+                    userDictionary[user.ID] = user;
+                }
+            }
+
+            return new Tuple<bool, string, Dictionary<int, User>>(true, string.Empty, userDictionary);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, Dictionary<int, User>>(false, ex.Message, null);
+        }
+    }
+
+
+    //private Dictionary<int, Address> GetAddressesByIds(List<int> addressIds)
+    //{
+    //    var addresses = new Dictionary<int, Address>();
+
+    //    if (!addressIds.Any())
+    //        return addresses;
+
+    //    var idString = string.Join(",", addressIds);
+
+    //    var sqlQuery = $"""
+    //    SELECT "AddressID", "Street", "City", "State", "ZipCode", "Country"
+    //    FROM "Address"
+    //    WHERE "AddressID" IN ({idString});
+    //    """;
+
+    //    var command = new NpgsqlCommand(sqlQuery, dbConnection);
+
+    //    using (var reader = command.ExecuteReader())
+    //    {
+    //        while (reader.Read())
+    //        {
+    //            var address = new Address
+    //            {
+    //                ID = (int)reader["AddressID"],
+    //                Street = (string)reader["Street"],
+    //                City = (string)reader["City"],
+    //                State = (string)reader["State"],
+    //                ZipCode = (string)reader["ZipCode"],
+    //                Country = (string)reader["Country"]
+    //            };
+    //            addresses[address.ID] = address;
+    //        }
+    //    }
+
+    //    return addresses;
+    //}
+
+    public Tuple<bool, string, Dictionary<int, Address>> GetAddressesByIds(List<int> addressIds)
+    {
+        try
+        {
+            if (!addressIds.Any())
+                return new Tuple<bool, string, Dictionary<int, Address>>(true, string.Empty, new Dictionary<int, Address>());
+
+            var sqlQuery = $"""
+            SELECT "AddressID", "Street", "City", "State", "ZipCode", "Country"
+            FROM "Address"
+            WHERE "AddressID" = ANY(@AddressIds);
+            """;
+
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.AddWithValue("@AddressIds", addressIds);
+
+            var addressDictionary = new Dictionary<int, Address>();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var address = new Address
+                    {
+                        ID = (int)reader["AddressID"],
+                        Street = (string)reader["Street"],
+                        City = (string)reader["City"],
+                        State = (string)reader["State"],
+                        ZipCode = (string)reader["ZipCode"],
+                        Country = (string)reader["Country"]
+                    };
+                    addressDictionary[address.ID] = address;
+                }
+            }
+
+            return new Tuple<bool, string, Dictionary<int, Address>>(true, string.Empty, addressDictionary);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, Dictionary<int, Address>>(false, ex.Message, null);
+        }
+    }
+
+    //public Tuple<List<Order>, long> GetOrders(
+    //    int page, int rowsPerPage,
+    //    Dictionary<string, Tuple<string, string>> dateFieldsOptions,
+    //    Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+    //    Dictionary<string, string> textFieldsOptions,
+    //    Dictionary<string, IDao.SortType> sortOptions)
+    //{
+    //    var orderTextFields = new string[] { "Status" };
+    //    var orderNumberFields = new string[] { "OrderID", "UserID", "AddressID", "TotalAmount" };
+    //    var orderDateFields = new string[] { "OrderDate" };
+    //    var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
+
+    //    var sortString = GetSortString(categoryFields, sortOptions);
+    //    var whereString = GetWhereCondition(orderDateFields, dateFieldsOptions, orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
+
+    //    // Lệnh SQL để lấy Orders
+    //    var sqlQueryOrders = $"""
+    //    SELECT count(*) over() as Total, "OrderID", "UserID", "OrderDate", "Status", "AddressID", "TotalAmount"
+    //    FROM "Order" {whereString} {sortString}
+    //    LIMIT @Take 
+    //    OFFSET @Skip;
+    //    """;
+
+    //    var commandOrders = new NpgsqlCommand(sqlQueryOrders, dbConnection);
+    //    commandOrders.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+    //    commandOrders.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
+
+    //    var orders = new List<Order>();
+    //    long totalOrders = 0;
+
+    //    // Đọc dữ liệu từ bảng Order
+    //    using (var reader = commandOrders.ExecuteReader())
+    //    {
+    //        while (reader.Read())
+    //        {
+    //            if (totalOrders == 0)
+    //            {
+    //                totalOrders = (long)reader["Total"];
+    //            }
+
+    //            var order = new Order
+    //            {
+    //                ID = (int)reader["OrderID"],
+    //                UserID = (int)reader["UserID"],
+    //                Status = (string)reader["Status"],
+    //                OrderDate = ((DateTime)reader["OrderDate"]).ToString("yyyy-MM-dd"),
+    //                AddressID = (int)reader["AddressID"],
+    //                TotalAmount = (decimal)reader["TotalAmount"],
+    //                Details = new List<Detail>() // Danh sách chi tiết sẽ được thêm sau
+    //            };
+
+    //            orders.Add(order);
+    //        }
+    //    }
+
+    //    // Lệnh SQL để lấy Order Details
+    //    if (orders.Count > 0)
+    //    {
+    //        // Lấy AddressID từ Orders
+    //        var addressIds = orders.Select(o => o.AddressID).Distinct().ToList();
+    //        var addressDictionary = GetAddressesByIds(addressIds);
+
+    //        foreach (var order in orders)
+    //        {
+    //            if (addressDictionary.ContainsKey(order.AddressID))
+    //            {
+    //                order.Address = addressDictionary[order.AddressID];
+    //            }
+    //        }
+
+    //        // Lấy UserIDs từ Orders
+    //        var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+    //        var userDictionary = GetUserByIds(userIds);
+
+    //        // Gắn User vào Orders
+    //        foreach (var order in orders)
+    //        {
+    //            if (userDictionary.ContainsKey(order.UserID))
+    //            {
+    //                order.User = userDictionary[order.UserID];
+    //            }
+    //        }
+    //        // Lấy Details
+    //        var orderIds = orders.Select(o => o.ID).ToList();
+    //        var details = GetDetailsByOrderIds(orderIds);
+
+    //        // Lấy Shoes
+    //        var shoesIds = details.Select(d => d.ShoesID).Distinct().ToList();
+    //        var shoesDictionary = GetShoesByIds(shoesIds);
+
+    //        // Gắn Details và Shoes vào Orders
+    //        foreach (var detail in details)
+    //        {
+    //            if (shoesDictionary.ContainsKey(detail.ShoesID))
+    //            {
+    //                detail.Shoes = shoesDictionary[detail.ShoesID];
+    //            }
+
+    //            var order = orders.FirstOrDefault(o => o.ID == detail.OrderID);
+    //            if (order != null)
+    //            {
+    //                order.Details.Add(detail);
+    //            }
+    //        }
+    //    }
+
+    //    return new Tuple<List<Order>, long>(orders, totalOrders);
+    //}
+
+    public Tuple<bool, string, List<Order>, long> GetOrders(
+        int page,
+        int rowsPerPage,
+        Dictionary<string, Tuple<string, string>> dateFieldsOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
+        Dictionary<string, string> textFieldsOptions,
+        Dictionary<string, IDao.SortType> sortOptions)
+    {
+        try
+        {
+            var orderTextFields = new string[] { "Status" };
+            var orderNumberFields = new string[] { "OrderID", "UserID", "AddressID", "TotalAmount" };
+            var orderDateFields = new string[] { "OrderDate" };
+            var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
+
+            var sortString = GetSortString(categoryFields, sortOptions);
+            var whereString = GetWhereCondition(orderDateFields, dateFieldsOptions, orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
+
+            // SQL query to get Orders
+            var sqlQueryOrders = $"""
+            SELECT count(*) over() as Total, "OrderID", "UserID", "OrderDate", "Status", "AddressID", "TotalAmount"
+            FROM "Order" {whereString} {sortString}
+            LIMIT @Take 
+            OFFSET @Skip;
+            """;
+
+            var commandOrders = new NpgsqlCommand(sqlQueryOrders, dbConnection);
+            commandOrders.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+            commandOrders.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
+
+            var orders = new List<Order>();
+            long totalOrders = 0;
+
+            using (var reader = commandOrders.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (totalOrders == 0)
+                    {
+                        totalOrders = (long)reader["Total"];
+                    }
+
+                    var order = new Order
+                    {
+                        ID = (int)reader["OrderID"],
+                        UserID = (int)reader["UserID"],
+                        Status = (string)reader["Status"],
+                        OrderDate = ((DateTime)reader["OrderDate"]).ToString("yyyy-MM-dd"),
+                        AddressID = (int)reader["AddressID"],
+                        TotalAmount = (decimal)reader["TotalAmount"]
+                    };
+
+                    orders.Add(order);
+                }
+            }
+
+            return new Tuple<bool, string, List<Order>, long>(true, string.Empty, orders, totalOrders);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, List<Order>, long>(false, ex.Message, null, 0);
+        }
+    }
+
+
+
+    public Tuple<bool, string, Order> AddOrder(Order newOrder)
+    {
+        using (var transaction = dbConnection.BeginTransaction())
+        {
+            try
+            {
+                // 1. Thêm Order mới
+                var insertOrderQuery = $"""
+                INSERT INTO "Order" ("UserID", "OrderDate", "Status", "AddressID", "TotalAmount")
+                VALUES (@UserID, @OrderDate, @Status, @AddressID, @TotalAmount)
+                RETURNING "OrderID";
+                """;
+
+                var orderCommand = new NpgsqlCommand(insertOrderQuery, dbConnection);
+                orderCommand.Transaction = transaction;
+
+                // Gán tham số
+                orderCommand.Parameters.AddWithValue("@UserID", newOrder.UserID);
+                orderCommand.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
+                orderCommand.Parameters.AddWithValue("@Status", newOrder.Status);
+                orderCommand.Parameters.AddWithValue("@AddressID", 1);
+                orderCommand.Parameters.AddWithValue("@TotalAmount", newOrder.Details.Sum(d => d.Price));
+
+                var orderId = (int)orderCommand.ExecuteScalar();
+
+                // 2. Thêm chi tiết OrderDetails
+                foreach (var detail in newOrder.Details)
+                {
+                    var insertDetailQuery = $"""
+                    INSERT INTO "Detail" ("OrderID", "ShoesID", "Quantity", "Price")
+                    VALUES (@OrderID, @ShoesID, @Quantity, @Price);
+                    """;
+
+                    var detailCommand = new NpgsqlCommand(insertDetailQuery, dbConnection);
+                    detailCommand.Transaction = transaction;
+
+                    detailCommand.Parameters.AddWithValue("@OrderID", orderId);
+                    detailCommand.Parameters.AddWithValue("@ShoesID", detail.ShoesID);
+                    detailCommand.Parameters.AddWithValue("@Quantity", detail.Quantity);
+                    detailCommand.Parameters.AddWithValue("@Price", detail.Price);
+
+                    detailCommand.ExecuteScalar();
+                }
+
+                // 3. Commit giao dịch
+                transaction.Commit();
+
+                // 4. Tạo đối tượng Order để trả về
+                var createdOrder = new Order
+                {
+                    ID = orderId,
+                    UserID = newOrder.UserID,
+                    OrderDate = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                    Status = "Pending",
+                    TotalAmount = newOrder.Details.Sum(d => d.Price)
+                };
+
+                return Tuple.Create(true, "Order created successfully.", createdOrder);
+            }
+            catch (Exception ex)
+            {
+                // Rollback giao dịch nếu có lỗi
+                transaction.Rollback();
+                return Tuple.Create(false, $"Failed to create order: {ex.Message}", (Order)null);
+            }
+        }
+    }
+
+
+    public Tuple<bool, string> AddDetail(int orderId, Detail detail)
+    {
+        try
+        {
+            // Câu lệnh thêm Detail
+            var insertDetailQuery = $"""
+            INSERT INTO "Detail" ("OrderID", "ShoesID", "Quantity", "Price")
+            VALUES (@OrderID, @ShoesID, @Quantity, @Price);
+            """;
+
+            using (var command = new NpgsqlCommand(insertDetailQuery, dbConnection))
+            {
+                command.Parameters.AddWithValue("@OrderID", orderId);
+                command.Parameters.AddWithValue("@ShoesID", detail.ShoesID);
+                command.Parameters.AddWithValue("@Quantity", detail.Quantity);
+                command.Parameters.AddWithValue("@Price", detail.Price);
+
+                command.ExecuteNonQuery();
+                return Tuple.Create(true, "Detail added successfully.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, $"Failed to add detail: {ex.Message}");
+        }
+    }
+
+
+    //public Tuple<bool, string, Order> AddOrder(Order newOrder)
+    //{
+    //    try
+    //    {
+    //        // Thêm Order mới
+    //        var insertOrderQuery = $"""
+    //        INSERT INTO "Order" ("UserID", "OrderDate", "Status", "AddressID", "TotalAmount")
+    //        VALUES (@UserID, @OrderDate, @Status, @AddressID, @TotalAmount)
+    //        RETURNING "OrderID";
+    //        """;
+
+    //        using (var command = new NpgsqlCommand(insertOrderQuery, dbConnection))
+    //        {
+    //            command.Parameters.AddWithValue("@UserID", newOrder.UserID);
+    //            command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
+    //            command.Parameters.AddWithValue("@Status", newOrder.Status);
+    //            command.Parameters.AddWithValue("@AddressID", newOrder.AddressID);
+    //            command.Parameters.AddWithValue("@TotalAmount", newOrder.Details.Sum(d => d.Price));
+
+    //            var orderId = (int)command.ExecuteScalar();
+    //            newOrder.ID = orderId;
+    //            return Tuple.Create(true, "Order added successfully.", newOrder);
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return Tuple.Create(false, $"Failed to add order: {ex.Message}", new Order());
+    //    }
+    //}
+
+
+
+    public Tuple<bool, string, Order> UpdateOrder(Order order)
+    {
+        using (var transaction = dbConnection.BeginTransaction())
+        {
+            try
+            {
+                //Cập nhật hoặc thêm Address nếu tồn tại
+                if (order.Address != null)
+                {
+                    var upsertAddressQuery = $"""
+                    INSERT INTO "Address" ("Street", "City", "State", "ZipCode", "Country")
+                    VALUES (@Street, @City, @State, @ZipCode, @Country)
+                    RETURNING "AddressID";
+                    """;
+
+                    var addressCommand = new NpgsqlCommand(upsertAddressQuery, dbConnection);
+                    addressCommand.Transaction = transaction;
+
+                    
+                    addressCommand.Parameters.AddWithValue("@Street", order.Address.Street);
+                    addressCommand.Parameters.AddWithValue("@City", order.Address.City);
+                    addressCommand.Parameters.AddWithValue("@State", order.Address.State);
+                    addressCommand.Parameters.AddWithValue("@ZipCode", order.Address.ZipCode);
+                    addressCommand.Parameters.AddWithValue("@Country", order.Address.Country);
+
+                    order.AddressID = (int)addressCommand.ExecuteScalar();
+                }
+                //Cập nhật thông tin Order
+                var updateOrderQuery = $"""
+                UPDATE "Order"
+                SET "UserID" = @UserID, 
+                    "OrderDate" = @OrderDate,
+                    "Status" = @Status,
+                    "AddressID" = @AddressID,
+                    "TotalAmount" = @TotalAmount
+                WHERE "OrderID" = @OrderID;
+                """;
+
+                var orderCommand = new NpgsqlCommand(updateOrderQuery, dbConnection);
+                orderCommand.Transaction = transaction;
+
+                
+                orderCommand.Parameters.AddWithValue("@OrderID", order.ID);
+                orderCommand.Parameters.AddWithValue("@UserID", order.UserID);
+                orderCommand.Parameters.AddWithValue("@OrderDate", DateTime.Parse(order.OrderDate));
+                orderCommand.Parameters.AddWithValue("@Status", order.Status);
+                orderCommand.Parameters.AddWithValue("@AddressID", order.AddressID);
+                orderCommand.Parameters.AddWithValue("@TotalAmount", order.TotalAmount);
+
+                orderCommand.ExecuteNonQuery();
+
+                //Nếu có Details, xóa và chèn lại
+                if (order.Details != null && order.Details.Any())
+                {
+                    var deleteDetailsQuery = $"""
+                    DELETE FROM "Detail"
+                    WHERE "OrderID" = @OrderID;
+                    """;
+
+                    var deleteDetailsCommand = new NpgsqlCommand(deleteDetailsQuery, dbConnection);
+                    deleteDetailsCommand.Transaction = transaction;
+                    deleteDetailsCommand.Parameters.AddWithValue("@OrderID", order.ID);
+                    deleteDetailsCommand.ExecuteNonQuery();
+
+                    foreach (var detail in order.Details)
+                    {
+                        var insertDetailQuery = $"""
+                        INSERT INTO "Detail" ("OrderID", "ShoesID", "Quantity", "Price")
+                        VALUES (@OrderID, @ShoesID, @Quantity, @Price);
+                        """;
+
+                        var detailCommand = new NpgsqlCommand(insertDetailQuery, dbConnection);
+                        detailCommand.Transaction = transaction;
+
+                        detailCommand.Parameters.AddWithValue("@OrderID", order.ID);
+                        detailCommand.Parameters.AddWithValue("@ShoesID", detail.ShoesID);
+                        detailCommand.Parameters.AddWithValue("@Quantity", detail.Quantity);
+                        detailCommand.Parameters.AddWithValue("@Price", detail.Price);
+
+                        detailCommand.ExecuteNonQuery();
+                    }
+                }
+
+                //Commit giao dịch
+                transaction.Commit();
+
+                return Tuple.Create(true, "Order updated successfully.", order);
+            }
+            catch (Exception ex)
+            {
+                // Rollback nếu có lỗi
+                transaction.Rollback();
+                return Tuple.Create(false, $"Failed to update order: {ex.Message}", order);
+            }
+        }
+    }
+
+
+
+    public Tuple<bool, string> DeleteOrder(Order order)
+    {
+        using (var transaction = dbConnection.BeginTransaction())
+        {
+            try
+            {
+                // 1. Xóa OrderDetails liên quan
+                var deleteDetailsQuery = $"""
+                DELETE FROM "Detail"
+                WHERE "OrderID" = @OrderID;
+                """;
+
+                var deleteDetailsCommand = new NpgsqlCommand(deleteDetailsQuery, dbConnection);
+                deleteDetailsCommand.Transaction = transaction;
+                deleteDetailsCommand.Parameters.AddWithValue("@OrderID", order.ID);
+                deleteDetailsCommand.ExecuteNonQuery();
+
+                // 2. Xóa Order
+                var deleteOrderQuery = $"""
+                DELETE FROM "Order"
+                WHERE "OrderID" = @OrderID;
+            """;
+
+                var deleteOrderCommand = new NpgsqlCommand(deleteOrderQuery, dbConnection);
+                deleteOrderCommand.Transaction = transaction;
+                deleteOrderCommand.Parameters.AddWithValue("@OrderID", order.ID);
+                deleteOrderCommand.ExecuteNonQuery();
+
+                // 3. Commit giao dịch
+                transaction.Commit();
+
+                return Tuple.Create(true, "Order deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Rollback nếu có lỗi
+                transaction.Rollback();
+                return Tuple.Create(false, $"Failed to delete order: {ex.Message}");
+            }
+        }
+    }
+
+
+    public Tuple<bool, string> DeleteDetail(int orderId, int detailId)
+    {
+        try
+        {
+            var deleteDetailQuery = $"""
+            DELETE FROM "Detail"
+            WHERE "OrderID" = @OrderID AND "DetailID" = @DetailID;
+            """;
+
+            using (var command = new NpgsqlCommand(deleteDetailQuery, dbConnection))
+            {
+                command.Parameters.AddWithValue("@OrderID", orderId);
+                command.Parameters.AddWithValue("@DetailID", detailId);
+                command.ExecuteNonQuery();
+            }
+
+            return Tuple.Create(true, "Detail deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, $"Failed to delete detail: {ex.Message}");
+        }
+    }
+
+    //public Tuple<bool, string> DeleteOrderById(int orderId)
+    //{
+    //    try
+    //    {
+    //        var deleteOrderQuery = $"""
+    //        DELETE FROM "Order"
+    //        WHERE "OrderID" = @OrderID;
+    //        """;
+
+    //        using (var command = new NpgsqlCommand(deleteOrderQuery, dbConnection))
+    //        {
+    //            command.Parameters.AddWithValue("@OrderID", orderId);
+    //            command.ExecuteNonQuery();
+    //        }
+
+    //        return Tuple.Create(true, "Order deleted successfully.");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return Tuple.Create(false, $"Failed to delete order: {ex.Message}");
+    //    }
+    //}
+
+
+    public Tuple<bool, string, Detail> AddDetail(Detail newDetail)
+    {
+        try
+        {
+            if (newDetail == null)
+            {
+                return new Tuple<bool, string, Detail>(false, "Can't add null Detail", null);
+            }
+
+            var fields = new string[] { "OrderID", "ShoesID", "Quantity", "Price" };
+            var values = new string[] { $"{newDetail.OrderID}", $"{newDetail.ShoesID}", $"{newDetail.Quantity}", $"{newDetail.Price}" };
+            var types = new string[] { "integer", "integer", "integer", "decimal" };
+            var query = CreateInsertQuery("Details", "DetailID", fields, values, types);
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                var id = command.ExecuteScalar();
+                newDetail.ID = Convert.ToInt32(id);
+            }
+
+            return new Tuple<bool, string, Detail>(true, string.Empty, newDetail);
+        }
+        catch (Exception e)
+        {
+            return new Tuple<bool, string, Detail>(false, e.Message, null);
+        }
+    }
+
 
     public User GetUserByID(int userID)
     {

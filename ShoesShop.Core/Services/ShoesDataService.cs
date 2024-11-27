@@ -10,6 +10,7 @@ public class ShoesDataService : IShoesDataService
     private (IEnumerable<Shoes>, int, string, int) _ShoesDataTuple;
 
 
+
     private string _searchParams;
     public string SearchParams
     {
@@ -18,6 +19,24 @@ public class ShoesDataService : IShoesDataService
         set
         {
             _searchParams = value;
+        }
+    }
+
+    private Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>> _searchQuery;
+
+
+    public Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>> searchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            _searchQuery = value;
         }
     }
 
@@ -30,11 +49,8 @@ public class ShoesDataService : IShoesDataService
 
     public async Task<(IEnumerable<Shoes>, int, string, int)> LoadDataAsync()
     {
-        //_ShoesDataTuple = await _ShoesRepository.GetAllShoessAsync(SearchParams);
-        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>(); // Không có điều kiện số
-        var textFieldsOptions = new Dictionary<string, string>(); // Không có điều kiện văn bản
-        var sortOptions = new Dictionary<string, IDao.SortType>(); // Không có điều kiện sắp xếp
-        var (listShoes, totalShoes) = _dao.GetShoes(1, int.MaxValue, numberFieldsOptions, textFieldsOptions, sortOptions);
+        var (currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions) = _searchQuery;
+        var (listShoes, totalShoes) = _dao.GetShoes(currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
         _ShoesDataTuple = (listShoes, (int)totalShoes, "Success", 1);
         //return _ShoesDataTuple;
         return _ShoesDataTuple;

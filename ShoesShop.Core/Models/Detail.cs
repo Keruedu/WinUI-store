@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class OrderDetail
+public class Detail
 {
     public int ID
     {
@@ -25,6 +25,10 @@ public class OrderDetail
         get; set;
     }
     public decimal Price
+    {
+        get; set;
+    }
+    public Shoes Shoes
     {
         get; set;
     }

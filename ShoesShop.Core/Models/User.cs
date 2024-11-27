@@ -32,6 +32,10 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
+    public Address Address
+    {
+        get; set;
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
 }

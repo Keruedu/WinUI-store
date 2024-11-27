@@ -6,8 +6,10 @@ npm install --save knex dotenv tedious
 
 npm install pg
 
-
-
+run all this command to build database with docker:
+docker-compose -f postgreSQL.yaml up -d
+npx knex migrate:latest
+npx knex seed:run
 
 if you don't have container yet
 comand to your terminal: 
