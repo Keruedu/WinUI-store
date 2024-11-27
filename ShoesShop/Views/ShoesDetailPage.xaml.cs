@@ -88,7 +88,7 @@ public sealed partial class ShoesDetailPage : Page
 
         if (category is not null)
         {
-            ViewModel.EditShoes.ID = category.ID;
+            ViewModel.EditShoes.CategoryID = category.ID;
         }
     }
 }

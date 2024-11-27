@@ -13,13 +13,18 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 {
     private readonly IShoesDataService _ShoesDataService;
     private readonly ICategoryDataService _categoryDataService;
+    private readonly ICloudinaryService _cloudinaryService;
 
     [ObservableProperty]
     private Shoes newShoes = new()
     {
+        CategoryID = 1,
+        Name = "Your Shoes Name",
+        Brand = "Your Shoes Brand",
         Stock = 1,
         Price = 1000,
-        Color = "White",
+        Color = "Black",
+        Size = "40",
     };
 
     [ObservableProperty]
@@ -36,6 +41,9 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 
     [ObservableProperty]
     private string selectedImageName = string.Empty;
+
+    [ObservableProperty]
+    private string selectedImagePath = string.Empty;
 
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
@@ -62,15 +70,17 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         get; set;
     }
 
-    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService)
+    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService)
     {
         _ShoesDataService = ShoesDataService;
         _categoryDataService = categoryDataService;
+        _cloudinaryService = cloudinaryService;
 
         SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
         RemoveImageButtonCommand = new RelayCommand(RemoveImage, () => IsImageSelected);
         AddShoesButtonCommand = new RelayCommand(AddShoes, () => !IsLoading);
         ResetButtonCommand = new RelayCommand(Reset, () => !IsLoading);
+        
     }
 
     public async void SelectImage()
@@ -90,10 +100,9 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         if (file != null)
         {
             SelectedImageName = file.Name;
-            using var stream = await file.OpenStreamForReadAsync();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            NewShoes.Image = "kk";
+            SelectedImagePath = file.Path;
+            NewShoes.Image = SelectedImagePath;
+            OnPropertyChanged(nameof(NewShoes));
         }
 
         NotfifyChanges();
@@ -113,21 +122,33 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
         NotfifyChanges();
+        try {
+            if (!string.IsNullOrEmpty(NewShoes?.Image) && NewShoes.Image == SelectedImagePath)
+            {
+                var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image);
+                NewShoes.Image = imageUrl;
+            }
+            var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
 
-        var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
+            if (ERROR_CODE == 1)
+            {
 
-        if (ERROR_CODE == 0)
-        {
-            SuccessMessage = message;
-            Reset();
+                SuccessMessage = message;
+                Reset();
+            }
+            else
+            {
+                ErrorMessage = message;
+            }
+
+        } catch (Exception ex) {
+            ErrorMessage = $"An error occurred: {ex.Message}";
         }
-        else
+        finally
         {
-            ErrorMessage = message;
+            IsLoading = false;
+            NotfifyChanges();
         }
-
-        IsLoading = false;
-        NotfifyChanges();
     }
 
     public async void LoadCategories()
@@ -145,9 +166,10 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     {
         NewShoes = new()
         {
+            CategoryID = 1,
+            Name = "Your Shoes Name",
             Stock = 1,
             Price = 1000,
-            Color = "White"
         };
         SelectedImageName = string.Empty;
         NotfifyChanges();

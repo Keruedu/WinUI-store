@@ -36,8 +36,8 @@
             </Style>
 
             <Style TargetType="Image" x:Key="ShoesPosterStyle">
-                <Setter Property="Width" Value="127" />
-                <Setter Property="Height" Value="127" />
+                <Setter Property="Width" Value="200" />
+                <Setter Property="Height" Value="130" />
             </Style>
 
             <Style TargetType="TextBlock" x:Key="ShoesTitleStyle">
@@ -64,7 +64,7 @@
                 <Setter Property="Margin" Value="0, 8, 0, 0" />
             </Style>
 
-            <Style TargetType="TextBlock" x:Key="ShoesAuthorStyle">
+            <Style TargetType="TextBlock" x:Key="ShoesColorStyle">
                 <Setter Property="Margin" Value="0, 8, 0, 0" />
                 <Setter Property="FontStyle" Value="Italic" />
                 <Setter Property="TextWrapping" Value="Wrap" />
@@ -246,18 +246,23 @@
                                 <Border x:Name="ShoesBorder" Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="4" CornerRadius="6">
                                     <StackPanel x:Name="itemThumbnail" Padding="12">
                                         <Border CornerRadius="6" HorizontalAlignment="Center">
-                                            <!--<Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Avatar}" />-->
-                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="Assets/Square150x150Logo.scale-200.png" />
+                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Image}" Stretch="UniformToFill" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource ShoesTitleStyle}" />
+                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource ShoesTitleStyle}"/>
                                         <TextBlock Style="{StaticResource ShoesPYStyle}">
-                                            <Run Text="(" />
+                                            <Run Text="Size: " />
                                             <Run Text="{x:Bind Size}" />
-                                            <Run Text=")" />
                                         </TextBlock>
-                                        <TextBlock Text="{x:Bind Color}" Style="{StaticResource ShoesAuthorStyle}" />
-                                        <!--<TextBlock Text="{x:Bind Price, Converter={StaticResource VietnamesePriceConverter}}"  Style="{StaticResource ShoesPriceStyle}">
-                                        </TextBlock>-->
+                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
+                                            <Run Text="Branch: " />
+                                            <Run Text="{x:Bind Brand}" />
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
+                                            <Run Text="Color: " />
+                                            <Run Text="{x:Bind Color}" />
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Bind Price, Converter={StaticResource VietnamesePriceConverter}}"  Style="{StaticResource ShoesPriceStyle}">
+                                        </TextBlock>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

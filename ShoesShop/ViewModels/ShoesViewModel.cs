@@ -26,12 +26,12 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         SortOptions = new List<SortObject>
         {
             new() { Name = "Default", Value = "default", IsAscending = true },
-            new() { Name = "Title (A-Z)", Value = "name", IsAscending = true },
-            new() { Name = "Title (Z-A)", Value="name", IsAscending = false },
-            new() { Name = "Price (Low - High)", Value="sellingPrice", IsAscending = true },
-            new() { Name = "Price (High - Low)", Value="sellingPrice", IsAscending = false },
-            new() { Name = "PublishYear (Past)", Value="publishedYear", IsAscending = true },
-            new() { Name = "PublishYear (Recent)", Value="publishedYear", IsAscending = false },
+            new() { Name = "Name (A-Z)", Value = "Name", IsAscending = true },
+            new() { Name = "Name (Z-A)", Value="Name", IsAscending = false },
+            new() { Name = "Price (Low - High)", Value="Price", IsAscending = true },
+            new() { Name = "Price (High - Low)", Value="Price", IsAscending = false },
+            new() { Name = "Stock (Past)", Value="Stock", IsAscending = true },
+            new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
         };
         SelectedSortOption = SortOptions[0];
         LoadCategories();
@@ -39,14 +39,18 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
     public async void LoadCategories()
     {
-        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        await _categoryDataService.LoadDataAsync();
         var (categories, _, _) = _categoryDataService.GetData();
 
         if (categories is not null)
         {
             foreach (var category in categories)
             {
-                CategoryFilters.Add(category);
+                if (!categoryFilters.Contains(category))
+                {
+                    CategoryFilters.Add(category);
+                }
             }
         }
 
@@ -60,9 +64,13 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         ErrorMessage = string.Empty;
         NotfifyChanges();
 
-        _ShoesDataService.SearchParams = await BuildSearchParamsAsync();
+        //use rest api, not implemented yet
+        //_ShoesDataService.SearchParams = await BuildSearchParamsAsync();
+
+        _ShoesDataService.searchQuery = await BuildSearchQueryAsync();
 
         await Task.Run(async () => await _ShoesDataService.LoadDataAsync());
+
 
         var (data, totalItems, message, ERROR_CODE) = _ShoesDataService.GetData();
 
@@ -72,7 +80,12 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
             foreach (var item in data)
             {
+                if (item.Image is null || item.Image == "")
+                {
+                    item.Image = "https://res.cloudinary.com/dyocg3k6j/image/upload/v1732185753/cld-sample-5.jpg";
+                }
                 Source.Add(item);
+
             }
 
             TotalItems = totalItems;
@@ -84,7 +97,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         }
         else
         {
-            if (ERROR_CODE != 0)
+            if (ERROR_CODE == 0)
             {
                 ErrorMessage = message;
             }

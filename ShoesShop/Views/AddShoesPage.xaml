@@ -4,17 +4,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:ShoesShop.Helpers"
     mc:Ignorable="d">
-
+    <Page.Resources>
+        <helpers:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
+    </Page.Resources>
     <ScrollViewer Margin="0,0,0,40">
         <Grid>
             <StackPanel x:Name="ContentArea" Spacing="16" MaxWidth="600" Padding="0, 20, 0, 20">
-                <TextBox Header="Shoes title" PlaceholderText="Title" Text="{x:Bind ViewModel.NewShoes.Name, Mode=TwoWay}" />
-                <TextBox Header="Author" PlaceholderText="Author name" Text="{x:Bind ViewModel.NewShoes.ID, Mode=TwoWay}" />
-                <!--<NumberBox Header="Published year" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.NewShoes.PublishedYear, Mode=TwoWay}" />-->
+                <TextBox Header="Shoes Name" PlaceholderText="Shoes Name" Text="{x:Bind ViewModel.NewShoes.Name, Mode=TwoWay}" />
+                <TextBox Header="Brand" PlaceholderText="Brand name" Text="{x:Bind ViewModel.NewShoes.Brand, Mode=TwoWay}" />
+                <TextBox Header="Color" PlaceholderText="Color name" Text="{x:Bind ViewModel.NewShoes.Color, Mode=TwoWay}" />
+                <TextBox Header="Size" PlaceholderText="Size" Text="{x:Bind ViewModel.NewShoes.Size, Mode=TwoWay}" />
+                <!--<NumberBox Header="Size" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.NewShoes.Size, Mode=TwoWay}" />-->
                 <NumberBox Header="Available quantity" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.NewShoes.Stock, Mode=TwoWay}"/>
-                <TextBox Header="Description" Height="120" PlaceholderText="Write Shoes description" Text="{x:Bind ViewModel.NewShoes.Name, Mode=TwoWay}" />
-                <!--<NumberBox Header="Purchase price" Value="{x:Bind ViewModel.NewShoes.Price, Mode=TwoWay}" SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
+                <TextBox Header="Description" Height="120" PlaceholderText="Write Shoes description" Text="{x:Bind ViewModel.NewShoes.Description, Mode=TwoWay}" />
+                <NumberBox Header="Purchase price" Value="{x:Bind ViewModel.NewShoes.Price, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />
                 <!--<NumberBox Header="Selling price" Value="{x:Bind ViewModel.NewShoes.SellingPrice, Mode=TwoWay}"  SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
                 <ComboBox 
                     x:Name="CategoryCombobox" 

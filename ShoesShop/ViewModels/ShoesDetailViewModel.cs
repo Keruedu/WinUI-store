@@ -21,6 +21,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     private readonly IShoesDataService _ShoesDataService;
     private readonly INavigationService _navigationService;
     private readonly ICategoryDataService _categoryDataService;
+    private readonly ICloudinaryService _cloudinaryService;
 
     [ObservableProperty]
     public bool isEditSession = false;
@@ -37,6 +38,8 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
 
     [ObservableProperty]
     public string selectedImageName = string.Empty;
+    [ObservableProperty]
+    public string selectedImagePath = string.Empty;
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
     public bool HasEditError => !string.IsNullOrEmpty(EditErrorMessage);
 
@@ -47,6 +50,8 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     [ObservableProperty]
     public Shoes? editShoes;
 
+    [ObservableProperty]
+    public Category? category;
 
     public ObservableCollection<Review> Source { get; } = new ObservableCollection<Review>();
 
@@ -75,12 +80,13 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
         get; set;
     }
 
-    public ShoesDetailViewModel(IReviewDataService reviewDataService, IShoesDataService ShoesDataService, INavigationService navigationService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+    public ShoesDetailViewModel(IReviewDataService reviewDataService, IShoesDataService ShoesDataService, INavigationService navigationService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService, ICloudinaryService cloudinaryService) : base(storePageSettingsService)
     {
         _reviewDataService = reviewDataService;
         _ShoesDataService = ShoesDataService;
         _navigationService = navigationService;
         _categoryDataService = categoryDataService;
+        _cloudinaryService = cloudinaryService;
 
         SetEditItemSessionButtonCommand = new RelayCommand(() =>
         {
@@ -96,7 +102,9 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
 
     public async void LoadCategories()
     {
-        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        //Todo: Task run must be done when Navigate call
+        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        await _categoryDataService.LoadDataAsync();
         var (categories, _, _) = _categoryDataService.GetData();
 
         if (categories is not null)
@@ -127,10 +135,9 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
         if (file != null)
         {
             SelectedImageName = file.Name;
-            using var stream = await file.OpenStreamForReadAsync();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            EditShoes.Image = "kk";
+            SelectedImagePath = file.Path;
+            EditShoes.Image = SelectedImagePath;
+            OnPropertyChanged(nameof(EditShoes));
         }
 
         NotifyThisChanges();
@@ -188,7 +195,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
         }
         else
         {
-            if (ERROR_CODE != 0)
+            if (ERROR_CODE != 1)
             {
                 ErrorMessage = message;
             }
@@ -201,7 +208,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     {
         var (_, ERROR_CODE) = await _ShoesDataService.DeleteShoesAsync(Item);
 
-        if (ERROR_CODE == 0)
+        if (ERROR_CODE == 1)
         {
             _navigationService.GoBack();
         }
@@ -211,20 +218,37 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     {
         IsEditLoading = true;
 
-        var (returnedShoes, message, ERROR_CODE) = await _ShoesDataService.UpdateShoesAsync(EditShoes);
-
-        if (ERROR_CODE == 0)
-        {
-            Item = returnedShoes;
-            CancelEdit();
-        }
-        else
-        {
-            EditErrorMessage = message;
-        }
-
-        IsEditLoading = false;
         NotifyThisChanges();
+
+        try
+        {
+            // Check if there is an image to upload
+            if (!string.IsNullOrEmpty(EditShoes?.Image) && EditShoes.Image == SelectedImagePath)
+            {
+                var imageUrl = await _cloudinaryService.UploadImageAsync(EditShoes.Image);
+                EditShoes.Image = imageUrl;
+            }
+            var (returnedShoes, message, ERROR_CODE) = await _ShoesDataService.UpdateShoesAsync(EditShoes);
+
+            if (ERROR_CODE == 1)
+            {
+                Item = returnedShoes;
+                CancelEdit();
+            }
+            else
+            {
+                EditErrorMessage = message;
+            }
+        }
+        catch (Exception ex)
+        {
+            EditErrorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            IsEditLoading = false;
+            NotifyThisChanges();
+        }
     }
 
     public void CancelEdit()
@@ -244,6 +268,15 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             _reviewDataService.ShoesId = Item?.ID.ToString() ?? string.Empty;
             LoadReviewsAsync();
             LoadCategories();
+            foreach (var cate in CategoryOptions)
+            {
+                if(cate.ID == Item.CategoryID)
+                {
+
+                    Category = cate;
+                    break;
+                }
+            }
         }
     }
 

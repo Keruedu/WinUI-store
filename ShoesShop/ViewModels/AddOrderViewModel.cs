@@ -1,38 +1,246 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
+using CommunityToolkit.WinUI.UI.Controls;
+using Microsoft.Extensions.Hosting;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Core.Http;
 using ShoesShop.Core.Models;
+using ShoesShop.Services;
 
 namespace ShoesShop.ViewModels;
 
-public partial class AddOrderViewModel : ObservableRecipient, INavigationAware
+public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAware
 {
     private readonly INavigationService _navigationService;
-    private readonly ISampleDataService _sampleDataService;
+    private readonly IShoesDataService _ShoesDataService;
+    private readonly IOrderDataService _orderDataService;
+    private readonly ICategoryDataService _categoryDataService;
 
-    public ObservableCollection<SampleOrder> Source { get; } = new ObservableCollection<SampleOrder>();
-
-    public AddOrderViewModel(INavigationService navigationService, ISampleDataService sampleDataService)
+    public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
+    public ObservableCollection<Shoes> SelectedShoes { get; } = new ObservableCollection<Shoes>();
+    public RelayCommand AddOrderCommand
     {
-        _navigationService = navigationService;
-        _sampleDataService = sampleDataService;
+        get;
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public RelayCommand<Shoes> ToggleShoesSelectionCommand
     {
-        Source.Clear();
+        get;
+    }
 
-        // TODO: Replace with real data.
-        var data = await _sampleDataService.GetContentGridDataAsync();
-        foreach (var item in data)
+    public int UserId
+    {
+        get; set;
+    } = 1;
+    public DateTimeOffset OrderDate { get; set; } = DateTimeOffset.Now;
+    public string Status
+    {
+        get; set;
+    } = "Pending";
+    public ObservableCollection<string> Addresses { get; } = new ObservableCollection<string>();
+    public string SelectedAddress
+    {
+        get; set;
+    }
+    public decimal TotalAmount => SelectedShoes.Sum(shoes =>
+    {
+        var quantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID)?.Item2 ?? 1;
+        return shoes.Price * quantity;
+    });
+
+    public RelayCommand<Shoes> UpdateQuantityCommand
+    {
+        get;
+    }
+
+    public ObservableCollection<Tuple<int,int>> newDetailQuantity 
+    { 
+        get; set;
+    } = new ObservableCollection<Tuple<int, int>>();
+
+    public AddOrderViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+    {
+        AddOrderCommand = new RelayCommand(OnAddOrder);
+
+        _navigationService = navigationService;
+        _ShoesDataService = ShoesDataService;
+        _categoryDataService = categoryDataService;
+        _orderDataService = orderDataService;
+
+        FunctionOnCommand = LoadData;
+
+
+        SortOptions = new List<SortObject>
         {
-            Source.Add(item);
+            new() { Name = "Default", Value = "default", IsAscending = true },
+            new() { Name = "Name (A-Z)", Value = "Name", IsAscending = true },
+            new() { Name = "Name (Z-A)", Value="Name", IsAscending = false },
+            new() { Name = "Price (Low - High)", Value="Price", IsAscending = true },
+            new() { Name = "Price (High - Low)", Value="Price", IsAscending = false },
+            new() { Name = "Stock (Past)", Value="Stock", IsAscending = true },
+            new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
+        };
+        SelectedSortOption = SortOptions[0];
+        ToggleShoesSelectionCommand = new RelayCommand<Shoes>(ToggleShoesSelection);
+        OnPropertyChanged(nameof(TotalAmount));
+    }
+
+    public int GetQuantityForShoes(int shoesId)
+    {
+        var quantityTuple = newDetailQuantity.FirstOrDefault(item => item.Item1 == shoesId);
+        return quantityTuple != null ? quantityTuple.Item2 : 1;
+    }
+
+    public void SetQuantityForShoes(int shoesId, int quantity)
+    {
+        for (int i = 0; i < newDetailQuantity.Count; i++)
+        {
+            if (newDetailQuantity[i].Item1 == shoesId)
+            {
+                newDetailQuantity[i] = new Tuple<int, int>(shoesId, quantity);
+                break;
+            }
+        }
+
+        OnPropertyChanged(nameof(TotalAmount)); // Cập nhật lại tổng tiền
+    }
+
+    private void ToggleShoesSelection(Shoes shoes)
+    {
+        if (SelectedShoes.Contains(shoes))
+        {
+            SelectedShoes.Remove(shoes);
+        }
+        else
+        {
+            SelectedShoes.Add(shoes);
+        }
+    }
+
+    public async void LoadCategories()
+    {
+        await _categoryDataService.LoadDataAsync();
+        var (categories, _, _) = _categoryDataService.GetData();
+
+        if (categories is not null)
+        {
+            foreach (var category in categories)
+            {
+                CategoryFilters.Add(category);
+            }
+        }
+
+    }
+
+    private async void OnAddOrder()
+    {
+        if (SelectedShoes.Count == 0)
+        {
+            ErrorMessage = "Please select at least one Shoes";
+            NotfifyChanges();
+            await Task.Delay(2000); // Wait for 2 seconds
+            ErrorMessage = string.Empty;
+            NotfifyChanges();
+            return;
+        }
+
+        var orderDetails = SelectedShoes.Select(shoes =>
+        {
+            var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
+            return new Detail
+            {
+                ShoesID = shoes.ID,
+                Quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock,
+                Price = shoes.Price
+            };
+        }).ToList();
+
+        var order = new Order
+        {
+            UserID = UserId,
+            OrderDate = OrderDate.ToString(),
+            Status = Status,
+            Details = orderDetails,
+            AddressID = 1,
+        };
+
+        var (_, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
+
+
+        if (errorCode == 1)
+        {
+            _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
+        }
+        else
+        {
+            ErrorMessage = errorMessage;
+            ErrorMessage = string.Empty;
+            NotfifyChanges();
+        }
+    }
+
+    public async void LoadData()
+    {
+        IsDirty = false;
+        IsLoading = true;
+        InfoMessage = string.Empty;
+        ErrorMessage = string.Empty;
+        NotfifyChanges();
+
+        _ShoesDataService.searchQuery = await BuildSearchQueryAsync();
+
+        await Task.Run(async () => await _ShoesDataService.LoadDataAsync());
+
+        var (data, totalItems, message, ERROR_CODE) = _ShoesDataService.GetData();
+
+        if (data is not null)
+        {
+            Source.Clear();
+            newDetailQuantity.Clear();
+
+            foreach (var item in data)
+            {
+                Source.Add(item);
+                newDetailQuantity.Add(new Tuple<int, int>(item.ID, 1));
+            }
+
+            IsLoading = false;
+            TotalItems = totalItems;
+
+            if (TotalItems == 0)
+            {
+                InfoMessage = "No Shoes found";
+            }
+        }
+        else
+        {
+            if (ERROR_CODE == 0)
+            {
+                ErrorMessage = message;
+            }
+        }
+        IsLoading = false;
+        NotfifyChanges();
+    }
+
+    public void UpdateDetailQuantities()
+    {
+        for (int i = 0; i < newDetailQuantity.Count; i++)
+        {
+            var item = newDetailQuantity[i];
+            newDetailQuantity[i] = new Tuple<int, int>(item.Item1, 1);
+        }
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        if (Source.Count <= 0)
+        {
+            LoadData();
+            LoadCategories();
         }
     }
 
@@ -40,13 +248,13 @@ public partial class AddOrderViewModel : ObservableRecipient, INavigationAware
     {
     }
 
+
+
     [RelayCommand]
-    private void OnItemClick(SampleOrder? clickedItem)
+    private void OnApplyFiltersAndSearch()
     {
-        if (clickedItem != null)
-        {
-            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(AddOrderDetailViewModel).FullName!, clickedItem.OrderID);
-        }
+        LoadData();
     }
+
+
 }

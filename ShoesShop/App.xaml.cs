@@ -74,11 +74,10 @@ public partial class App : Application
 
 
             // Services
-            
+            services.AddSingleton<ICloudinaryService, CloudinaryService>();
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
-            services.AddTransient<IShoesDataService, ShoesDataService>();
             services.AddTransient<IStorePageSettingsService, StorePageSettingsService>();
             services.AddTransient<IStoreLastOpenPageService, StoreLastOpenPageService>();
             services.AddSingleton<IActivationService, ActivationService>();
@@ -93,6 +92,8 @@ public partial class App : Application
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<ICategoryDataService, CategoryDataService>();
+            services.AddTransient<IShoesDataService, ShoesDataService>();
+            services.AddTransient<IOrderDataService, OrderDataService>();
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
             services.AddSingleton<IStatisticRepository, StatisticRepository>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
@@ -104,12 +105,11 @@ public partial class App : Application
             services.AddTransient<SettingsPage>();
             services.AddTransient<ImportDataViewModel>();
             services.AddTransient<ImportDataPage>();
-            services.AddTransient<AddOrderDetailViewModel>();
-            services.AddTransient<AddOrderDetailPage>();
             services.AddTransient<AddOrderViewModel>();
             services.AddTransient<AddOrderPage>();
             services.AddTransient<OrdersViewModel>();
             services.AddTransient<OrdersPage>();
+            services.AddTransient<OrderDetailControlViewModel>();
             services.AddTransient<AddShoesViewModel>();
             services.AddTransient<AddShoesPage>();
             services.AddTransient<ShoesViewModel>();

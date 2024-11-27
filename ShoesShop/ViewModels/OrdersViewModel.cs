@@ -19,10 +19,10 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
     private readonly IOrderDataService _orderDataService;
 
     [ObservableProperty]
-    private OrderDetail? selected;
+    private Order? selected;
 
 
-    public ObservableCollection<OrderDetail> Source { get; private set; } = new ObservableCollection<OrderDetail>();
+    public ObservableCollection<Order> Source { get; private set; } = new ObservableCollection<Order>();
 
 
     public RelayCommand AddOrderCommand
@@ -84,9 +84,9 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
         IsLoading = true;
         NotfifyChanges();
 
-        _orderDataService.SearchParams = await BuildSearchParamsAsync();
+        _orderDataService.SearchQuery = await BuildSearchQueryOrderAsync();
 
-        await Task.Run(async () => await _orderDataService.LoadDataAsync());
+        await _orderDataService.LoadDataAsync();
 
         var (data, totalItems, message, ERROR_CODE) = _orderDataService.GetData();
 
@@ -108,7 +108,7 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
         }
         else
         {
-            if (ERROR_CODE != 0)
+            if (ERROR_CODE != 1)
             {
                 ErrorMessage = message;
             }

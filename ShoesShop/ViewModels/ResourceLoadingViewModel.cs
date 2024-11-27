@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Helpers;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services.DataAcess;
 
 
 namespace ShoesShop.Services;
@@ -149,6 +150,104 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
 
         return paramBuilder.GetQueryString();
     }
+
+    protected async Task<Tuple<int, int,
+        Dictionary<string, Tuple<decimal, decimal>>,
+        Dictionary<string, string>,
+        Dictionary<string, IDao.SortType>>> BuildSearchQueryAsync()
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (MinPrice > 0)
+        {
+            numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
+        }
+
+        if (MaxPrice > 0)
+        {
+            if (numberFieldsOptions.ContainsKey("Price"))
+            {
+                var minPrice = numberFieldsOptions["Price"].Item1;
+                numberFieldsOptions["Price"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
+            }
+            else
+            {
+                numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
+            }
+        }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("Name", SearchQuery);
+        }
+
+        if (SelectedCategory is not null && SelectedCategory.ID != 0)
+        {
+            numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(SelectedCategory.ID, SelectedCategory.ID));
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+        return Tuple.Create(CurrentPage, ItemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
+    protected async Task<Tuple<int, int,
+    Dictionary<string, Tuple<string, string>>,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>>> BuildSearchQueryOrderAsync()
+    {
+        // Lấy các thông số trang và số lượng mục trên mỗi trang từ service
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var dateFieldsOptions = new Dictionary<string, Tuple<string, string>>();
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (MinPrice > 0)
+        {
+            numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
+        }
+
+        if (MaxPrice > 0)
+        {
+            if (numberFieldsOptions.ContainsKey("Price"))
+            {
+                var minPrice = numberFieldsOptions["Price"].Item1;
+                numberFieldsOptions["Price"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
+            }
+            else
+            {
+                numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
+            }
+        }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("Name", SearchQuery);
+        }
+
+        if (SelectedCategory is not null && SelectedCategory.ID != 0)
+        {
+            numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(SelectedCategory.ID, SelectedCategory.ID));
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        // Trả về các giá trị bao gồm trang, số lượng mục trên mỗi trang, các điều kiện tìm kiếm và sort options
+        return Tuple.Create(CurrentPage, ItemsPerPage, dateFieldsOptions, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
 
     public void NotfifyChanges()
     {
