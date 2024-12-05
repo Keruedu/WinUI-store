@@ -7,6 +7,7 @@
     xmlns:helpers="using:ShoesShop.Helpers"
     xmlns:models="using:ShoesShop.Core.Models"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:oxy="using:OxyPlot"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -123,6 +124,15 @@
                         </StackPanel>
                     </Border>
                 </Grid>
+
+                <StackPanel>
+                    <TextBlock Text="Order Statistics" FontSize="24" Margin="10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                        <Button Content="By Month" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="month" Margin="5"/>
+                        <Button Content="By Year" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="year" Margin="5"/>
+                    </StackPanel>
+                    <oxy:PlotView Model="{Binding OrderStatisticsPlotModel}" Height="400" Margin="10"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </ScrollViewer>

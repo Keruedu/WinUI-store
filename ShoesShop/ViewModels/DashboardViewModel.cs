@@ -18,23 +18,35 @@ public partial class DashboardViewModel : ObservableRecipient
     private int _totalOrders;
 
     [ObservableProperty]
-    private ObservableCollection<Order> _recentOrders;
+    private ObservableCollection<Order> _recentOrders = new();
 
     [ObservableProperty]
-    private ObservableCollection<Shoes> _top5BestSellingShoes;
+    private ObservableCollection<Shoes> _top5BestSellingShoes = new();
 
     [ObservableProperty]
     private int _totalShoesInStock;
+
+    [ObservableProperty]
+    private Dictionary<string, int> _orderStatistics = new();
+
+    [ObservableProperty]
+    private string _selectedGroupBy = "month";
+
+    [ObservableProperty]
+    private PlotModel _orderStatisticsPlotModel = new();
 
     public DashboardViewModel(IStatisticDataService statisticDataService)
     {
         _statisticDataService = statisticDataService;
         LoadDashboardDataCommand = new AsyncRelayCommand(LoadDashboardDataAsync);
-        RecentOrders = new ObservableCollection<Order>();
-        Top5BestSellingShoes = new ObservableCollection<Shoes>();
+        LoadOrderStatisticsCommand = new AsyncRelayCommand<string?>(LoadOrderStatisticsAsync);
     }
 
     public IAsyncRelayCommand LoadDashboardDataCommand
+    {
+        get;
+    }
+    public IAsyncRelayCommand<string?> LoadOrderStatisticsCommand
     {
         get;
     }
@@ -44,10 +56,7 @@ public partial class DashboardViewModel : ObservableRecipient
         try
         {
             TotalOrders = await _statisticDataService.GetTotalOrdersAsync();
-
-
             TotalShoesInStock = await _statisticDataService.GetTotalShoesInStockAsync();
-        
 
             var recentOrders = await _statisticDataService.GetRecentOrdersAsync();
             RecentOrders.Clear();
@@ -62,6 +71,8 @@ public partial class DashboardViewModel : ObservableRecipient
             {
                 Top5BestSellingShoes.Add(shoes);
             }
+
+            await LoadOrderStatisticsAsync(SelectedGroupBy);
         }
         catch (Exception ex)
         {
@@ -69,4 +80,41 @@ public partial class DashboardViewModel : ObservableRecipient
             System.Diagnostics.Debug.WriteLine($"Error loading dashboard data: {ex.Message}");
         }
     }
+
+    private async Task LoadOrderStatisticsAsync(string? groupBy)
+    {
+        try
+        {
+            OrderStatistics = await _statisticDataService.GetOrderStatisticsAsync(groupBy ?? "month");
+            UpdateOrderStatisticsPlotModel();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception or handle it as needed
+            System.Diagnostics.Debug.WriteLine($"Error loading order statistics: {ex.Message}");
+        }
+    }
+
+    private void UpdateOrderStatisticsPlotModel()
+    {
+        var plotModel = new PlotModel { Title = "Order Statistics" };
+        var categoryAxis = new CategoryAxis { Position = AxisPosition.Left };
+        var valueAxis = new LinearAxis { Position = AxisPosition.Bottom, Minimum = 0 };
+
+        var barSeries = new BarSeries
+        {
+            ItemsSource = OrderStatistics.Select(stat => new BarItem { Value = stat.Value }).ToList(),
+            LabelPlacement = LabelPlacement.Inside,
+            LabelFormatString = "{0}"
+        };
+
+        categoryAxis.Labels.AddRange(OrderStatistics.Keys);
+
+        plotModel.Axes.Add(categoryAxis);
+        plotModel.Axes.Add(valueAxis);
+        plotModel.Series.Add(barSeries);
+
+        OrderStatisticsPlotModel = plotModel;
+    }
+
 }
