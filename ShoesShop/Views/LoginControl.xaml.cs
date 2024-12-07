@@ -47,21 +47,21 @@ public sealed partial class LoginControl : Page
         {
             _localSettingServiceUsingApplicationData.SaveSettingSync("email",ViewModel.Email);
             _localSettingServiceUsingApplicationData.SaveSettingSync("password",ViewModel.Password);
-            _localSettingServiceUsingApplicationData.SaveSettingSync("isRemember", "true");
+            _localSettingServiceUsingApplicationData.SaveSettingSync("isSavingSettings", "true");
         }
         else
         {
             _localSettingServiceUsingApplicationData.DeleteSettingSync("email");
             _localSettingServiceUsingApplicationData.DeleteSettingSync("password");
-            _localSettingServiceUsingApplicationData.SaveSettingSync("isRemember", "false");
+            _localSettingServiceUsingApplicationData.SaveSettingSync("isSavingSettings", "false");
         }
         ViewModel.LoginAsync();
     }
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        var isRemember = _localSettingServiceUsingApplicationData.ReadSettingSync("isRemember");
-        ViewModel.IsSavingSettings=(string)isRemember=="true"?true:false;
+        var isRemember = _localSettingServiceUsingApplicationData.ReadSettingSync("isSavingSettings");
+        ViewModel.IsSavingSettings = (string)isRemember == "true" ? true : false;
         var email = _localSettingServiceUsingApplicationData.ReadSettingSync("email");
         if (email != null)
         {

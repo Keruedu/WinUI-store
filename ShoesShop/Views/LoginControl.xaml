@@ -17,7 +17,7 @@
                 <TextBlock Text="Login to your account" Margin="0,0,0,32" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />
                 <TextBox Header="Email"  x:Name="LoginEmailBox" Text="{x:Bind ViewModel.Email,Mode=TwoWay}"/>
                 <PasswordBox Header="Password" x:Name="LoginPasswordBox"  />
-                <CheckBox Content="Remember me" x:Name="RememberMeCheckBox" />
+                <CheckBox Content="Remember me" x:Name="RememberMeCheckBox" IsChecked="{x:Bind ViewModel.IsSavingSettings,Mode=TwoWay}" />
 
                 <!--Loading-->
                 <ProgressRing

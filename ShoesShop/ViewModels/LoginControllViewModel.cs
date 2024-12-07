@@ -37,10 +37,10 @@ public partial class LoginControllViewModel: ObservableRecipient
     public bool IsNotAuthenticated => !IsAuthenticated;
     public bool HasError => !string.IsNullOrEmpty(errorMessage);
     public bool IsNotLoading => !isLoading;
-    public bool IsSavingSettings
-    {
-        get; set;
-    } = false;
+
+    [ObservableProperty]
+    private bool isSavingSettings;
+
 
     public RelayCommand SaveSettingsCommand
     {
