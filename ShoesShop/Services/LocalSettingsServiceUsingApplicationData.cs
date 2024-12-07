@@ -35,4 +35,14 @@ public partial class LocalSettingsServiceUsingApplicationData:ILocalSettingServi
         }
         return key;
     }
+
+    public bool DeleteSettingSync(string key)
+    {
+        if (localSettings.Values.ContainsKey(key))
+        {
+            localSettings.Values.Remove(key);
+            return true;
+        }
+        return false;
+    }
 }

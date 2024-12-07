@@ -19,7 +19,7 @@ public partial class LoginControllViewModel: ObservableRecipient
     [ObservableProperty]
     public bool isLoading = false;
     [ObservableProperty]
-    public string errorMessage = string.Empty;
+    public string errorMessage = String.Empty;
 
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
@@ -83,7 +83,7 @@ public partial class LoginControllViewModel: ObservableRecipient
         if (ErrorCode == 0)
         {
             AccessToken = _authenticationService.GetAccessToken();
-
+            NotifyChanges();
             //if (IsRemembered)
             //{
             //    await _storeLoginCredentialsService.SaveCredentialsAsync(Email, Password);
@@ -92,14 +92,12 @@ public partial class LoginControllViewModel: ObservableRecipient
             //{
             //    await _storeLoginCredentialsService.ClearCredentailAsync();
             //}
-
             //await _storeLoginCredentialsService.SaveRememberCredentialsAsync(IsRemembered);
-            NotifyChanges();
             //_navigationService.Refresh();
         }
         else
         {
-            errorMessage = message;
+            ErrorMessage = message;
             NotifyChanges();
         }
     }

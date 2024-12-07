@@ -10,4 +10,6 @@ public partial interface ILocalSettingServiceUsingApplicationData
     public string ReadSettingSync(string key);
 
     public string SaveSettingSync(string key, string value);
+
+    public bool DeleteSettingSync(string key);
 }
