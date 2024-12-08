@@ -11,7 +11,7 @@
     Loaded="Page_Loaded"
     >
 
-    <Grid x:Name="Login" MinWidth="400" MaxWidth="440" Visibility="{x:Bind ViewModel.IsNotAuthenticated, Mode=OneWay}" Loaded="Login_Loaded">
+    <Grid x:Name="Login" MinWidth="400" MaxWidth="440" Padding="0,0,0,20" Visibility="{x:Bind ViewModel.IsNotAuthenticated, Mode=OneWay}" Loaded="Login_Loaded">
         <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="2" Padding="32, 40" CornerRadius="10" Background="{ThemeResource CardBackgroundBrush}">
             <StackPanel Spacing="12">
                 <TextBlock Text="Login to your account" Margin="0,0,0,32" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />

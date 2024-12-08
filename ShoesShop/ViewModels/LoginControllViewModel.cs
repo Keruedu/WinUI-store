@@ -13,6 +13,7 @@ namespace ShoesShop.ViewModels;
 public partial class LoginControllViewModel: ObservableRecipient
 {
     private IAuthenticationService _authenticationService=new AuthenticationService();
+
     [ObservableProperty]
     public string accessToken = string.Empty;
 
@@ -84,16 +85,6 @@ public partial class LoginControllViewModel: ObservableRecipient
         {
             AccessToken = _authenticationService.GetAccessToken();
             NotifyChanges();
-            //if (IsRemembered)
-            //{
-            //    await _storeLoginCredentialsService.SaveCredentialsAsync(Email, Password);
-            //}
-            //else
-            //{
-            //    await _storeLoginCredentialsService.ClearCredentailAsync();
-            //}
-            //await _storeLoginCredentialsService.SaveRememberCredentialsAsync(IsRemembered);
-            //_navigationService.Refresh();
         }
         else
         {
@@ -103,8 +94,6 @@ public partial class LoginControllViewModel: ObservableRecipient
     }
     private void NotifyChanges()
     {
-        //SaveSettingsCommand.NotifyCanExecuteChanged();
-
         OnPropertyChanged(nameof(IsAuthenticated));
         OnPropertyChanged(nameof(IsNotAuthenticated));
         OnPropertyChanged(nameof(HasError));
