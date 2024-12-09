@@ -4,7 +4,6 @@ using ShoesShop.Core.Services.DataAcess;
 namespace ShoesShop.Core.Services;
 public class ShoesDataService : IShoesDataService
 {
-    //private readonly IShoesRepository _ShoesRepository;
     private readonly IDao _dao;
     // (Shoes, totalItems, errorMessage, ErrorCode)
     private (IEnumerable<Shoes>, int, string, int) _ShoesDataTuple;

@@ -8,5 +8,5 @@ using CloudinaryDotNet.Actions;
 namespace ShoesShop.Core.Contracts.Services;
 public interface ICloudinaryService
 {
-    Task<string> UploadImageAsync(string filePath);
+    Task<string> UploadImageAsync(string filePath, string uploadType);
 }

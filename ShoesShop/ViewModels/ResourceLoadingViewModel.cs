@@ -6,7 +6,7 @@ using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
 
 
-namespace ShoesShop.Services;
+namespace ShoesShop.ViewModels;
 
 public partial class ResourceLoadingViewModel : ObservableRecipient
 {
@@ -42,6 +42,16 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
     {
         get; set;
     } = string.Empty;
+
+    public string? SelectedStatus
+    {
+        get; set;
+    }
+
+    public string? SelectedRole
+    {
+        get; set;
+    }
 
     public int MinPrice
     {
@@ -248,6 +258,79 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         return Tuple.Create(CurrentPage, ItemsPerPage, dateFieldsOptions, numberFieldsOptions, textFieldsOptions, sortOptions);
     }
 
+    protected async Task<Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>>> BuildSearchQueryUserAsync()
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (!string.IsNullOrEmpty(SelectedStatus))
+        {
+            textFieldsOptions.Add("Status", SelectedStatus);
+        }
+
+        if (!string.IsNullOrEmpty(SelectedRole))
+        {
+            textFieldsOptions.Add("Role", SelectedRole);
+        }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("Name", SearchQuery);
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        return Tuple.Create(CurrentPage, ItemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
+    protected async Task<Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>>> BuildSearchQueryUserAsync(
+        int currentPage,
+        int itemsPerPage,
+        string? selectedStatus,
+        string? selectedRole,
+        string searchQuery,
+        SortObject? selectedSortOption)
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (!string.IsNullOrEmpty(selectedStatus))
+        {
+            textFieldsOptions.Add("Status", selectedStatus);
+        }
+
+        if (!string.IsNullOrEmpty(selectedRole))
+        {
+            textFieldsOptions.Add("Role", selectedRole);
+        }
+
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            textFieldsOptions.Add("Name", searchQuery);
+        }
+
+        if (selectedSortOption is not null && selectedSortOption.Value != "default")
+        {
+            sortOptions.Add(selectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        return Tuple.Create(currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
 
     public void NotfifyChanges()
     {
@@ -317,6 +400,42 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         else
         {
             SelectedCategory = category;
+            IsDirty = true;
+        }
+    }
+
+    public virtual void SelectRole(string role)
+    {
+        if (role == "All")
+        {
+            if (SelectedRole != role)
+            {
+                IsDirty = true;
+            }
+
+            SelectedRole = null;
+        }
+        else
+        {
+            SelectedRole = role;
+            IsDirty = true;
+        }
+    }
+
+    public virtual void SelectStatus(string status)
+    {
+        if (status == "All")
+        {
+            if (SelectedStatus != status)
+            {
+                IsDirty = true;
+            }
+
+            SelectedStatus = null;
+        }
+        else
+        {
+            SelectedStatus = status;
             IsDirty = true;
         }
     }
@@ -397,4 +516,6 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         IsDirty = true;
     }
 }
+
+
 

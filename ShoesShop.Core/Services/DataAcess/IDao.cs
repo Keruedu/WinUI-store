@@ -57,12 +57,14 @@ public interface IDao
 
 
     //User
-    public Tuple<List<User>, long> GetUsers(
+    public Tuple<bool, string, List<User>, long> GetUsers(
         int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, SortType> sortOptions);
-
+    public Tuple<bool, string, User> AddUser(User user);
+    public Tuple<bool, string, User> UpdateUser(User user);
+    public Tuple<bool, string> BanAndUnbanUser(User user);
     public User GetUserByID(
         int userID);
     public Tuple<bool, string, Dictionary<int, Address>> GetAddressesByIds(List<int> addressIds);

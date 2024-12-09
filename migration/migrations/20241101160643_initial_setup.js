@@ -16,7 +16,9 @@ exports.up = async function(knex) {
     table.string('Email', 255).notNullable().unique();
     table.string('PhoneNumber', 50);
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
-    table.enu('Role', ['admin', 'manager']).notNullable().defaultTo('manager'); // Add Role column
+    table.enu('Role', ['Admin', 'Manager', 'User']).notNullable().defaultTo('User');
+    table.enu('Status', ['Active', 'Banned']).notNullable().defaultTo('active');
+    table.string('Image');
   });
 
 

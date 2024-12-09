@@ -18,12 +18,18 @@ public class CloudinaryService : ICloudinaryService
         ));
     }
 
-    public async Task<string> UploadImageAsync(string filePath)
+    public async Task<string> UploadImageAsync(string filePath, string uploadType)
     {
+        // Validate the uploadType parameter
+        if (string.IsNullOrEmpty(uploadType) || (uploadType != "user" && uploadType != "shoes"))
+        {
+            throw new ArgumentException("Invalid upload type. Must be either 'user' or 'shoes'.", nameof(uploadType));
+        }
+
         var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(filePath),
-            Folder = "ShoesShop"
+            Folder = $"ShoesShop/{uploadType}" // Separate folders for user and shoes
         };
 
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);

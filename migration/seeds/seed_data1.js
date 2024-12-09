@@ -10,23 +10,47 @@ exports.seed = async function(knex) {
   // Insert seed entries for Address
   await knex('Address').insert([
     { AddressID: 1, Street: '123 Main St', City: 'Anytown', State: 'CA', ZipCode: '12345', Country: 'USA' },
-    { AddressID: 2, Street: '456 Elm St', City: 'Othertown', State: 'NY', ZipCode: '67890', Country: 'USA' }
+    { AddressID: 2, Street: '456 Elm St', City: 'Othertown', State: 'NY', ZipCode: '67890', Country: 'USA' },
+    { AddressID: 3, Street: '789 Oak St', City: 'Smalltown', State: 'TX', ZipCode: '23456', Country: 'USA' },
+    { AddressID: 4, Street: '101 Pine St', City: 'Bigcity', State: 'FL', ZipCode: '34567', Country: 'USA' },
+    { AddressID: 5, Street: '202 Maple St', City: 'Littletown', State: 'CO', ZipCode: '45678', Country: 'USA' },
+    { AddressID: 6, Street: '303 Birch St', City: 'Oldtown', State: 'WA', ZipCode: '56789', Country: 'USA' },
+    { AddressID: 7, Street: '404 Cedar St', City: 'Neoncity', State: 'NV', ZipCode: '67801', Country: 'USA' },
+    { AddressID: 8, Street: '505 Cherry St', City: 'Riverdale', State: 'OR', ZipCode: '78901', Country: 'USA' },
+    { AddressID: 9, Street: '606 Walnut St', City: 'Sunnytown', State: 'CA', ZipCode: '89012', Country: 'USA' },
+    { AddressID: 10, Street: '707 Cedar Ave', City: 'Hilltown', State: 'ID', ZipCode: '90123', Country: 'USA' }
   ]);
   await knex.raw('SELECT setval(\'"Address_AddressID_seq"\', (SELECT MAX("AddressID") FROM "Address"))');
 
   // Insert seed entries for User
   await knex('User').insert([
-    { UserID: 1, Name: 'John Doe', Password: '123', Email: 'admin@gmail.com', PhoneNumber: '123-456-7890', AddressID: 1, Role: 'admin' },
-    { UserID: 2, Name: 'Jane Smith', Password: '123', Email: 'jane.smith@example.com', PhoneNumber: '987-654-3210', AddressID: 2, Role: 'manager' },
-    { UserID: 3, Name: 'Alice Johnson', Password: '123', Email: 'alice.johnson@example.com', PhoneNumber: '111-222-3333', AddressID: 1, Role: 'manager' },
-    { UserID: 4, Name: 'Bob Brown', Password: '123', Email: 'bob.brown@example.com', PhoneNumber: '444-555-6666', AddressID: 2, Role: 'manager' },
-    { UserID: 5, Name: 'Charlie Davis', Password: '123', Email: 'charlie.davis@example.com', PhoneNumber: '777-888-9999', AddressID: 1, Role: 'manager' },
-    { UserID: 6, Name: 'Diana Evans', Password: '123', Email: 'diana.evans@example.com', PhoneNumber: '000-111-2222', AddressID: 2, Role: 'manager' },
-    { UserID: 7, Name: 'Ethan Foster', Password: '123', Email: 'ethan.foster@example.com', PhoneNumber: '333-444-5555', AddressID: 1, Role: 'manager' },
-    { UserID: 8, Name: 'Fiona Green', Password: '123', Email: 'fiona.green@example.com', PhoneNumber: '666-777-8888', AddressID: 2, Role: 'manager' },
-    { UserID: 9, Name: 'George Harris', Password: '123', Email: 'george.harris@example.com', PhoneNumber: '999-000-1111', AddressID: 1, Role: 'manager' },
-    { UserID: 10, Name: 'Hannah White', Password: '123', Email: 'hannah.white@example.com', PhoneNumber: '222-333-4444', AddressID: 2, Role: 'manager' }
-  ]);
+    { UserID: 1, Name: 'Viet Le', Password: '123', Email: 'vietle@gmail.com', PhoneNumber: '123-456-7890', AddressID: 1, Role: 'Admin', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Viet+Le&background=random' },
+    { UserID: 2, Name: 'Quoc Vinh', Password: '123', Email: 'quocvinh@example.com', PhoneNumber: '987-654-3210', AddressID: 2, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Quoc+Vinh&background=random' },
+    { UserID: 3, Name: 'Quang Vinh', Password: '123', Email: 'quangvinh@example.com', PhoneNumber: '111-222-3333', AddressID: 1, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Quang+Vinh&background=random' },
+    { UserID: 4, Name: 'Bob Brown', Password: '123', Email: 'bob.brown@example.com', PhoneNumber: '444-555-6666', AddressID: 2, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Bob+Brown&background=random' },
+    { UserID: 5, Name: 'Charlie Davis', Password: '123', Email: 'charlie.davis@example.com', PhoneNumber: '777-888-9999', AddressID: 1, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Charlie+Davis&background=random' },
+    { UserID: 6, Name: 'Diana Evans', Password: '123', Email: 'diana.evans@example.com', PhoneNumber: '000-111-2222', AddressID: 2, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Diana+Evans&background=random' },
+    { UserID: 7, Name: 'Ethan Foster', Password: '123', Email: 'ethan.foster@example.com', PhoneNumber: '333-444-5555', AddressID: 1, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Ethan+Foster&background=random' },
+    { UserID: 8, Name: 'Fiona Green', Password: '123', Email: 'fiona.green@example.com', PhoneNumber: '666-777-8888', AddressID: 2, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Fiona+Green&background=random' },
+    { UserID: 9, Name: 'George Harris', Password: '123', Email: 'george.harris@example.com', PhoneNumber: '999-000-1111', AddressID: 1, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=George+Harris&background=random' },
+    { UserID: 10, Name: 'Hannah White', Password: '123', Email: 'hannah.white@example.com', PhoneNumber: '222-333-4444', AddressID: 2, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Hannah+White&background=random' },
+    { UserID: 11, Name: 'Ivy King', Password: '123', Email: 'ivy.king@example.com', PhoneNumber: '555-666-7777', AddressID: 3, Role: 'Admin', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Ivy+King&background=random' },
+    { UserID: 12, Name: 'Jack Smith', Password: '123', Email: 'jack.smith@example.com', PhoneNumber: '888-999-0000', AddressID: 3, Role: 'User', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Jack+Smith&background=random' },
+    { UserID: 13, Name: 'Kelly Adams', Password: '123', Email: 'kelly.adams@example.com', PhoneNumber: '222-444-5555', AddressID: 4, Role: 'User', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Kelly+Adams&background=random' },
+    { UserID: 14, Name: 'Leo Walker', Password: '123', Email: 'leo.walker@example.com', PhoneNumber: '999-333-2222', AddressID: 3, Role: 'Admin', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Leo+Walker&background=random' },
+    { UserID: 15, Name: 'Mia Scott', Password: '123', Email: 'mia.scott@example.com', PhoneNumber: '111-555-6666', AddressID: 4, Role: 'User', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Mia+Scott&background=random' },
+    { UserID: 16, Name: 'Nathan Taylor', Password: '123', Email: 'nathan.taylor@example.com', PhoneNumber: '444-888-1111', AddressID: 5, Role: 'User', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Nathan+Taylor&background=random' },
+    { UserID: 17, Name: 'Olivia Martin', Password: '123', Email: 'olivia.martin@example.com', PhoneNumber: '333-777-4444', AddressID: 5, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Olivia+Martin&background=random' },
+    { UserID: 18, Name: 'Paul Jones', Password: '123', Email: 'paul.jones@example.com', PhoneNumber: '222-000-5555', AddressID: 6, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Paul+Jones&background=random' },
+    { UserID: 19, Name: 'Quinn Brown', Password: '123', Email: 'quinn.brown@example.com', PhoneNumber: '555-222-1111', AddressID: 6, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Quinn+Brown&background=random' },
+    { UserID: 20, Name: 'Ruby Young', Password: '123', Email: 'ruby.young@example.com', PhoneNumber: '666-555-4444', AddressID: 7, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Ruby+Young&background=random' },
+    { UserID: 21, Name: 'Sophia Allen', Password: '123', Email: 'sophia.allen@example.com', PhoneNumber: '777-666-3333', AddressID: 7, Role: 'User', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Sophia+Allen&background=random' },
+    { UserID: 22, Name: 'Thomas Carter', Password: '123', Email: 'thomas.carter@example.com', PhoneNumber: '888-999-4444', AddressID: 8, Role: 'User', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Thomas+Carter&background=random' },
+    { UserID: 23, Name: 'Uma Bell', Password: '123', Email: 'uma.bell@example.com', PhoneNumber: '999-111-2222', AddressID: 8, Role: 'Manager', Status: 'Banned', Image: 'https://ui-avatars.com/api/?name=Uma+Bell&background=random' },
+    { UserID: 24, Name: 'Victor Green', Password: '123', Email: 'victor.green@example.com', PhoneNumber: '000-555-3333', AddressID: 9, Role: 'Admin', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Victor+Green&background=random' },
+    { UserID: 25, Name: 'Wendy Gray', Password: '123', Email: 'wendy.gray@example.com', PhoneNumber: '444-333-6666', AddressID: 9, Role: 'Manager', Status: 'Active', Image: 'https://ui-avatars.com/api/?name=Wendy+Gray&background=random' }
+]);
+
   // Update the sequence value to match the highest
   await knex.raw('SELECT setval(\'"User_UserID_seq"\', (SELECT MAX("UserID") FROM "User"))');
 

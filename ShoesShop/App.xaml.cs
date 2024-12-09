@@ -4,19 +4,18 @@ using Microsoft.UI.Xaml;
 
 using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
+using ShoesShop.Controls;
 using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
-using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Core.Http;
 using ShoesShop.Core.Repository;
 using ShoesShop.Core.Services;
+using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
-using ShoesShop.Controls;
 using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
-using ShoesShop.Core.Services.DataAcess;
 
 namespace ShoesShop;
 
@@ -85,6 +84,7 @@ public partial class App : Application
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<IReviewDataService, ReviewDataService>();
+            services.AddTransient<IUserDataService, UserDataService>();
 
 
             // Core Services
@@ -116,6 +116,12 @@ public partial class App : Application
             services.AddTransient<ShoesPage>();
             services.AddTransient<ShoesDetailViewModel>();
             services.AddTransient<ShoesDetailPage>();
+            services.AddTransient<UsersPage>();
+            services.AddTransient<UsersViewModel>();
+            services.AddTransient<UserDetailPage>();
+            services.AddTransient<UserDetailViewModel>();
+            services.AddTransient<AddUserPage>();
+            services.AddTransient<AddUserViewModel>();
             services.AddTransient<AddCategoryViewModel>();
             services.AddTransient<AddCategoryPage>();
             services.AddTransient<CategoriesViewModel>();

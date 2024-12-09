@@ -58,7 +58,7 @@ public class OrderDataService : IOrderDataService
     {
         var (currentPage, itemsPerPage, dateFieldOptions, numberFieldsOptions, textFieldsOptions, sortOptions) = _searchQuery;
 
-        // Lấy danh sách Orders
+        // Get Orders
         var (success, message, orders, totalOrders) = _dao.GetOrders(currentPage, itemsPerPage, dateFieldOptions, numberFieldsOptions, textFieldsOptions, sortOptions);
         if (!success)
         {
@@ -66,67 +66,7 @@ public class OrderDataService : IOrderDataService
             return _orderDataTuple;
         }
 
-        // Lấy Address
-        var addressIds = orders.Select(o => o.AddressID).Distinct().ToList();
-        var (addressSuccess, addressMessage, addressDictionary) = _dao.GetAddressesByIds(addressIds);
-        if (!addressSuccess)
-        {
-            _orderDataTuple = (null, 0, addressMessage, 0);
-            return _orderDataTuple;
-        }
-
-        foreach (var order in orders)
-        {
-            if (addressDictionary.ContainsKey(order.AddressID))
-                order.Address = addressDictionary[order.AddressID];
-        }
-
-        // Lấy danh sách Users
-        var userIds = orders.Select(o => o.UserID).Distinct().ToList();
-        var (userSuccess, userMessage, userDictionary) = _dao.GetUserByIds(userIds);
-        if (!userSuccess)
-        {
-            _orderDataTuple = (null, 0, userMessage, 0);
-            return _orderDataTuple;
-        }
-
-        foreach (var order in orders)
-        {
-            if (userDictionary.ContainsKey(order.UserID))
-                order.User = userDictionary[order.UserID];
-        }
-
-        // Lấy danh sách Details
-        var orderIds = orders.Select(o => o.ID).Distinct().ToList();
-        var (detailSuccess, detailMessage, details) = _dao.GetDetailsByOrderIds(orderIds);
-        if (!detailSuccess)
-        {
-            _orderDataTuple = (null, 0, detailMessage, 0);
-            return _orderDataTuple;
-        }
-
-        foreach (var order in orders)
-        {
-            order.Details = details.Where(d => d.OrderID == order.ID).ToList();
-        }
-
-        // Lấy danh sách Shoes
-        var shoesIds = details.Select(d => d.ShoesID).Distinct().ToList();
-        var (shoesSuccess, shoesMessage, shoesDictionary) = _dao.GetShoesByIds(shoesIds);
-        if (!shoesSuccess)
-        {
-            _orderDataTuple = (null, 0, shoesMessage, 0);
-            return _orderDataTuple;
-        }
-
-        foreach (var detail in details)
-        {
-            if (shoesDictionary.ContainsKey(detail.ShoesID))
-                detail.Shoes = shoesDictionary[detail.ShoesID];
-        }
-
         _orderDataTuple = (orders, (int)totalOrders, "Success", 1);
-        // Trả về danh sách Orders kèm tổng số Orders
         return _orderDataTuple;
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
@@ -27,7 +28,7 @@ public class PostgreDao : IDao
         dbConnection.Open();
     }
 
-    public PostgreDao(string serverUrl,int port, string databaseName, string userId, string password)
+    public PostgreDao(string serverUrl, int port, string databaseName, string userId, string password)
     {
         var connectionConfig = $"""
             Host = {serverUrl};
@@ -45,13 +46,14 @@ public class PostgreDao : IDao
         dbConnection.Close();
     }
 
-    private string CreateSetForUpdate(string[] fields, string[] values) { 
-        if(fields.Length!=values.Length || fields.Length==0)
+    private string CreateSetForUpdate(string[] fields, string[] values)
+    {
+        if (fields.Length != values.Length || fields.Length == 0)
         {
             return "";
         }
         var setString = "";
-        for(int i=0; i<fields.Length; i++)
+        for (int i = 0; i < fields.Length; i++)
         {
             if (i != 0)
             {
@@ -61,9 +63,9 @@ public class PostgreDao : IDao
         }
         return setString;
     }
-    private string CreateUpdateQuery(string tableName,string idColumnName,int id,string[] fields, string[] values)
+    private string CreateUpdateQuery(string tableName, string idColumnName, int id, string[] fields, string[] values)
     {
-        var setString=CreateSetForUpdate(fields, values);
+        var setString = CreateSetForUpdate(fields, values);
         var updateQuery = $"""
             UPDATE "{tableName}"
             SET {setString}
@@ -84,15 +86,15 @@ public class PostgreDao : IDao
             insertedFields += $"\"{fields[i]}\"";
         }
         insertedFields += ")";
-        return insertedFields; 
+        return insertedFields;
     }
 
     private string CreateInsertedValues(string[] values, string[] valueTypes)
     {
         var insertedValues = "(";
-        for(int i=0;i < values.Length; i++)
+        for (int i = 0; i < values.Length; i++)
         {
-            if(i != 0)
+            if (i != 0)
             {
                 insertedValues += ", ";
             }
@@ -100,12 +102,12 @@ public class PostgreDao : IDao
             {
                 insertedValues += $"\'{values[i]}\'";
             }
-            else if(valueTypes[i] == "integer")
+            else if (valueTypes[i] == "integer")
             {
                 var temp = int.Parse(values[i]);
                 insertedValues += $"{temp}";
             }
-            else if(valueTypes[i] == "decimal")
+            else if (valueTypes[i] == "decimal")
             {
                 var temp = decimal.Parse(values[i]);
                 insertedValues += $"{temp}";
@@ -114,14 +116,14 @@ public class PostgreDao : IDao
         insertedValues += ")";
         return insertedValues;
     }
-    private string CreateInsertQuery(string tableName,string columnIDName ,string[] fields, string[] values, string[] valueTypes)
+    private string CreateInsertQuery(string tableName, string columnIDName, string[] fields, string[] values, string[] valueTypes)
     {
-        if(!(fields.Length==values.Length && fields.Length==valueTypes.Length) || fields.Length <= 0)
+        if (!(fields.Length == values.Length && fields.Length == valueTypes.Length) || fields.Length <= 0)
         {
             return "";
         }
-        var insertedFields=CreateInsertFields(fields);
-        var insertedValues=CreateInsertedValues(values,valueTypes);
+        var insertedFields = CreateInsertFields(fields);
+        var insertedValues = CreateInsertedValues(values, valueTypes);
         var sqlQuery = $"""
             INSERT INTO "{tableName}" {insertedFields}
             VALUES {insertedValues} RETURNING "{columnIDName}";
@@ -177,15 +179,17 @@ public class PostgreDao : IDao
                 countNumberFields++;
             }
         }
-        return result; 
+        return result;
     }
     private string GetWhereConditionNumberFields(string[] numberFields, Dictionary<string, Tuple<decimal, decimal>> numberOptions)
     {
         string result = "";
-        var countNumberFields= 0;
-        foreach (var item in numberOptions) {
-            if (numberFields.Contains(item.Key)){
-                if(countNumberFields > 0)
+        var countNumberFields = 0;
+        foreach (var item in numberOptions)
+        {
+            if (numberFields.Contains(item.Key))
+            {
+                if (countNumberFields > 0)
                 {
                     result += " AND ";
                 }
@@ -214,9 +218,11 @@ public class PostgreDao : IDao
         return whereString;
     }
 
-    private List<string> AddWhereConditions(params string[] conditions) { 
-        var res=new List<string>();
-        foreach (var condition in conditions) {
+    private List<string> AddWhereConditions(params string[] conditions)
+    {
+        var res = new List<string>();
+        foreach (var condition in conditions)
+        {
             if (condition != "")
             {
                 res.Add(condition);
@@ -231,16 +237,18 @@ public class PostgreDao : IDao
     {
         var res = "";
         var dateFieldsCondition = GetWhereConditionDateFields(dateFields, dateOptions);
-        var textFieldsCondition=GetWhereConditionTextFields(textFields, textOptions);
-        var numberFieldsCondition=GetWhereConditionNumberFields(numberFields,numberOptions);
-        var whereConditions = AddWhereConditions(dateFieldsCondition, textFieldsCondition,numberFieldsCondition);
+        var textFieldsCondition = GetWhereConditionTextFields(textFields, textOptions);
+        var numberFieldsCondition = GetWhereConditionNumberFields(numberFields, numberOptions);
+        var whereConditions = AddWhereConditions(dateFieldsCondition, textFieldsCondition, numberFieldsCondition);
         var countCondition = 0;
-        foreach(var condition in whereConditions) { 
-            if(countCondition == 0)
+        foreach (var condition in whereConditions)
+        {
+            if (countCondition == 0)
             {
                 res += "WHERE ";
             }
-            if (countCondition > 0) {
+            if (countCondition > 0)
+            {
                 res += " AND ";
             }
             res += condition;
@@ -264,7 +272,7 @@ public class PostgreDao : IDao
     }
     public Tuple<List<Category>, long> GetCategories(
         int page, int rowsPerPage,
-        Dictionary<string,Tuple<decimal,decimal>> numberFieldsOptions,
+        Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions)
     {
@@ -279,10 +287,10 @@ public class PostgreDao : IDao
         var result = new List<Category>();
         var sortString = GetSortString(categoryFields, sortOptions);
         //tech-debt: re-factory
-        var emptyfields= new string[0] {};
-        var noUsage=new Dictionary<string,Tuple<string,string>>();
+        var emptyfields = new string[0] { };
+        var noUsage = new Dictionary<string, Tuple<string, string>>();
         //
-        var whereString = GetWhereCondition(emptyfields, noUsage,categoryNumberFields, numberFieldsOptions,categoryTextFields,textFieldsOptions);
+        var whereString = GetWhereCondition(emptyfields, noUsage, categoryNumberFields, numberFieldsOptions, categoryTextFields, textFieldsOptions);
         //var selectFieldsString = GetSelectFields(categoryFields);
         var sqlQuery = $"""
             SELECT count(*) over() as Total, "CategoryID","Name","Description"
@@ -337,7 +345,7 @@ public class PostgreDao : IDao
             using (var command = new NpgsqlCommand(query, dbConnection))
             {
                 var id = command.ExecuteScalar();
-                newCategory.ID = (int)id; 
+                newCategory.ID = (int)id;
             }
             return new Tuple<Category, string, int>(newCategory, "success", 1);
         }
@@ -426,7 +434,7 @@ public class PostgreDao : IDao
         var emptyfields = new string[0] { };
         var noUsage = new Dictionary<string, Tuple<string, string>>();
         //
-        var whereString = GetWhereCondition(emptyfields,noUsage,shoesNumberFields, 
+        var whereString = GetWhereCondition(emptyfields, noUsage, shoesNumberFields,
             numberFieldsOptions, shoesTextFields, textFieldsOptions);
         var sqlQuery = $"""
             SELECT count(*) over() as Total,"ShoesID","CategoryID","Name","Brand","Size","Color","Price","Stock","Image","Description"
@@ -484,7 +492,7 @@ public class PostgreDao : IDao
                 "Size", "Color", "Price", "Stock", "Image", "Description" };
             var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}",
                 $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}" };
-            var types = new string[] { "integer", "string", "string", 
+            var types = new string[] { "integer", "string", "string",
                 "string", "string", "decimal", "integer", "string", "string" };
             var query = CreateInsertQuery("Shoes", "ShoesID", fields, values, types);
 
@@ -530,7 +538,7 @@ public class PostgreDao : IDao
 
 
 
-    public Tuple<bool,string> DeleteShoesByID(int shoesID)
+    public Tuple<bool, string> DeleteShoesByID(int shoesID)
     {
         try
         {
@@ -550,8 +558,9 @@ public class PostgreDao : IDao
             var msg = result ? "Delete success" : "can't find shoes with given ID";
             return new Tuple<bool, string>(result, msg);
         }
-        catch (Exception ex) {
-            return new Tuple<bool,string>(false, ex.Message);
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string>(false, ex.Message);
         }
     }
 
@@ -828,7 +837,7 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Dictionary<int, User>>(true, string.Empty, new Dictionary<int, User>());
 
             var sqlQuery = $"""
-            SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber"
+            SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber", "Role", "Status"
             FROM "User"
             WHERE "UserID" = ANY(@UserIds);
             """;
@@ -848,7 +857,9 @@ public class PostgreDao : IDao
                         Name = (string)reader["Name"],
                         Email = (string)reader["Email"],
                         Password = (string)reader["Password"],
-                        PhoneNumber = (string)reader["PhoneNumber"]
+                        PhoneNumber = (string)reader["PhoneNumber"],
+                        Role = (string)reader["Role"],
+                        Status = (string)reader["Status"]
                     };
                     userDictionary[user.ID] = user;
                 }
@@ -1100,20 +1111,86 @@ public class PostgreDao : IDao
                         Status = (string)reader["Status"],
                         OrderDate = ((DateTime)reader["OrderDate"]).ToString("yyyy-MM-dd"),
                         AddressID = (int)reader["AddressID"],
-                        TotalAmount = (decimal)reader["TotalAmount"]
+                        TotalAmount = (decimal)reader["TotalAmount"],
+                        Details = new List<Detail>() // Details will be added later
                     };
 
                     orders.Add(order);
                 }
             }
 
-            return new Tuple<bool, string, List<Order>, long>(true, string.Empty, orders, totalOrders);
+            if (orders.Count > 0)
+            {
+                // Get AddressIDs from Orders
+                var addressIds = orders.Select(o => o.AddressID).Distinct().ToList();
+                var (addressSuccess, addressMessage, addressDictionary) = GetAddressesByIds(addressIds);
+                if (!addressSuccess)
+                {
+                    return new Tuple<bool, string, List<Order>, long>(false, addressMessage, null, 0);
+                }
+
+                foreach (var order in orders)
+                {
+                    if (addressDictionary.ContainsKey(order.AddressID))
+                    {
+                        order.Address = addressDictionary[order.AddressID];
+                    }
+                }
+
+                // Get UserIDs from Orders
+                var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+                var (userSuccess, userMessage, userDictionary) = GetUserByIds(userIds);
+                if (!userSuccess)
+                {
+                    return new Tuple<bool, string, List<Order>, long>(false, userMessage, null, 0);
+                }
+
+                foreach (var order in orders)
+                {
+                    if (userDictionary.ContainsKey(order.UserID))
+                    {
+                        order.User = userDictionary[order.UserID];
+                    }
+                }
+
+                // Get Details
+                var orderIds = orders.Select(o => o.ID).ToList();
+                var (detailSuccess, detailMessage, details) = GetDetailsByOrderIds(orderIds);
+                if (!detailSuccess)
+                {
+                    return new Tuple<bool, string, List<Order>, long>(false, detailMessage, null, 0);
+                }
+
+                foreach (var order in orders)
+                {
+                    order.Details = details.Where(d => d.OrderID == order.ID).ToList();
+                }
+
+                // Get Shoes
+                var shoesIds = details.Select(d => d.ShoesID).Distinct().ToList();
+                var (shoesSuccess, shoesMessage, shoesDictionary) = GetShoesByIds(shoesIds);
+                if (!shoesSuccess)
+                {
+                    return new Tuple<bool, string, List<Order>, long>(false, shoesMessage, null, 0);
+                }
+
+                foreach (var detail in details)
+                {
+                    if (shoesDictionary.ContainsKey(detail.ShoesID))
+                    {
+                        detail.Shoes = shoesDictionary[detail.ShoesID];
+                    }
+                }
+            }
+
+            return new Tuple<bool, string, List<Order>, long>(true, "Success", orders, totalOrders);
         }
         catch (Exception ex)
         {
             return new Tuple<bool, string, List<Order>, long>(false, ex.Message, null, 0);
         }
     }
+
 
 
 
@@ -1252,7 +1329,6 @@ public class PostgreDao : IDao
         {
             try
             {
-                //Cập nhật hoặc thêm Address nếu tồn tại
                 if (order.Address != null)
                 {
                     var upsertAddressQuery = $"""
@@ -1264,7 +1340,7 @@ public class PostgreDao : IDao
                     var addressCommand = new NpgsqlCommand(upsertAddressQuery, dbConnection);
                     addressCommand.Transaction = transaction;
 
-                    
+
                     addressCommand.Parameters.AddWithValue("@Street", order.Address.Street);
                     addressCommand.Parameters.AddWithValue("@City", order.Address.City);
                     addressCommand.Parameters.AddWithValue("@State", order.Address.State);
@@ -1287,7 +1363,7 @@ public class PostgreDao : IDao
                 var orderCommand = new NpgsqlCommand(updateOrderQuery, dbConnection);
                 orderCommand.Transaction = transaction;
 
-                
+
                 orderCommand.Parameters.AddWithValue("@OrderID", order.ID);
                 orderCommand.Parameters.AddWithValue("@UserID", order.UserID);
                 orderCommand.Parameters.AddWithValue("@OrderDate", DateTime.Parse(order.OrderDate));
@@ -1297,7 +1373,7 @@ public class PostgreDao : IDao
 
                 orderCommand.ExecuteNonQuery();
 
-                //Nếu có Details, xóa và chèn lại
+                //Delete and insert new details
                 if (order.Details != null && order.Details.Any())
                 {
                     var deleteDetailsQuery = $"""
@@ -1329,14 +1405,12 @@ public class PostgreDao : IDao
                     }
                 }
 
-                //Commit giao dịch
                 transaction.Commit();
 
                 return Tuple.Create(true, "Order updated successfully.", order);
             }
             catch (Exception ex)
             {
-                // Rollback nếu có lỗi
                 transaction.Rollback();
                 return Tuple.Create(false, $"Failed to update order: {ex.Message}", order);
             }
@@ -1472,10 +1546,10 @@ public class PostgreDao : IDao
             FROM "User" 
             WHERE "UserID" = @id
             """;
-        var command=new NpgsqlCommand(sqlQuery,dbConnection);
+        var command = new NpgsqlCommand(sqlQuery, dbConnection);
         command.Parameters.Add("@id", NpgsqlDbType.Integer)
             .Value = userID;
-        var reader=command.ExecuteReader();
+        var reader = command.ExecuteReader();
         var user = new User();
         if (reader.Read())
         {
@@ -1488,60 +1562,292 @@ public class PostgreDao : IDao
         reader.Close();
         return user;
     }
-    public Tuple<List<User>, long> GetUsers(
+    public Tuple<bool, string, List<User>, long> GetUsers(
         int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions)
     {
+        try
+        {
+            var userTextFields = new string[]
+            {
+            "Name", "Email", "PhoneNumber", "Role", "Status", "Image"
+            };
+            var userNumberFields = new string[]
+            {
+            "UserID", "AddressID", 
+            };
+            var userFields = userTextFields.Concat(userNumberFields).ToArray();
+            var sortString = GetSortString(userFields, sortOptions);
 
-        var userTextFields = new string[]
-        {
-            "Name","Email","PhoneNumber"
-        };
-        var userNumberFields = new string[]
-        {
-            "UserID","AddressID"
-        };
-        var userFields = userTextFields.Concat(userNumberFields).ToArray();
-        var sortString = GetSortString(userFields, sortOptions);
-        //tech-debt: re-factory
-        var emptyfields = new string[0] { };
-        var noUsage = new Dictionary<string, Tuple<string, string>>();
-        //
-        var whereString = GetWhereCondition(emptyfields, noUsage, userNumberFields, numberFieldsOptions, userTextFields, textFieldsOptions);
-        //var selectFieldsString = GetSelectFields(categoryFields);
-        var sqlQuery = $"""
-            SELECT count(*) over() as Total,"UserID","Name","Password","Email","PhoneNumber","AddressID"
+            // tech-debt: re-factory
+            var emptyFields = new string[0];
+            var noUsage = new Dictionary<string, Tuple<string, string>>();
+
+            var whereString = GetWhereCondition(emptyFields, noUsage, userNumberFields, numberFieldsOptions, userTextFields, textFieldsOptions);
+
+            var sqlQuery = $"""
+            SELECT count(*) over() as Total, "UserID", "Name", "Password", "Email", "PhoneNumber", "AddressID", "Role", "Status", "Image"
             FROM "User" {whereString} {sortString}
             LIMIT @Take 
             OFFSET @Skip
             """;
-        var command = new NpgsqlCommand(sqlQuery, dbConnection);
-        command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-            .Value = (page - 1) * rowsPerPage;
-        command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-            .Value = rowsPerPage;
-        var reader = command.ExecuteReader();
-        var users = new List<User>();
-        long totalUsers = 0;
-        while (reader.Read())
-        {
-            if (totalUsers == 0)
+
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            command.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+            command.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
+
+            var users = new List<User>();
+            long totalUsers = 0;
+
+            using (var reader = command.ExecuteReader())
             {
-                totalUsers = (long)reader["Total"];
+                while (reader.Read())
+                {
+                    if (totalUsers == 0)
+                    {
+                        totalUsers = (long)reader["Total"];
+                    }
+
+                    var user = new User
+                    {
+                        ID = (int)reader["UserID"],
+                        Name = (string)reader["Name"],
+                        Email = (string)reader["Email"],
+                        Password = (string)reader["Password"],
+                        PhoneNumber = (string)reader["PhoneNumber"],
+                        AddressID = (int)reader["AddressID"],
+                        Role = (string)reader["Role"],
+                        Status = (string)reader["Status"],
+                        Image = (string)reader["Image"]
+                    };
+
+                    users.Add(user);
+                }
             }
-            var user = new User();
-            user.ID = (int)reader["UserID"];
-            user.Name = (string)reader["Name"];
-            user.Email=(string)reader["Email"];
-            user.Password=(string)reader["Password"];
-            user.PhoneNumber=(string)reader["PhoneNumber"];
-            user.AddressID = (int)reader["AddressID"];
-            users.Add(user);
+
+            var addressIds = users.Select(u => u.AddressID).Distinct().ToList();
+            var (addressSuccess, addressMessage, addressDictionary) = GetAddressesByIds(addressIds);
+            if (!addressSuccess)
+            {
+                return new Tuple<bool, string, List<User>, long>(false, addressMessage, null, 0);
+            }
+
+            foreach (var user in users)
+            {
+                if (addressDictionary.ContainsKey(user.AddressID))
+                {
+                    user.Address = addressDictionary[user.AddressID];
+                }
+            }
+
+            return new Tuple<bool, string, List<User>, long>(true, "Success", users, totalUsers);
         }
-        reader.Close();
-        return new Tuple<List<User>, long>(users, totalUsers);
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, List<User>, long>(false, ex.Message, new List<User>(), 0);
+        }
     }
-    
+
+    public Tuple<bool, string> BanAndUnbanUser(User user)
+    {
+        try
+        {
+            var sqlQuery = $"""
+            UPDATE "User"
+            SET "Status" = @Status
+            WHERE "UserID" = @UserID;
+            """;
+
+            using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
+            {
+                command.Parameters.AddWithValue("@UserID", user.ID);
+                command.Parameters.AddWithValue("@Status", user.Status);
+
+                var rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    return new Tuple<bool, string>(true, "User banned successfully");
+                }
+                else
+                {
+                    return new Tuple<bool, string>(false, "User not found");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string>(false, ex.Message);
+        }
+    }
+
+    public Tuple<bool, string, User> UpdateUser(User user)
+    {
+        using (var transaction = dbConnection.BeginTransaction())
+        {
+            try
+            {
+                // Update address
+                var addressQuery = $"""
+            UPDATE "Address"
+            SET 
+                "Street" = @Street,
+                "City" = @City,
+                "State" = @State,
+                "ZipCode" = @ZipCode
+            WHERE "AddressID" = @AddressID;
+            """;
+
+                using (var addressCommand = new NpgsqlCommand(addressQuery, dbConnection, transaction))
+                {
+                    addressCommand.Parameters.AddWithValue("@AddressID", user.AddressID);
+                    addressCommand.Parameters.AddWithValue("@Street", user.Address.Street);
+                    addressCommand.Parameters.AddWithValue("@City", user.Address.City);
+                    addressCommand.Parameters.AddWithValue("@State", user.Address.State);
+                    addressCommand.Parameters.AddWithValue("@ZipCode", user.Address.ZipCode);
+
+                    addressCommand.ExecuteNonQuery();
+                }
+
+                // Update user
+                var userQuery = $"""
+            UPDATE "User"
+            SET 
+                "Name" = @Name,
+                "Email" = @Email,
+                "PhoneNumber" = @PhoneNumber,
+                "Role" = @Role,
+                "Status" = @Status,
+                "Image" = @Image,
+                "Password" = @Password
+            WHERE "UserID" = @UserID;
+            """;
+
+                using (var userCommand = new NpgsqlCommand(userQuery, dbConnection, transaction))
+                {
+                    userCommand.Parameters.AddWithValue("@UserID", user.ID);
+                    userCommand.Parameters.AddWithValue("@Name", user.Name);
+                    userCommand.Parameters.AddWithValue("@Email", user.Email);
+                    userCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+                    userCommand.Parameters.AddWithValue("@Role", user.Role);
+                    userCommand.Parameters.AddWithValue("@Status", user.Status);
+                    userCommand.Parameters.AddWithValue("@Image", user.Image ?? (object)DBNull.Value);
+                    userCommand.Parameters.AddWithValue("@Password", user.Password);
+
+                    userCommand.ExecuteNonQuery();
+                }
+
+                // Commit transaction
+                transaction.Commit();
+                return new Tuple<bool, string, User>(true, "Update successful", user);
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return new Tuple<bool, string, User>(false, ex.Message, null);
+            }
+        }
+    }
+
+
+    public Tuple<bool, string, User> AddUser(User user)
+    {
+        using var transaction = dbConnection.BeginTransaction();
+        try
+        {
+            // Nếu Address không null, thêm địa chỉ trước
+            if (user.Address != null)
+            {
+                var addressQuery = $"""
+                INSERT INTO "Address" ("Street", "City", "State", "ZipCode", "Country")
+                VALUES (@Street, @City, @State, @ZipCode, @Country)
+                RETURNING "AddressID";
+                """;
+
+                using (var addressCommand = new NpgsqlCommand(addressQuery, dbConnection, transaction))
+                {
+                    addressCommand.Parameters.AddWithValue("@Street", user.Address.Street);
+                    addressCommand.Parameters.AddWithValue("@City", user.Address.City);
+                    addressCommand.Parameters.AddWithValue("@State", user.Address.State);
+                    addressCommand.Parameters.AddWithValue("@ZipCode", user.Address.ZipCode);
+                    addressCommand.Parameters.AddWithValue("@Country", user.Address.Country); // Add this line
+
+                    user.AddressID = (int)addressCommand.ExecuteScalar();
+                }
+
+            }
+
+            // Thêm thông tin User
+            var userQuery = $"""
+            INSERT INTO "User" 
+                ("Name", "Email", "PhoneNumber", "Role", "Status", "Image", "Password", "AddressID")
+            VALUES 
+                (@Name, @Email, @PhoneNumber, @Role, @Status, @Image, @Password, @AddressID)
+            RETURNING "UserID", "Name", "Email", "PhoneNumber", "Role", "Status", "Image", "Password", "AddressID";
+            """;
+
+            using (var userCommand = new NpgsqlCommand(userQuery, dbConnection, transaction))
+            {
+                userCommand.Parameters.AddWithValue("@Name", user.Name);
+                userCommand.Parameters.AddWithValue("@Email", user.Email);
+                userCommand.Parameters.AddWithValue("@PhoneNumber", user.PhoneNumber);
+                userCommand.Parameters.AddWithValue("@Role", user.Role);
+                userCommand.Parameters.AddWithValue("@Status", user.Status);
+                userCommand.Parameters.AddWithValue("@Image", user.Image ?? (object)DBNull.Value);
+                userCommand.Parameters.AddWithValue("@Password", user.Password);
+                userCommand.Parameters.AddWithValue("@AddressID", user.Address != null ? user.AddressID : (object)DBNull.Value);
+
+                userCommand.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+            return new Tuple<bool, string, User>(true, "User added successfully", user);
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            return new Tuple<bool, string, User>(false, ex.Message, null);
+        }
+    }
+
+    public Tuple<bool, string, List<User>> GetBannedUsers()
+    {
+        List<User> bannedUsers = new List<User>();
+        string query = $"""
+        SELECT * 
+        FROM "User"
+        WHERE "Status" = 'Banned'
+        """;
+        try
+        {
+            using (var cmd = new NpgsqlCommand(query, dbConnection))
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        User user = new User
+                        {
+                            // Assuming User class has these properties
+                            ID = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Status = reader.GetString(reader.GetOrdinal("Status")),
+                            // Add other properties as needed
+                        };
+                        bannedUsers.Add(user);
+                    }
+                }
+            }
+            return Tuple.Create(true, string.Empty, bannedUsers);
+        }
+        catch (Exception ex)
+        {
+            return Tuple.Create(false, ex.Message, bannedUsers);
+        }
+    }
+
 }
+
+

@@ -24,11 +24,23 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
+    public string Role
+    {
+        get; set;
+    }
     public string Password
     {
         get; set; 
     }
     public string PhoneNumber
+    {
+        get; set;
+    }
+    public string Status
+    {
+        get; set;
+    }
+    public string Image
     {
         get; set;
     }

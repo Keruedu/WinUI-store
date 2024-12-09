@@ -125,7 +125,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         try {
             if (!string.IsNullOrEmpty(NewShoes?.Image) && NewShoes.Image == SelectedImagePath)
             {
-                var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image);
+                var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image, "shoes");
                 NewShoes.Image = imageUrl;
             }
             var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);

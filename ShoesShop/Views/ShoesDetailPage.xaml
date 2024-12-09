@@ -97,7 +97,7 @@
                         </StackPanel>
                         <StackPanel x:Name="ShoesColor">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Color: " />
-                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Color, Mode=TwoWay}" />
+                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Color, Mode=OneWay}" />
                         </StackPanel>
                         <StackPanel x:Name="ShoesSellingPrice">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Selling Price: " />
@@ -178,71 +178,6 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel>
-                    <!--Reviews-->
-                    <TextBlock FontSize="18" FontWeight="Medium" Margin="0,0,0,10">Customer reviews</TextBlock>
-
-                    <!--Loading reviews-->
-                    <ProgressRing 
-                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                        Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                        Width="60"
-                        Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
-
-                    <!--Error & Info-->
-                    <InfoBarPanel>
-                        <InfoBar 
-                        x:Name="ErrorInfoBar"
-                        Title="Error Loading reviews"
-                        Severity="Error"
-                        IsClosable="False"
-                        IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
-                        Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                        />
-
-                        <InfoBar
-                        x:Name="InfoInfoBar"
-                        Title="Info"
-                        Severity="Warning"
-                        IsClosable="False"
-                        IsOpen="{x:Bind ViewModel.HasInfo, Mode=OneWay}"
-                        Message="{x:Bind ViewModel.InfoMessage, Mode=OneWay}"
-                        />
-                    </InfoBarPanel>
-
-                    <ScrollViewer IsTabStop="True">
-                        <ListView x:Name="ContentListView"
-                            SelectionMode="None"
-                            Height="400"
-                            ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                            IsItemClickEnabled="False">
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType='models:Review'>
-                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="2" Padding="12" CornerRadius="4" Margin="0, 8, 0, 0">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Text="{Binding User.Name}" FontWeight="Medium" TextWrapping="Wrap" />
-                                            <TextBlock Grid.Row="1" Text="{Binding Content}" TextWrapping="Wrap" />
-                                            <RatingControl 
-                                                Grid.Row="2"
-                                                HorizontalAlignment="Left"
-                                                IsClearEnabled="True"
-                                                IsReadOnly="True" 
-                                                PlaceholderValue="{Binding Rating}" 
-                                                Caption="{Binding Rating}"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </ScrollViewer>
-                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>
