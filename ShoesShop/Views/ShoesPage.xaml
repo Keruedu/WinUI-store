@@ -228,7 +228,7 @@
                 <StackPanel Spacing="20" Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}">
                     <controls:AdaptiveGridView
                         Margin="0, 16, 0, 16"
-                        DesiredWidth="240"
+                        DesiredWidth="360"
                         IsItemClickEnabled="True"
                         ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
                         ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
