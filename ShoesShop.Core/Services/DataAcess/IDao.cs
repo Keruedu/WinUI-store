@@ -35,13 +35,7 @@ public interface IDao
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions);
 
-    //public Tuple<List<Detail>, long> GetOrderDetailsByID(
-    //int orderID,
-    //int page, int rowsPerPage,
-    //Dictionary<string, string> whereOptions,
-    //Dictionary<string, SortType> sortOptions);
-
-    public Tuple<bool, string, Order> AddOrder(Order newOrder);
+     public Tuple<bool, string, Order> AddOrder(Order newOrder);
     public Tuple<bool, string, Order> UpdateOrder(Order order);
     public Tuple<bool, string> DeleteOrder(Order order);
     //Category
@@ -70,5 +64,17 @@ public interface IDao
     public Tuple<bool, string, List<Detail>> GetDetailsByOrderIds(List<int> orderIds);
     public Tuple<bool, string> AddDetail(int orderId, Detail detail);
     public Tuple<bool, string> DeleteDetail(int orderId, int detailId);
+
+    //dashboard
+
+    public Task<List<Order>> GetRecentOrdersAsync();
+
+    public Task<int> GetTotalOrdersAsync();
+
+    public Task<List<Shoes>> GetTop5BestSellingShoesAsync();
+
+    public Task<int> GetTotalShoesInStockAsync();
+
+    public Task<Dictionary<string, int>> GetOrderStatisticsAsync(string groupBy);
 
 }
