@@ -40,7 +40,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="8.0.5" />
 	<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
-	<PackageReference Include="OxyPlot.SkiaSharp.Wpf" Version="2.2.0" />
 	<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     <PackageReference Include="WinUIEx" Version="2.3.2" />
   </ItemGroup>
