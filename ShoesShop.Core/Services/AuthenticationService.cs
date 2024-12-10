@@ -33,8 +33,8 @@ public class AuthenticationService : IAuthenticationService
         try
         {
             User user = dao.GetUserByName(email);
-            if (user == null) {
-                message = "Not found!";
+            if (user == null || user.Email==null) {
+                message = "Not found, did you sign up!";
                 ERROR_CODE = 404;
             }
             else if(BcryptUtil.ComparePlainAndHashed(password,user.Password)==false)

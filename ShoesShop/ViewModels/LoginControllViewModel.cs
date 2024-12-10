@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.UI.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Services;
+using ShoesShop.Views;
 
 namespace ShoesShop.ViewModels;
 public partial class LoginControllViewModel: ObservableRecipient
 {
+    private UIElement? _shell = null;
     private IAuthenticationService _authenticationService=new AuthenticationService();
 
     [ObservableProperty]
@@ -85,6 +89,9 @@ public partial class LoginControllViewModel: ObservableRecipient
         {
             AccessToken = _authenticationService.GetAccessToken();
             NotifyChanges();
+            _shell = App.GetService<ShellPage>();
+            //_shell = App.GetService<LoginControl>();
+            App.MainWindow.Content = _shell ?? new Frame();
         }
         else
         {
