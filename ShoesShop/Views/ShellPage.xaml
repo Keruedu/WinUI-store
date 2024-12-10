@@ -91,19 +91,9 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf0e2;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_AddCategory" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.AddCategoryViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xED11;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Shoes" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.ShoesViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE780;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_AddShoes" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.AddShoesViewModel">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE82E;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Orders" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.OrdersViewModel">
@@ -126,9 +116,11 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8B6;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                
-                <NavigationViewItem x:Name="CategoryExpander" Visibility="{x:Bind ViewModel.IsExpandedVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Expander HorizontalAlignment="Stretch" Padding="0" Margin="0">
+
+                <NavigationViewItem x:Name="CategoryExpander" 
+                                    Visibility="{x:Bind ViewModel.IsExpandedVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Tapped="CategoryExpander_Tapped">
+                    <Expander HorizontalAlignment="Stretch" Padding="0" Margin="0" IsExpanded="True">
                         <Expander.Header>
                             <Grid ColumnSpacing="10" MinWidth="200">
                                 <Grid.ColumnDefinitions>

@@ -155,20 +155,37 @@ public sealed partial class UsersPage : Page
         return null; // Không tìm thấy
     }
 
+    private T FindControlInHeader<T>(DependencyObject parent) where T : DependencyObject
+    {
+        if (parent == null) return null;
+
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+
+            if (child is T control)
+            {
+                return control;
+            }
+
+            var result = FindControlInHeader<T>(child);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
     private CheckBox FindCheckBoxInHeader()
     {
-        // Tìm checkbox trong header của ListView
-        var header = UsersListView.Header as StackPanel;
+
+        var header = UsersListView.Header as DependencyObject;
         if (header != null)
         {
-            // Tìm Grid trong StackPanel
-            var grid = header.Children.OfType<Grid>().FirstOrDefault();
-            if (grid != null)
-            {
-                // Tìm checkbox trong Grid
-                var checkBox = grid.Children.OfType<CheckBox>().FirstOrDefault();
-                return checkBox;
-            }
+            return FindControlInHeader<CheckBox>(header);
         }
         return null;
     }

@@ -17,7 +17,7 @@ exports.up = async function(knex) {
     table.string('PhoneNumber', 50);
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
     table.enu('Role', ['Admin', 'Manager', 'User']).notNullable().defaultTo('User');
-    table.enu('Status', ['Active', 'Banned']).notNullable().defaultTo('active');
+    table.enu('Status', ['Active', 'Banned']).notNullable().defaultTo('Active');
     table.string('Image');
   });
 
@@ -45,7 +45,7 @@ exports.up = async function(knex) {
     table.increments('OrderID').primary();
     table.integer('UserID').unsigned().references('UserID').inTable('User').notNullable();
     table.date('OrderDate').notNullable();
-    table.string('Status', 50).notNullable();
+    table.enu('Status', ['Pending', 'Shipped', 'Delivered', 'Cancelled']).notNullable().defaultTo('Pending');
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
     table.decimal('TotalAmount', 10, 2).notNullable();
   });

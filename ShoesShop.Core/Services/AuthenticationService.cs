@@ -15,7 +15,7 @@ namespace ShoesShop.Core.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
-    private IDao dao=new PostgreDao();
+    private IDao dao = new PostgreDao();
     public string AccessToken
     {
         get; set;
@@ -35,23 +35,49 @@ public class AuthenticationService : IAuthenticationService
         var ERROR_CODE = 0;
         try
         {
+            // Retrieve the user from the database
             User user = dao.GetUserByName(email);
-            if (user == null || user.Email==null) {
-                message = "Not found, did you sign up!";
+
+            if (user == null || string.IsNullOrEmpty(user.Email))
+            {
+                message = "User not found. Did you sign up?";
                 ERROR_CODE = 404;
             }
-            else if(BcryptUtil.ComparePlainAndHashed(password,user.Password)==false)
+            else if (BcryptUtil.ComparePlainAndHashed(password, user.Password) == false)
             {
+                message = "Invalid credentials.";
                 ERROR_CODE = 401;
-                message = "Bad credentials";
+            }
+            else if (user.Status == "Banned")
+            {
+                message = "Your account is banned.";
+                ERROR_CODE = 403;
+            }
+            else if (user.Role == "User") // Assuming 'User' is not allowed in admin
+            {
+                message = "You do not have access to the admin page.";
+                ERROR_CODE = 403;
+            }
+            else
+            {
+                // Authentication successful
+                AccessToken = GenerateAccessToken(user); // Assume a method to generate token
+                UserId = user.ID.ToString();
             }
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            message = $"An error occurred: {ex.Message}";
             ERROR_CODE = 1;
         }
+
         return (message, ERROR_CODE);
+    }
+
+    private string GenerateAccessToken(User user)
+    {
+        // Use JWT or any other token generation mechanism
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user.Email}:{DateTime.UtcNow}"));
     }
 
     public Task<bool> LogoutAsync()

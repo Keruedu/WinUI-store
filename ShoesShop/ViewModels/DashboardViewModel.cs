@@ -97,7 +97,7 @@ public partial class DashboardViewModel : ObservableRecipient
 
     private void UpdateOrderStatisticsPlotModel()
     {
-        var plotModel = new PlotModel { Title = "Order Statistics" };
+        var plotModel = new PlotModel { };
         var categoryAxis = new CategoryAxis { Position = AxisPosition.Left };
         var valueAxis = new LinearAxis { Position = AxisPosition.Bottom, Minimum = 0 };
 

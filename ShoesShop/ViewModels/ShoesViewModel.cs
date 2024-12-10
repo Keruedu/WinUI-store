@@ -16,6 +16,11 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
     public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
 
+    public RelayCommand NavigateToAddShoesPageCommand
+    {
+        get;
+    }
+
     public ShoesViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
         _navigationService = navigationService;
@@ -34,6 +39,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
             new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
         };
         SelectedSortOption = SortOptions[0];
+        NavigateToAddShoesPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddShoesViewModel).FullName!));
         LoadCategories();
     }
 

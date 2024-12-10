@@ -7,12 +7,15 @@ using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services;
 using ShoesShop.Core.Services.DataAcess;
+using CommunityToolkit.Mvvm.Input;
+using ShoesShop.Contracts.Services;
 
 namespace ShoesShop.ViewModels;
 
 public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 {
     private readonly ICategoryDataService _categoryDataService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     public Category? selected;
@@ -25,10 +28,18 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 
     public ObservableCollection<Category> CategoryList { get; private set; } = new();
 
-    public CategoriesViewModel(ICategoryDataService categoryDataService)
+    public RelayCommand NavigateToAddCategoryPageCommand
+    {
+        get;
+    }
+
+    public CategoriesViewModel(ICategoryDataService categoryDataService, INavigationService navigationService)
     {
         _categoryDataService = categoryDataService;
+        _navigationService = navigationService;
+        NavigateToAddCategoryPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddCategoryViewModel).FullName!));
     }
+
 
 
     public async void LoadCategories()

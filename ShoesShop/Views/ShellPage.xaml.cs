@@ -79,6 +79,12 @@ public sealed partial class ShellPage : Page
         }
     }
 
+    private void CategoryExpander_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        // Mark the event as handled to prevent any default action
+        e.Handled = true;
+    }
+
     private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)
     {
         var keyboardAccelerator = new KeyboardAccelerator() { Key = key };
@@ -101,4 +107,5 @@ public sealed partial class ShellPage : Page
 
         args.Handled = result;
     }
+
 }

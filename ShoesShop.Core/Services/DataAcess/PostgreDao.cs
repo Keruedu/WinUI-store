@@ -272,6 +272,27 @@ public class PostgreDao : IDao
         return selectFields;
     }
 
+    public Dictionary<int, string> GetAllCategories()
+    {
+        var categories = new Dictionary<int, string>();
+        var sqlQuery = "SELECT \"CategoryID\", \"Name\" FROM \"Category\"";
+
+        using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
+        {
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int categoryId = (int)reader["CategoryID"];
+                    string categoryName = (string)reader["Name"];
+                    categories.Add(categoryId, categoryName);
+                }
+                reader.Close();
+            }
+        }
+        return categories;
+    }
+
 
     public Tuple<List<Category>, long> GetCategories(
         int page, int rowsPerPage,
@@ -660,7 +681,32 @@ public class PostgreDao : IDao
     }
 
 
-    
+    public int GetTotalShoesSoldByIdAsync(int shoesId)
+    {
+        string query = @"
+        SELECT COALESCE(SUM(""Quantity""), 0) AS TotalSold
+        FROM ""Detail""
+        WHERE ""ShoesID"" = @ShoesId;
+    ";
+
+        try
+        {
+            // Tạo và thiết lập NpgsqlCommand
+            using var command = new NpgsqlCommand(query, dbConnection);
+            command.Parameters.AddWithValue("@ShoesId", shoesId);
+
+            // Thực thi câu truy vấn và trả về kết quả
+            return (int)(Convert.ToInt64(command.ExecuteScalar() ?? 0));
+        }
+        catch (Exception ex)
+        {
+            // Ghi log hoặc xử lý lỗi cụ thể
+            Console.Error.WriteLine($"Error fetching total shoes sold for ShoesID {shoesId}: {ex.Message}");
+            throw; // Ném lại exception sau khi ghi log
+        }
+    }
+
+
 
     public Tuple<bool, string, Dictionary<int, User>> GetUserByIds(List<int> userIds)
     {
@@ -670,7 +716,7 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Dictionary<int, User>>(true, string.Empty, new Dictionary<int, User>());
 
             var sqlQuery = $"""
-            SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber", "Role", "Status"
+            SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber", "Role", "Status", "Image"
             FROM "User"
             WHERE "UserID" = ANY(@UserIds);
             """;
@@ -692,7 +738,8 @@ public class PostgreDao : IDao
                         Password = (string)reader["Password"],
                         PhoneNumber = (string)reader["PhoneNumber"],
                         Role = (string)reader["Role"],
-                        Status = (string)reader["Status"]
+                        Status = (string)reader["Status"],
+                        Image = (string)reader["Image"]
                     };
                     userDictionary[user.ID] = user;
                 }
@@ -1644,7 +1691,7 @@ public class PostgreDao : IDao
         try
         {
             var sqlQuery = $"""
-            SELECT "UserID","Name","Email","Password","PhoneNumber" ,"AddressID","Role"
+            SELECT "UserID","Name","Email","Password","PhoneNumber","AddressID","Role","Status"
             FROM "User" 
             WHERE "Email" ='{username}'
             """;
@@ -1662,6 +1709,7 @@ public class PostgreDao : IDao
                 user.PhoneNumber = (string)reader["PhoneNumber"];
                 user.AddressID = (int)reader["AddressID"];
                 user.Role = (string)reader["Role"];
+                user.Status = (string)reader["Status"];
             }
             reader.Close();
             return user;

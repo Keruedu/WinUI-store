@@ -18,7 +18,16 @@ exports.seed = async function(knex) {
     { AddressID: 7, Street: '404 Cedar St', City: 'Neoncity', State: 'NV', ZipCode: '67801', Country: 'USA' },
     { AddressID: 8, Street: '505 Cherry St', City: 'Riverdale', State: 'OR', ZipCode: '78901', Country: 'USA' },
     { AddressID: 9, Street: '606 Walnut St', City: 'Sunnytown', State: 'CA', ZipCode: '89012', Country: 'USA' },
-    { AddressID: 10, Street: '707 Cedar Ave', City: 'Hilltown', State: 'ID', ZipCode: '90123', Country: 'USA' }
+    { AddressID: 10, Street: '707 Cedar Ave', City: 'Hilltown', State: 'ID', ZipCode: '90123', Country: 'USA' },
+    { AddressID: 11, Street: '123 Main St', City: 'Anytown', State: 'CA', ZipCode: '12345', Country: 'USA' },
+    { AddressID: 12, Street: '456 Elm St', City: 'Othertown', State: 'NY', ZipCode: '67890', Country: 'USA' },
+    { AddressID: 13, Street: '789 Oak St', City: 'Smalltown', State: 'TX', ZipCode: '23456', Country: 'USA' },
+    { AddressID: 14, Street: '101 Pine St', City: 'Bigcity', State: 'FL', ZipCode: '34567', Country: 'USA' },
+    { AddressID: 15, Street: '202 Maple St', City: 'Littletown', State: 'CO', ZipCode: '45678', Country: 'USA' },
+    { AddressID: 16, Street: '303 Birch St', City: 'Oldtown', State: 'WA', ZipCode: '56789', Country: 'USA' },
+    { AddressID: 17, Street: '404 Cedar St', City: 'Neoncity', State: 'NV', ZipCode: '67801', Country: 'USA' },
+    { AddressID: 18, Street: '505 Cherry St', City: 'Riverdale', State: 'OR', ZipCode: '78901', Country: 'USA' },
+    { AddressID: 19, Street: '606 Walnut St', City: 'Sunnytown', State: 'CA', ZipCode: '89012', Country: 'USA' },
   ]);
   await knex.raw('SELECT setval(\'"Address_AddressID_seq"\', (SELECT MAX("AddressID") FROM "Address"))');
 
@@ -76,31 +85,103 @@ exports.seed = async function(knex) {
     { ShoesID: 10, CategoryID: 1, Name: 'Jordan Air', Brand: 'Nike', Size: '11', Color: 'Red', Price: 200.00, Stock: 30, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/nike3_fchusm.jpg', Description: 'Premium Jordan Air shoes with superior comfort.' },
     { ShoesID: 11, CategoryID: 2, Name: 'Fila Disruptor', Brand: 'Fila', Size: '7', Color: 'Pink', Price: 90.00, Stock: 50, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/converse4_eqyc6x.jpg', Description: 'Chunky and stylish Fila Disruptor shoes.' },
     { ShoesID: 12, CategoryID: 3, Name: 'Brooks Ghost', Brand: 'Brooks', Size: '9', Color: 'Grey', Price: 130.00, Stock: 25, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/nike1_v2vfy2.jpg', Description: 'Comfortable and supportive Brooks Ghost running shoes.' },
-    { ShoesID: 13, CategoryID: 1, Name: 'Saucony Jazz', Brand: 'Saucony', Size: '10', Color: 'Blue', Price: 80.00, Stock: 40, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196146/nike4_wwbkfs.jpg', Description: 'Classic Saucony Jazz shoes with a retro design.' }
+    { ShoesID: 13, CategoryID: 1, Name: 'Saucony Jazz', Brand: 'Saucony', Size: '10', Color: 'Blue', Price: 80.00, Stock: 40, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196146/nike4_wwbkfs.jpg', Description: 'Classic Saucony Jazz shoes with a retro design.' },
+    { ShoesID: 14, CategoryID: 1, Name: 'Nike ZoomX', Brand: 'Nike', Size: '9', Color: 'Green', Price: 180.00, Stock: 20, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/converse5_tp0p8j.jpg', Description: 'High-performance Nike ZoomX shoes for running.' },
+    { ShoesID: 15, CategoryID: 2, Name: 'Adidas NMD_R1', Brand: 'Adidas', Size: '10', Color: 'Black', Price: 160.00, Stock: 35, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/nike1_v2vfy2.jpgg', Description: 'Modern Adidas NMD_R1 sneakers with Boost technology.' },
+    { ShoesID: 16, CategoryID: 3, Name: 'Puma Ignite', Brand: 'Puma', Size: '8', Color: 'Orange', Price: 140.00, Stock: 25, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196148/adidas5_uliobk.jpg', Description: 'Responsive and stylish Puma Ignite shoes for running.' },
+    { ShoesID: 17, CategoryID: 1, Name: 'Reebok Nano X', Brand: 'Reebok', Size: '11', Color: 'White', Price: 120.00, Stock: 50, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/nike3_fchusm.jpg', Description: 'Reebok Nano X shoes for cross-training and fitness.' },
+    { ShoesID: 18, CategoryID: 2, Name: 'New Balance Fresh Foam', Brand: 'New Balance', Size: '7', Color: 'Yellow', Price: 140.00, Stock: 30, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196148/adidas5_uliobk.jpg', Description: 'New Balance Fresh Foam shoes for ultimate comfort.' },
+    { ShoesID: 19, CategoryID: 3, Name: 'Asics Metaspeed', Brand: 'Asics', Size: '9', Color: 'Blue', Price: 200.00, Stock: 15, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/converse2_popcku.jpg', Description: 'Asics Metaspeed racing shoes for professional runners.' },
+    { ShoesID: 20, CategoryID: 1, Name: 'Jordan Delta', Brand: 'Nike', Size: '12', Color: 'Black', Price: 170.00, Stock: 40, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196146/nike4_wwbkfs.jpg', Description: 'Stylish and versatile Jordan Delta shoes for casual wear.' },
+    { ShoesID: 21, CategoryID: 2, Name: 'Adidas Supernova', Brand: 'Adidas', Size: '9', Color: 'Pink', Price: 130.00, Stock: 20, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/adidas1_tbkhwo.jpg', Description: 'Adidas Supernova shoes for long-distance running.' },
+    { ShoesID: 22, CategoryID: 3, Name: 'Hoka One Clifton', Brand: 'Hoka', Size: '8', Color: 'Grey', Price: 160.00, Stock: 25, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/adidas1_tbkhwo.jpg', Description: 'Hoka One Clifton shoes with superior cushioning.' },
+    { ShoesID: 23, CategoryID: 1, Name: 'Nike Pegasus Trail', Brand: 'Nike', Size: '10', Color: 'Brown', Price: 150.00, Stock: 30, Image: 'https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/converse1_tnygsh.jpg', Description: 'Trail running shoes from Nike for all terrains.' }
   ]);
   await knex.raw('SELECT setval(\'"Shoes_ShoesID_seq"\', (SELECT MAX("ShoesID") FROM "Shoes"))');
 
-  // Insert seed entries for Order
+  // Insert seed entries for Orders
   await knex('Order').insert([
-    { OrderID: 1, UserID: 1, OrderDate: '2023-10-31', Status: 'pending', AddressID: 1, TotalAmount: 270.00 },
-    { OrderID: 2, UserID: 2, OrderDate: '2023-11-01', Status: 'shipped', AddressID: 2, TotalAmount: 600.00 },
-    { OrderID: 3, UserID: 3, OrderDate: '2023-11-02', Status: 'delivered', AddressID: 1, TotalAmount: 450.00 },
-    { OrderID: 4, UserID: 4, OrderDate: '2023-11-03', Status: 'pending', AddressID: 2, TotalAmount: 1000.00 }
+    { OrderID: 1, UserID: 1, OrderDate: '2023-10-31', Status: 'Pending', AddressID: 1, TotalAmount: 270.00 },
+    { OrderID: 2, UserID: 2, OrderDate: '2023-11-01', Status: 'Shipped', AddressID: 2, TotalAmount: 730.00 },
+    { OrderID: 3, UserID: 3, OrderDate: '2023-11-02', Status: 'Delivered', AddressID: 1, TotalAmount: 480.00 },
+    { OrderID: 4, UserID: 4, OrderDate: '2023-11-03', Status: 'Pending', AddressID: 2, TotalAmount: 1460.00 },
+    { OrderID: 5, UserID: 5, OrderDate: '2023-11-04', Status: 'Pending', AddressID: 3, TotalAmount: 330.00 },
+
+    // Generate 21 additional orders
+    ...Array.from({ length: 21 }, (_, i) => {
+      const id = i + 6;
+      const userId = (id % 5) + 1; // Rotate UserID from 1 to 5
+      const addressId = (id % 3) + 1; // Rotate AddressID from 1 to 3
+      const totalAmount = Math.floor(Math.random() * 1500) + 100; // Random total amount between 100 and 1500
+      const orderDate = new Date(2023, 10, i + 5).toISOString().split('T')[0]; // Random date in November
+      const status = ['Pending', 'Shipped', 'Delivered'][Math.floor(Math.random() * 3)]; // Random status
+
+      return {
+        OrderID: id,
+        UserID: userId,
+        OrderDate: orderDate,
+        Status: status,
+        AddressID: addressId,
+        TotalAmount: totalAmount,
+      };
+    })
   ]);
+
   await knex.raw('SELECT setval(\'"Order_OrderID_seq"\', (SELECT MAX("OrderID") FROM "Order"))');
 
-  // Insert seed entries for Detail
+  // Insert seed entries for Details
   await knex('Detail').insert([
-    { DetailID: 1, OrderID: 1, ShoesID: 1, Quantity: 1, Price: 120.00 },
-    { DetailID: 2, OrderID: 1, ShoesID: 2, Quantity: 1, Price: 150.00 },
-    { DetailID: 3, OrderID: 2, ShoesID: 3, Quantity: 2, Price: 200.00 },
-    { DetailID: 4, OrderID: 2, ShoesID: 4, Quantity: 2, Price: 200.00 },
-    { DetailID: 5, OrderID: 2, ShoesID: 5, Quantity: 1, Price: 130.00 },
-    { DetailID: 6, OrderID: 3, ShoesID: 6, Quantity: 3, Price: 140.00 },
-    { DetailID: 7, OrderID: 3, ShoesID: 7, Quantity: 1, Price: 60.00 },
-    { DetailID: 8, OrderID: 4, ShoesID: 8, Quantity: 4, Price: 70.00 },
-    { DetailID: 9, OrderID: 4, ShoesID: 9, Quantity: 4, Price: 150.00 },
-    { DetailID: 10, OrderID: 4, ShoesID: 10, Quantity: 2, Price: 200.00 }
+    { DetailID: 1, OrderID: 1, ShoesID: 1, Quantity: 1, Price: 120.00 }, // 120.00
+    { DetailID: 2, OrderID: 1, ShoesID: 2, Quantity: 1, Price: 150.00 }, // 150.00
+    // Total for OrderID 1 = 270.00
+
+    { DetailID: 3, OrderID: 2, ShoesID: 3, Quantity: 2, Price: 100.00 }, // 200.00
+    { DetailID: 4, OrderID: 2, ShoesID: 4, Quantity: 3, Price: 110.00 }, // 330.00
+    { DetailID: 5, OrderID: 2, ShoesID: 5, Quantity: 2, Price: 100.00 }, // 200.00
+    // Total for OrderID 2 = 730.00
+
+    { DetailID: 6, OrderID: 3, ShoesID: 6, Quantity: 3, Price: 140.00 }, // 420.00
+    { DetailID: 7, OrderID: 3, ShoesID: 7, Quantity: 1, Price: 60.00 },  // 60.00
+    // Total for OrderID 3 = 480.00
+
+    { DetailID: 8, OrderID: 4, ShoesID: 8, Quantity: 4, Price: 150.00 }, // 600.00
+    { DetailID: 9, OrderID: 4, ShoesID: 9, Quantity: 2, Price: 430.00 }, // 860.00
+    // Total for OrderID 4 = 1460.00
+
+    { DetailID: 10, OrderID: 5, ShoesID: 10, Quantity: 3, Price: 110.00 }, // 330.00
+    // Total for OrderID 5 = 330.00
+
+    // Generate details for 21 additional orders
+    ...Array.from({ length: 21 }, (_, i) => {
+      const detailIdStart = i * 3 + 11; // Increment DetailID for each order
+      const orderId = i + 6;
+
+      // Generate 3 random details for each order
+      return [
+        {
+          DetailID: detailIdStart,
+          OrderID: orderId,
+          ShoesID: (orderId % 10) + 1,
+          Quantity: Math.floor(Math.random() * 5) + 1, // Random quantity between 1 and 5
+          Price: Math.floor(Math.random() * 300) + 50, // Random price between 50 and 300
+        },
+        {
+          DetailID: detailIdStart + 1,
+          OrderID: orderId,
+          ShoesID: ((orderId + 1) % 10) + 1,
+          Quantity: Math.floor(Math.random() * 5) + 1,
+          Price: Math.floor(Math.random() * 300) + 50,
+        },
+        {
+          DetailID: detailIdStart + 2,
+          OrderID: orderId,
+          ShoesID: ((orderId + 2) % 10) + 1,
+          Quantity: Math.floor(Math.random() * 5) + 1,
+          Price: Math.floor(Math.random() * 300) + 50,
+        },
+      ];
+    }).flat()
   ]);
+
   await knex.raw('SELECT setval(\'"Detail_DetailID_seq"\', (SELECT MAX("DetailID") FROM "Detail"))');
-};
+}

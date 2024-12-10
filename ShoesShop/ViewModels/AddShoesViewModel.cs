@@ -6,6 +6,7 @@ using ShoesShop.Core.Models;
 using ShoesShop;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
+using ShoesShop.Contracts.Services;
 
 namespace ShoesShop.ViewModels;
 
@@ -14,6 +15,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     private readonly IShoesDataService _ShoesDataService;
     private readonly ICategoryDataService _categoryDataService;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly IMediator _mediator;
 
     [ObservableProperty]
     private Shoes newShoes = new()
@@ -70,11 +72,12 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         get; set;
     }
 
-    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService)
+    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService, IMediator mediator)
     {
         _ShoesDataService = ShoesDataService;
         _categoryDataService = categoryDataService;
         _cloudinaryService = cloudinaryService;
+        _mediator = mediator;
 
         SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
         RemoveImageButtonCommand = new RelayCommand(RemoveImage, () => IsImageSelected);
@@ -132,8 +135,9 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 
             if (ERROR_CODE == 1)
             {
-
+               
                 SuccessMessage = message;
+                _mediator.Notify();
                 Reset();
             }
             else

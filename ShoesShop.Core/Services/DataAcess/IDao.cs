@@ -27,6 +27,8 @@ public interface IDao
 
     public Tuple<bool, string, Shoes> UpdateShoes(Shoes newShoes);
 
+    public int GetTotalShoesSoldByIdAsync(int shoesId);
+
     //Order
     public Tuple<bool, string, List<Order>, long> GetOrders(
         int page, int rowsPerPage,
@@ -39,6 +41,7 @@ public interface IDao
     public Tuple<bool, string, Order> UpdateOrder(Order order);
     public Tuple<bool, string> DeleteOrder(Order order);
     //Category
+    public Dictionary<int, string> GetAllCategories();
     public Tuple<List<Category>, long> GetCategories(
         int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,

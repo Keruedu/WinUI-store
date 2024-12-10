@@ -15,6 +15,8 @@
 
     <Page.Resources>
         <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+        <helpers:CategoryIdToNameConverter x:Key="CategoryIdToNameConverter"/>
+        <helpers:ShoesSoldConverter x:Key="ShoesSoldConverter"/>
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
@@ -24,59 +26,44 @@
                 <Setter Property="Spacing" Value="12" />
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="HorizontalAlignment" Value="Right" />
-                <Setter Property="Margin" Value="0, 0, 0, 20" />
             </Style>
-
+    
             <Style x:Key="SmallFiltersAndSearchPanelStyle" TargetType="Expander">
                 <Setter Property="Width" Value="240" />
                 <Setter Property="ExpandDirection" Value="Down" />
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="HorizontalAlignment" Value="Right" />
-                <Setter Property="Margin" Value="0, 0, 0, 20" />
             </Style>
 
-            <Style TargetType="Image" x:Key="ShoesPosterStyle">
-                <Setter Property="Width" Value="200" />
-                <Setter Property="Height" Value="130" />
-            </Style>
-
-            <Style TargetType="TextBlock" x:Key="ShoesTitleStyle">
-                <Setter Property="Margin" Value="0, 16, 0, 0" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-                <Setter Property="LineHeight" Value="20" />
-                <Setter Property="Height" Value="40" />
-                <Setter Property="MaxHeight" Value="40" />
-            </Style>
-
-            <Style TargetType="TextBlock" x:Key="ShoesPriceStyle">
-                <Setter Property="Margin" Value="0, 8, 0, 0" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-                <Setter Property="LineHeight" Value="20" />
-                <Setter Property="MaxHeight" Value="40" />
-            </Style>
-
-            <Style TargetType="TextBlock" x:Key="ShoesPYStyle">
-                <Setter Property="Margin" Value="0, 8, 0, 0" />
-            </Style>
-
-            <Style TargetType="TextBlock" x:Key="ShoesColorStyle">
-                <Setter Property="Margin" Value="0, 8, 0, 0" />
-                <Setter Property="FontStyle" Value="Italic" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-                <Setter Property="LineHeight" Value="20" />
-                <Setter Property="MaxHeight" Value="20" />
+            <Style x:Key="TitleText" TargetType="TextBlock">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="24" />
             </Style>
         </Grid.Resources>
 
-        <ScrollViewer IsTabStop="True">
-            <StackPanel>
+        <ScrollViewer IsTabStop="True" VerticalScrollBarVisibility="Hidden">
+            <StackPanel Spacing="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                     <TextBlock Text="All Products" Style="{StaticResource TitleText}" FontSize="32" Grid.Column="0"/>
+                    <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
+                            Grid.Column="1" HorizontalAlignment="Right" Padding="10" CornerRadius="8" 
+                            VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddShoesPageCommand}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 10 0" VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xECC8;" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Add New Shoes" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+                </Grid>
                 <!--Filters and Search-->
                 <Grid>
                 <StackPanel
@@ -189,7 +176,7 @@
                                     <TextBlock Text="Apply" />
                                 </StackPanel>
                             </Button>
-                </StackPanel>
+                        </StackPanel>
                     </Expander>
             </Grid>
 
@@ -227,7 +214,6 @@
                 <!--Shoess-->
                 <StackPanel Spacing="20" Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}">
                     <controls:AdaptiveGridView
-                        Margin="0, 16, 0, 16"
                         DesiredWidth="360"
                         IsItemClickEnabled="True"
                         ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
@@ -243,28 +229,50 @@
 
                         <controls:AdaptiveGridView.ItemTemplate>
                             <DataTemplate x:DataType="models:Shoes">
-                                <Border x:Name="ShoesBorder" Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="4" CornerRadius="6">
-                                    <StackPanel x:Name="itemThumbnail" Padding="12">
-                                        <Border CornerRadius="6" HorizontalAlignment="Center">
-                                            <Image Style="{StaticResource ShoesPosterStyle}" Source="{x:Bind Image}" Stretch="UniformToFill" VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Vertical" Spacing="20" Background="{ThemeResource CardBackground}" CornerRadius="16" Padding="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <Border HorizontalAlignment="Center" Width="84" Height="84" CornerRadius="8">
+                                            <Image Source="{x:Bind Image}" Stretch="UniformToFill" VerticalAlignment="Center"/>
                                         </Border>
-                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource ShoesTitleStyle}"/>
-                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
-                                            <Run Text="Size: " />
-                                            <Run Text="{x:Bind Size}" />
-                                        </TextBlock>
-                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
-                                            <Run Text="Branch: " />
-                                            <Run Text="{x:Bind Brand}" />
-                                        </TextBlock>
-                                        <TextBlock Style="{StaticResource ShoesPYStyle}">
-                                            <Run Text="Color: " />
-                                            <Run Text="{x:Bind Color}" />
-                                        </TextBlock>
-                                        <TextBlock Text="{x:Bind Price, Converter={StaticResource VietnamesePriceConverter}}"  Style="{StaticResource ShoesPriceStyle}">
-                                        </TextBlock>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="2*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{x:Bind Name}" FontSize="20" FontWeight="Medium" Grid.Row="0"/>
+                                            <TextBlock Text="{x:Bind CategoryID, Converter={StaticResource CategoryIdToNameConverter}}" Grid.Row="1"/>
+                                            <TextBlock Text="{x:Bind Price}" VerticalAlignment="Bottom" FontWeight="Bold" FontSize="18" Grid.Row="2"/>
+                                        </Grid>
                                     </StackPanel>
-                                </Border>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="Summary" FontSize="20" FontWeight="Medium"/>
+                                        <TextBlock Text="{x:Bind Description}" MinHeight="38" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <StackPanel BorderThickness="2" BorderBrush="Gray" Padding="16" CornerRadius="8" Spacing="5">
+                                        <Grid BorderBrush="Gray" BorderThickness="0 0 0 2" Padding="0 0 0 5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="8*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Sales" FontWeight="Medium" Grid.Column="0"/>
+                                            <FontIcon Glyph="&#xE746;" Foreground="#FFA52F" FontWeight="Medium" Grid.Column="1"/>
+                                            <TextBlock Text="{x:Bind ID, Converter={StaticResource ShoesSoldConverter}}" FontWeight="Bold" Grid.Column="2" HorizontalAlignment="Right"/>
+                                        </Grid>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="8*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Remaining Products" FontWeight="Medium" Grid.Column="0"/>
+                                            <FontIcon Glyph="&#xE7EB;" Foreground="#FFA52F" FontWeight="Medium" Grid.Column="1"/>
+                                            <TextBlock Text="{x:Bind Stock}" FontWeight="Bold" Grid.Column="2" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </StackPanel>
                             </DataTemplate>
                         </controls:AdaptiveGridView.ItemTemplate>
                     </controls:AdaptiveGridView>

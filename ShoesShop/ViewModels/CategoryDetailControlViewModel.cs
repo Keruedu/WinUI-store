@@ -9,6 +9,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
 {
     private readonly ICategoryDataService _categoryDataservice;
     private readonly INavigationService _navigationService;
+    private readonly IMediator _mediator;
 
     [ObservableProperty]
     public Category editCategory = new();
@@ -45,10 +46,11 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
     }
 
 
-    public CategoryDetailControlViewModel(ICategoryDataService categoryDataService, INavigationService navigationService)
+    public CategoryDetailControlViewModel(ICategoryDataService categoryDataService, INavigationService navigationService, IMediator mediator)
     {
         _categoryDataservice = categoryDataService;
         _navigationService = navigationService;
+        _mediator = mediator;
 
         CancelButtonCommand = new RelayCommand(OnCancelEdit, () => !IsEditLoading);
         EditCategoryButtonCommand = new RelayCommand(OnUpdateCategory, () => !IsEditLoading);
@@ -88,6 +90,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
 
         if (ERROR_CODE == 1)
         {
+            _mediator.Notify();
             _navigationService.Refresh();
         }
     }

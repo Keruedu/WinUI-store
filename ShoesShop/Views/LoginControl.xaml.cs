@@ -25,14 +25,15 @@ namespace ShoesShop.Views;
 /// </summary>
 public sealed partial class LoginControl : Page
 {
-    private ILocalSettingServiceUsingApplicationData _localSettingServiceUsingApplicationData = new LocalSettingsServiceUsingApplicationData();
+    private readonly ILocalSettingServiceUsingApplicationData _localSettingServiceUsingApplicationData;
     public LoginControllViewModel ViewModel { get; }
 
     public LoginControl()
     {
         this.InitializeComponent();
-        this.DataContext = new LoginControllViewModel();
+        _localSettingServiceUsingApplicationData = App.GetService<ILocalSettingServiceUsingApplicationData>();
         ViewModel = App.GetService<LoginControllViewModel>();
+        this.DataContext = ViewModel;
     }
 
     private void Login_Loaded(object sender, RoutedEventArgs e)
@@ -45,8 +46,8 @@ public sealed partial class LoginControl : Page
         ViewModel.Password = LoginPasswordBox.Password;
         if (RememberMeCheckBox.IsChecked == true)
         {
-            _localSettingServiceUsingApplicationData.SaveSettingSync("email",ViewModel.Email);
-            _localSettingServiceUsingApplicationData.SaveSettingSync("password",ViewModel.Password);
+            _localSettingServiceUsingApplicationData.SaveSettingSync("email", ViewModel.Email);
+            _localSettingServiceUsingApplicationData.SaveSettingSync("password", ViewModel.Password);
             _localSettingServiceUsingApplicationData.SaveSettingSync("isSavingSettings", "true");
         }
         else

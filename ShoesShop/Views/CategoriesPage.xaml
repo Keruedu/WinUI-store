@@ -11,6 +11,13 @@
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
     mc:Ignorable="d">
     <Page.Resources>
+        <Style x:Key="TitleText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+        
         <DataTemplate x:Key="ItemTemplate" x:DataType="models:Category">
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
@@ -61,31 +68,51 @@
             </Grid>
         </DataTemplate>
     </Page.Resources>
+    <ScrollViewer>
+        <StackPanel Spacing="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="List Category" Style="{StaticResource TitleText}" FontSize="32"/>
+                <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
+                            Grid.Column="1" HorizontalAlignment="Left" Padding="10" CornerRadius="8" 
+                            VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddCategoryPageCommand}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 10 0" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xECC8;" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Add  Category" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <Grid x:Name="ContentArea">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <!--641 is the default CompactModeThresholdWidth in NavigationView -->
+                                <AdaptiveTrigger MinWindowWidth="641" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
 
-    <Grid x:Name="ContentArea">
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <!--641 is the default CompactModeThresholdWidth in NavigationView -->
-                        <AdaptiveTrigger MinWindowWidth="641" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-
-        <!--Loading-->
-        <ProgressRing 
+                <!--Loading-->
+                <ProgressRing 
             IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
             Width="60"
             Margin="0, 20, 0, 20"
             Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
 
-        <controls:ListDetailsView
+                <controls:ListDetailsView
             Visibility="{x:Bind ViewModel.IsContentReady, Mode=OneWay}" 
             x:Uid="Category"
             x:Name="ListDetailsViewControl"
@@ -99,5 +126,8 @@
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
             ViewStateChanged="OnViewStateChanged"/>
-    </Grid>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+
 </Page>
