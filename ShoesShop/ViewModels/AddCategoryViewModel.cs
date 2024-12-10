@@ -8,12 +8,14 @@ using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
+using ShoesShop.Services;
 
 namespace ShoesShop.ViewModels;
 
 public partial class AddCategoryViewModel : ObservableRecipient
 {
     private readonly ICategoryDataService _categoryDataService;
+    private readonly IMediator _mediator;
 
     [ObservableProperty]
     private Category newCategory = new();
@@ -30,6 +32,11 @@ public partial class AddCategoryViewModel : ObservableRecipient
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool HasSuccess => !string.IsNullOrEmpty(SuccessMessage);
 
+    public class CategoryAddedMessage
+    {
+        // This message can be empty, just serving as a notification.
+    }
+
     public RelayCommand AddCategoryButtonCommand
     {
         get; set;
@@ -40,9 +47,10 @@ public partial class AddCategoryViewModel : ObservableRecipient
         get; set;
     }
 
-    public AddCategoryViewModel(ICategoryDataService categoryDataService)
+    public AddCategoryViewModel(ICategoryDataService categoryDataService, IMediator mediator)
     {
         _categoryDataService = categoryDataService;
+        _mediator = mediator;
         AddCategoryButtonCommand = new RelayCommand(OnAddCategoryButtonCommandAsync);
         CancelButtonCommand = new RelayCommand(OnCancelButtonCommand);
     }
@@ -60,6 +68,7 @@ public partial class AddCategoryViewModel : ObservableRecipient
         if (ERROR_CODE == 1)
         {
             SuccessMessage = message;
+            _mediator.Notify();
             OnCancelButtonCommand();
         }
         else

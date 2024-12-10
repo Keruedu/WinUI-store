@@ -24,6 +24,7 @@ public interface IShoesDataService
     public Task<(string, int)> DeleteShoesAsync(Shoes Shoes);
 
     public Task<(Shoes, string, int)> UpdateShoesAsync(Shoes Shoes);
+    public Task<(int, string, int)> GetShoesCountByCategoryIdAsync(int categoryId);
 
     public Task<(string, int)> ImportDataAsync(IEnumerable<Shoes> Shoes);
 }

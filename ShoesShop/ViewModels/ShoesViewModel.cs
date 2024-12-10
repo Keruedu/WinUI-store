@@ -47,7 +47,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         {
             foreach (var category in categories)
             {
-                if (!categoryFilters.Contains(category))
+                if (!CategoryFilters.Any(c => c.ID == category.ID))
                 {
                     CategoryFilters.Add(category);
                 }

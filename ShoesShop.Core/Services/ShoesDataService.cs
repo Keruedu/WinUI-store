@@ -76,6 +76,37 @@ public class ShoesDataService : IShoesDataService
         return await Task.FromResult((Shoes, Message, errorCode ? 1 : 0));
     }
 
+    public async Task<(int, string, int)> GetShoesCountByCategoryIdAsync(int categoryId)
+    {
+        try
+        {
+            var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+            var textFieldsOptions = new Dictionary<string, string>();
+            var sortOptions = new Dictionary<string, IDao.SortType>();
+
+            if (categoryId != 0)
+            {
+                numberFieldsOptions["CategoryID"] = new Tuple<decimal, decimal>(categoryId, categoryId);
+            }
+
+            var (listShoes, totalShoes) = _dao.GetShoes(
+                page: 1,
+                rowsPerPage: int.MaxValue,
+                numberFieldsOptions: numberFieldsOptions,
+                textFieldsOptions: textFieldsOptions,
+                sortOptions: sortOptions
+            );
+
+            // Return the count of shoes
+            return await Task.FromResult(((int)totalShoes, "Success", 1));
+        }
+        catch (Exception ex)
+        {
+            // Handle any errors that occur
+            return await Task.FromResult((0, ex.Message, 0));
+        }
+    }
+
     public async Task<(string, int)> ImportDataAsync(IEnumerable<Shoes> Shoess)
     {
         //return await Task.Run(async () => await _ShoesRepository.ImportDataAsync(Shoess));

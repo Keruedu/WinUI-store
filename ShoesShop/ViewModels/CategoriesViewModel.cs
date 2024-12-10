@@ -58,6 +58,7 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
     {
     }
 
+
     public void EnsureItemSelected()
     {
         if (CategoryList.Count > 0)

@@ -85,6 +85,7 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<IReviewDataService, ReviewDataService>();
             services.AddTransient<IUserDataService, UserDataService>();
+            services.AddSingleton<IMediator, Mediator>();
 
 
             // Core Services

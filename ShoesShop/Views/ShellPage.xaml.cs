@@ -58,6 +58,23 @@ public sealed partial class ShellPage : Page
             Right = AppTitleBar.Margin.Right,
             Bottom = AppTitleBar.Margin.Bottom
         };
+        ViewModel.UpdateVisibility(sender.DisplayMode);
+    }
+
+    private void NavigationView_PaneOpened(NavigationView sender, object args)
+    {
+        if (CategoryExpander != null)
+        {
+            CategoryExpander.Visibility = Visibility.Visible; // Hiển thị khi mở menu
+        }
+    }
+
+    private void NavigationView_PaneClosed(NavigationView sender, object args)
+    {
+        if (CategoryExpander != null)
+        {
+            CategoryExpander.Visibility = Visibility.Collapsed; // Ẩn khi đóng menu
+        }
     }
 
     private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)

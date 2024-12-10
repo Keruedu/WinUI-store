@@ -18,12 +18,11 @@
         <helpers:SelectionModeConverter x:Key="SelectionModeConverter"/>
 
 
-
         <Style x:Key="TitleText" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="FontWeight" Value="Medium" />
-            <Setter Property="FontSize" Value="28" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="24" />
         </Style>
         <Style x:Key="UserText" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -41,6 +40,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
         
         <StackPanel Orientation="Vertical" Spacing="20">
+            <TextBlock Text="List Users" Style="{StaticResource TitleText}" FontSize="32"/>
             <!--Info User Page-->
             <StackPanel Orientation="Horizontal" Spacing="20">
                 <StackPanel Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="15" Spacing="10">
@@ -174,7 +174,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="List Users" Style="{StaticResource TitleText}"/>
+                            <TextBlock Grid.Column="0" Text="Users Recent" Style="{StaticResource TitleText}"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
                                 <Button Content="Ban" Background="#4A69E2" VerticalAlignment="Stretch" MinWidth="100" Foreground="White" Command="{x:Bind ViewModel.BanUsersCommand}" IsEnabled="{x:Bind ViewModel.CanBanUsers, Mode=OneWay}"/>
                                 <Button Content="Unban" Background="#FFA52F" VerticalAlignment="Stretch" MinWidth="100" Foreground="White" Command="{x:Bind ViewModel.UnbanUsersCommand}" IsEnabled="{x:Bind ViewModel.CanUnbanUsers, Mode=OneWay}" />
