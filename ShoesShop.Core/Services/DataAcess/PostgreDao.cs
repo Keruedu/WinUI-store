@@ -230,6 +230,7 @@ public class PostgreDao : IDao
         }
         return res;
     }
+
     private string GetWhereCondition(
         string[] dateFields, Dictionary<string, Tuple<string, string>> dateOptions,
         string[] numberFields, Dictionary<string, Tuple<decimal, decimal>> numberOptions,
@@ -270,6 +271,8 @@ public class PostgreDao : IDao
         }
         return selectFields;
     }
+
+
     public Tuple<List<Category>, long> GetCategories(
         int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
@@ -564,92 +567,7 @@ public class PostgreDao : IDao
         }
     }
 
-    //public Tuple<List<Order>, long> GetOrders(
-    //int page, int rowsPerPage,
-    //Dictionary<string, Tuple<string, string>> dateFieldsOptions,
-    //Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
-    //Dictionary<string, string> textFieldsOptions,
-    //Dictionary<string, IDao.SortType> sortOptions)
-    //{
-    //    var orderTextFields = new string[]{
-    //        "Status"
-    //    };
-    //    var orderNumberFields = new string[]
-    //    {
-    //        "OrderID","UserID","AddressID","TotalAmount"
-    //    };
-    //    var orderDateFields = new string[]
-    //    {
-    //        "OrderDate",
-    //    };
-    //    var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
-    //    var sortString = GetSortString(categoryFields, sortOptions);
-    //    var whereString = GetWhereCondition(orderDateFields, dateFieldsOptions, orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
-    //    //var selectFieldsString = GetSelectFields(categoryFields);
-    //    var sqlQuery = $"""
-    //        SELECT count(*) over() as Total, "OrderID","UserID","OrderDate","Status","AddressID","TotalAmount"
-    //        FROM "Order" {whereString} {sortString}
-    //        LIMIT @Take 
-    //        OFFSET @Skip
-    //        """;
-    //    var command = new NpgsqlCommand(sqlQuery, dbConnection);
-    //    command.Parameters.Add("@Skip", NpgsqlDbType.Integer)
-    //        .Value = (page - 1) * rowsPerPage;
-    //    command.Parameters.Add("@Take", NpgsqlDbType.Integer)
-    //        .Value = rowsPerPage;
-    //    var reader = command.ExecuteReader();
-    //    var orders = new List<Order>();
-    //    long totalOrders = 0;
-    //    while (reader.Read())
-    //    {
-    //        if (totalOrders == 0)
-    //        {
-    //            totalOrders = (long)reader["Total"];
-    //        }
-    //        var order = new Order();
-    //        order.ID = (int)reader["OrderID"];
-    //        order.UserID = (int)reader["UserID"];
-    //        var t = (DateTime)reader["OrderDate"];
-    //        order.Status = (string)reader["Status"];
-    //        order.OrderDate = $"{t.Year}-{t.Month}-{t.Day}";
-    //        order.AddressID = (int)reader["AddressID"];
-    //        order.TotalAmount = (decimal)reader["TotalAmount"];
-    //        orders.Add(order);
-    //    }
-    //    reader.Close();
-    //    return new Tuple<List<Order>, long>(orders, totalOrders);
-    //}
 
-    //private List<Detail> GetDetailsByOrderIds(List<int> orderIds)
-    //{
-    //    var sqlQueryDetails = $"""
-    //    SELECT "OrderID", "ShoesID", "Quantity", "Price"
-    //    FROM "Detail"
-    //    WHERE "OrderID" = ANY(@OrderIDs);
-    //    """;
-
-    //    var commandDetails = new NpgsqlCommand(sqlQueryDetails, dbConnection);
-    //    commandDetails.Parameters.Add("@OrderIDs", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = orderIds.ToArray();
-
-    //    var details = new List<Detail>();
-
-    //    using (var reader = commandDetails.ExecuteReader())
-    //    {
-    //        while (reader.Read())
-    //        {
-    //            var detail = new Detail
-    //            {
-    //                OrderID = (int)reader["OrderID"],
-    //                ShoesID = (int)reader["ShoesID"],
-    //                Quantity = (int)reader["Quantity"],
-    //                Price = (decimal)reader["Price"]
-    //            };
-
-    //            details.Add(detail);
-    //        }
-    //    }
-    //    return details;
-    //}
 
     public Tuple<bool, string, List<Detail>> GetDetailsByOrderIds(List<int> orderIds)
     {
@@ -693,42 +611,7 @@ public class PostgreDao : IDao
     }
 
 
-    //private Dictionary<int, Shoes> GetShoesByIds(List<int> shoesIds)
-    //{
-    //    var sqlQueryShoes = $"""
-    //    SELECT "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description"
-    //    FROM "Shoes"
-    //    WHERE "ShoesID" = ANY(@ShoesIDs);
-    //    """;
-
-    //    var commandShoes = new NpgsqlCommand(sqlQueryShoes, dbConnection);
-    //    commandShoes.Parameters.Add("@ShoesIDs", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = shoesIds.ToArray();
-
-    //    var shoesDictionary = new Dictionary<int, Shoes>();
-
-    //    using (var reader = commandShoes.ExecuteReader())
-    //    {
-    //        while (reader.Read())
-    //        {
-    //            var shoes = new Shoes
-    //            {
-    //                ID = (int)reader["ShoesID"],
-    //                CategoryID = (int)reader["CategoryID"],
-    //                Name = (string)reader["Name"],
-    //                Brand = (string)reader["Brand"],
-    //                Size = (string)reader["Size"],
-    //                Color = (string)reader["Color"],
-    //                Price = (decimal)reader["Price"],
-    //                Stock = (int)reader["Stock"],
-    //                Image = (string)reader["Image"],
-    //                Description = (string)reader["Description"]
-    //            };
-
-    //            shoesDictionary[shoes.ID] = shoes;
-    //        }
-    //    }
-    //    return shoesDictionary;
-    //}
+   
 
     public Tuple<bool, string, Dictionary<int, Shoes>> GetShoesByIds(List<int> shoesIds)
     {
@@ -777,57 +660,7 @@ public class PostgreDao : IDao
     }
 
 
-    //private Dictionary<int, User> GetUserByIds(List<int> userIds)
-    //{
-    //    if (userIds == null || userIds.Count == 0)
-    //    {
-    //        return new Dictionary<int, User>();
-    //    }
-
-    //    var sqlQueryUsers = $"""
-    //    SELECT "UserID", "AddressID", "Name", "Email", "Password", "PhoneNumber"
-    //    FROM "User"
-    //    WHERE "UserID" = ANY(@UserIds);
-    //    """;
-
-    //    var commandUsers = new NpgsqlCommand(sqlQueryUsers, dbConnection);
-    //    commandUsers.Parameters.Add("@UserIds", NpgsqlDbType.Array | NpgsqlDbType.Integer).Value = userIds.ToArray();
-
-    //    var users = new Dictionary<int, User>();
-    //    var addressIds = new List<int>();
-    //    using (var reader = commandUsers.ExecuteReader())
-    //    {
-    //        while (reader.Read())
-    //        {
-    //            var user = new User
-    //            {
-    //                ID = (int)reader["UserID"],
-    //                AddressID = (int)reader["AddressID"],
-    //                Name = (string)reader["Name"],
-    //                Email = (string)reader["Email"],
-    //                Password = (string)reader["Password"],
-    //                PhoneNumber = (string)reader["PhoneNumber"]
-    //            };
-
-    //            users[user.ID] = user; // Thêm user vào từ điển với UserID làm key
-    //            addressIds.Add(user.AddressID);
-    //        }
-    //    }
-
-    //    // Lấy thông tin địa chỉ bằng AddressID
-    //    var addressDictionary = GetAddressesByIds(addressIds);
-
-    //    // Gán Address vào User
-    //    foreach (var user in users.Values)
-    //    {
-    //        if (addressDictionary.ContainsKey(user.AddressID))
-    //        {
-    //            user.Address = addressDictionary[user.AddressID];
-    //        }
-    //    }
-
-    //    return users;
-    //}
+    
 
     public Tuple<bool, string, Dictionary<int, User>> GetUserByIds(List<int> userIds)
     {
@@ -874,43 +707,7 @@ public class PostgreDao : IDao
     }
 
 
-    //private Dictionary<int, Address> GetAddressesByIds(List<int> addressIds)
-    //{
-    //    var addresses = new Dictionary<int, Address>();
-
-    //    if (!addressIds.Any())
-    //        return addresses;
-
-    //    var idString = string.Join(",", addressIds);
-
-    //    var sqlQuery = $"""
-    //    SELECT "AddressID", "Street", "City", "State", "ZipCode", "Country"
-    //    FROM "Address"
-    //    WHERE "AddressID" IN ({idString});
-    //    """;
-
-    //    var command = new NpgsqlCommand(sqlQuery, dbConnection);
-
-    //    using (var reader = command.ExecuteReader())
-    //    {
-    //        while (reader.Read())
-    //        {
-    //            var address = new Address
-    //            {
-    //                ID = (int)reader["AddressID"],
-    //                Street = (string)reader["Street"],
-    //                City = (string)reader["City"],
-    //                State = (string)reader["State"],
-    //                ZipCode = (string)reader["ZipCode"],
-    //                Country = (string)reader["Country"]
-    //            };
-    //            addresses[address.ID] = address;
-    //        }
-    //    }
-
-    //    return addresses;
-    //}
-
+   
     public Tuple<bool, string, Dictionary<int, Address>> GetAddressesByIds(List<int> addressIds)
     {
         try
@@ -953,114 +750,7 @@ public class PostgreDao : IDao
         }
     }
 
-    //public Tuple<List<Order>, long> GetOrders(
-    //    int page, int rowsPerPage,
-    //    Dictionary<string, Tuple<string, string>> dateFieldsOptions,
-    //    Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
-    //    Dictionary<string, string> textFieldsOptions,
-    //    Dictionary<string, IDao.SortType> sortOptions)
-    //{
-    //    var orderTextFields = new string[] { "Status" };
-    //    var orderNumberFields = new string[] { "OrderID", "UserID", "AddressID", "TotalAmount" };
-    //    var orderDateFields = new string[] { "OrderDate" };
-    //    var categoryFields = orderTextFields.Concat(orderNumberFields).ToArray();
-
-    //    var sortString = GetSortString(categoryFields, sortOptions);
-    //    var whereString = GetWhereCondition(orderDateFields, dateFieldsOptions, orderNumberFields, numberFieldsOptions, orderTextFields, textFieldsOptions);
-
-    //    // Lệnh SQL để lấy Orders
-    //    var sqlQueryOrders = $"""
-    //    SELECT count(*) over() as Total, "OrderID", "UserID", "OrderDate", "Status", "AddressID", "TotalAmount"
-    //    FROM "Order" {whereString} {sortString}
-    //    LIMIT @Take 
-    //    OFFSET @Skip;
-    //    """;
-
-    //    var commandOrders = new NpgsqlCommand(sqlQueryOrders, dbConnection);
-    //    commandOrders.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
-    //    commandOrders.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
-
-    //    var orders = new List<Order>();
-    //    long totalOrders = 0;
-
-    //    // Đọc dữ liệu từ bảng Order
-    //    using (var reader = commandOrders.ExecuteReader())
-    //    {
-    //        while (reader.Read())
-    //        {
-    //            if (totalOrders == 0)
-    //            {
-    //                totalOrders = (long)reader["Total"];
-    //            }
-
-    //            var order = new Order
-    //            {
-    //                ID = (int)reader["OrderID"],
-    //                UserID = (int)reader["UserID"],
-    //                Status = (string)reader["Status"],
-    //                OrderDate = ((DateTime)reader["OrderDate"]).ToString("yyyy-MM-dd"),
-    //                AddressID = (int)reader["AddressID"],
-    //                TotalAmount = (decimal)reader["TotalAmount"],
-    //                Details = new List<Detail>() // Danh sách chi tiết sẽ được thêm sau
-    //            };
-
-    //            orders.Add(order);
-    //        }
-    //    }
-
-    //    // Lệnh SQL để lấy Order Details
-    //    if (orders.Count > 0)
-    //    {
-    //        // Lấy AddressID từ Orders
-    //        var addressIds = orders.Select(o => o.AddressID).Distinct().ToList();
-    //        var addressDictionary = GetAddressesByIds(addressIds);
-
-    //        foreach (var order in orders)
-    //        {
-    //            if (addressDictionary.ContainsKey(order.AddressID))
-    //            {
-    //                order.Address = addressDictionary[order.AddressID];
-    //            }
-    //        }
-
-    //        // Lấy UserIDs từ Orders
-    //        var userIds = orders.Select(o => o.UserID).Distinct().ToList();
-    //        var userDictionary = GetUserByIds(userIds);
-
-    //        // Gắn User vào Orders
-    //        foreach (var order in orders)
-    //        {
-    //            if (userDictionary.ContainsKey(order.UserID))
-    //            {
-    //                order.User = userDictionary[order.UserID];
-    //            }
-    //        }
-    //        // Lấy Details
-    //        var orderIds = orders.Select(o => o.ID).ToList();
-    //        var details = GetDetailsByOrderIds(orderIds);
-
-    //        // Lấy Shoes
-    //        var shoesIds = details.Select(d => d.ShoesID).Distinct().ToList();
-    //        var shoesDictionary = GetShoesByIds(shoesIds);
-
-    //        // Gắn Details và Shoes vào Orders
-    //        foreach (var detail in details)
-    //        {
-    //            if (shoesDictionary.ContainsKey(detail.ShoesID))
-    //            {
-    //                detail.Shoes = shoesDictionary[detail.ShoesID];
-    //            }
-
-    //            var order = orders.FirstOrDefault(o => o.ID == detail.OrderID);
-    //            if (order != null)
-    //            {
-    //                order.Details.Add(detail);
-    //            }
-    //        }
-    //    }
-
-    //    return new Tuple<List<Order>, long>(orders, totalOrders);
-    //}
+   
 
     public Tuple<bool, string, List<Order>, long> GetOrders(
         int page,
@@ -1291,38 +981,7 @@ public class PostgreDao : IDao
     }
 
 
-    //public Tuple<bool, string, Order> AddOrder(Order newOrder)
-    //{
-    //    try
-    //    {
-    //        // Thêm Order mới
-    //        var insertOrderQuery = $"""
-    //        INSERT INTO "Order" ("UserID", "OrderDate", "Status", "AddressID", "TotalAmount")
-    //        VALUES (@UserID, @OrderDate, @Status, @AddressID, @TotalAmount)
-    //        RETURNING "OrderID";
-    //        """;
-
-    //        using (var command = new NpgsqlCommand(insertOrderQuery, dbConnection))
-    //        {
-    //            command.Parameters.AddWithValue("@UserID", newOrder.UserID);
-    //            command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
-    //            command.Parameters.AddWithValue("@Status", newOrder.Status);
-    //            command.Parameters.AddWithValue("@AddressID", newOrder.AddressID);
-    //            command.Parameters.AddWithValue("@TotalAmount", newOrder.Details.Sum(d => d.Price));
-
-    //            var orderId = (int)command.ExecuteScalar();
-    //            newOrder.ID = orderId;
-    //            return Tuple.Create(true, "Order added successfully.", newOrder);
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return Tuple.Create(false, $"Failed to add order: {ex.Message}", new Order());
-    //    }
-    //}
-
-
-
+    
     public Tuple<bool, string, Order> UpdateOrder(Order order)
     {
         using (var transaction = dbConnection.BeginTransaction())
@@ -1486,28 +1145,7 @@ public class PostgreDao : IDao
         }
     }
 
-    //public Tuple<bool, string> DeleteOrderById(int orderId)
-    //{
-    //    try
-    //    {
-    //        var deleteOrderQuery = $"""
-    //        DELETE FROM "Order"
-    //        WHERE "OrderID" = @OrderID;
-    //        """;
-
-    //        using (var command = new NpgsqlCommand(deleteOrderQuery, dbConnection))
-    //        {
-    //            command.Parameters.AddWithValue("@OrderID", orderId);
-    //            command.ExecuteNonQuery();
-    //        }
-
-    //        return Tuple.Create(true, "Order deleted successfully.");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return Tuple.Create(false, $"Failed to delete order: {ex.Message}");
-    //    }
-    //}
+    
 
 
     public Tuple<bool, string, Detail> AddDetail(Detail newDetail)
@@ -1848,6 +1486,164 @@ public class PostgreDao : IDao
         }
     }
 
+
+
+
+
+    // dashboard 
+
+    public async Task<int> GetTotalOrdersAsync()
+    {
+        long totalOrders = 0;
+        string query = "SELECT COUNT(*) FROM \"Order\"";
+
+        await using (var command = new NpgsqlCommand(query, dbConnection))
+        {
+            totalOrders = (long)await command.ExecuteScalarAsync();
+        }
+
+        
+
+        return (int)totalOrders;
+    }
+
+
+    public async Task<List<Order>> GetRecentOrdersAsync()
+    {
+        List<Order> recentOrders = new List<Order>();
+        string query = "SELECT * FROM \"Order\" ORDER BY \"OrderDate\" DESC LIMIT 5";
+
+        using (NpgsqlCommand cmd = new NpgsqlCommand(query, dbConnection))
+        {
+            using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    Order order = new Order
+                    {
+                        ID = reader.GetInt32(reader.GetOrdinal("OrderID")),
+                        UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                        AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
+                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")).ToString("yyyy-MM-dd"),
+                        Status = reader.GetString(reader.GetOrdinal("Status")),
+                        TotalAmount = reader.GetDecimal(reader.GetOrdinal("TotalAmount"))
+                    };
+                    recentOrders.Add(order);
+                }
+            }
+           
+        }
+
+        return recentOrders;
+    }
+
+    public async Task<List<Shoes>> GetTop5BestSellingShoesAsync()
+    {
+        var topSellingShoes = new List<Shoes>();
+
+        try
+        {
+
+            var query = @"
+                SELECT s.*, SUM(d.""Quantity"") as ""TotalSold""
+                FROM ""Order"" o
+                JOIN ""Detail"" d ON o.""OrderID"" = d.""OrderID""
+                JOIN ""Shoes"" s ON d.""ShoesID"" = s.""ShoesID""
+                GROUP BY s.""ShoesID""
+                ORDER BY ""TotalSold"" DESC
+                LIMIT 5";
+
+
+            using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var shoes = new Shoes
+                        {
+                            ID = reader.GetInt32(reader.GetOrdinal("ShoesID")),
+                            CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Brand = reader.GetString(reader.GetOrdinal("Brand")),
+                            Size = reader.GetString(reader.GetOrdinal("Size")),
+                            Color = reader.GetString(reader.GetOrdinal("Color")),
+                            Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                            Stock = reader.GetInt32(reader.GetOrdinal("Stock")),
+                            Image = reader.GetString(reader.GetOrdinal("Image")),
+                            Description = reader.GetString(reader.GetOrdinal("Description"))
+                        };
+                        topSellingShoes.Add(shoes);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception (log it, rethrow it, etc.)
+            throw new Exception("Error retrieving top 5 best-selling shoes", ex);
+        }
+        
+
+        return topSellingShoes;
+    }
+
+    public async Task<int> GetTotalShoesInStockAsync()
+    {
+        var query = @"
+        SELECT SUM(""Stock"") as ""TotalStock""
+        FROM ""Shoes""";
+
+        try
+        {
+            await using var command = new NpgsqlCommand(query, dbConnection);
+            var result = await command.ExecuteScalarAsync();
+
+            if (result != DBNull.Value)
+            {
+                return Convert.ToInt32(result);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error retrieving total shoes in stock: {ex.Message}");
+            throw new Exception("Error retrieving total shoes in stock", ex);
+        }
+    }
+
+    public async Task<Dictionary<string, int>> GetOrderStatisticsAsync(string groupBy)
+    {
+        var statistics = new Dictionary<string, int>();
+
+        string query = groupBy.ToLower() switch
+        {
+            "month" => @"SELECT TO_CHAR(""OrderDate"", 'YYYY-MM') AS period, COUNT(*) AS count FROM ""Order"" GROUP BY period ORDER BY period",
+            "year" => @"SELECT TO_CHAR(""OrderDate"", 'YYYY') AS period, COUNT(*) AS count FROM ""Order"" GROUP BY period ORDER BY period",
+            _ => throw new ArgumentException("Invalid groupBy value. Use 'month' or 'year'.")
+        };
+
+        await using var cmd = new NpgsqlCommand(query, dbConnection);
+        await using var reader = await cmd.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            string period = reader.GetString(0);
+            int count = reader.GetInt32(1);
+            statistics[period] = count;
+        }
+
+        return statistics;
+    }
+
+
+
+
+
 }
+
 
 

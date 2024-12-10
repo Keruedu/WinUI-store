@@ -4,11 +4,8 @@ using Microsoft.UI.Xaml;
 
 using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
-using ShoesShop.Controls;
-using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
-using ShoesShop.Core.Repository;
 using ShoesShop.Core.Services;
 using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Helpers;
@@ -61,7 +58,6 @@ public partial class App : Application
 
             // Other Activation Handlers
 
-            // Http clients
             services.AddHttpClient("Backend", client =>
             {
                 var host = App.GetService<IStoreServerOriginService>().Host;
@@ -96,7 +92,6 @@ public partial class App : Application
             services.AddTransient<IShoesDataService, ShoesDataService>();
             services.AddTransient<IOrderDataService, OrderDataService>();
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
-            services.AddSingleton<IStatisticRepository, StatisticRepository>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
             
 
@@ -140,12 +135,7 @@ public partial class App : Application
 
         UnhandledException += App_UnhandledException;
     }
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddTransient<IStatisticDataService, StatisticDataService>();
-        // Các đăng ký dịch vụ khác
-    }
-
+    
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {

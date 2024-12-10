@@ -1,5 +1,4 @@
-﻿using ShoesShop.Core.Contracts.Repository;
-using ShoesShop.Core.Contracts.Services;
+﻿using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
 namespace ShoesShop.Core.Services;
