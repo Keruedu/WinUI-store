@@ -1,12 +1,21 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Core.Models;
+using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Utils;
 using ShoesShop.Core.Http;
 
 namespace ShoesShop.Core.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
+    private IDao dao=new PostgreDao();
     public string AccessToken
     {
         get; set;
@@ -20,69 +29,29 @@ public class AuthenticationService : IAuthenticationService
     public string GetAccessToken() => AccessToken;
     public string GetUserId() => UserId;
     public bool IsAuthenticated() => !string.IsNullOrEmpty(AccessToken);
-
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public AuthenticationService(IHttpClientFactory httpClientFactory)
-    {
-        _httpClientFactory = httpClientFactory;
-    }
-
     public async Task<(string, int)> LoginAsync(string email, string password)
     {
-        //TODO connect to backend
-        //var message = string.Empty;
-        //var ERROR_CODE = 0;
-
-        //try
-        //{
-        //    using var client = _httpClientFactory.CreateClient("Backend");
-        //    using var httpResponse = await client.PostAsync("auth/login", new StringContent(JsonSerializer.Serialize(new
-        //    {
-        //        email,
-        //        password
-        //    }), Encoding.UTF8, "application/json"));
-
-        //    var responseContent = await httpResponse.Content.ReadAsStringAsync();
-        //    var loginResponse = JsonSerializer.Deserialize<HttpLoginSchemaResponse>(responseContent, new JsonSerializerOptions
-        //    {
-        //        PropertyNameCaseInsensitive = true
-        //    });
-
-
-        //    if (httpResponse.IsSuccessStatusCode)
-        //    {
-        //        AccessToken = loginResponse.AccessToken;
-        //        UserId = loginResponse.UserId;
-        //        ERROR_CODE = 0;
-        //    }
-        //    else
-        //    {
-        //        ERROR_CODE = (int)httpResponse.StatusCode;
-
-        //        if (ERROR_CODE == 400)
-        //        {
-        //            message = loginResponse.Error.Message;
-        //        }
-        //        else if (ERROR_CODE == 401)
-        //        {
-        //            message = loginResponse.Message;
-        //        }
-        //        else
-        //        {
-        //            message = "Something went wrong";
-        //            ERROR_CODE = 1;
-        //        }
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    message = ex.Message;
-        //    ERROR_CODE = 1;
-        //}
-
-        //return (message, ERROR_CODE);
-        return ("", 0);
+        var message = "Success";
+        var ERROR_CODE = 0;
+        try
+        {
+            User user = dao.GetUserByName(email);
+            if (user == null || user.Email==null) {
+                message = "Not found, did you sign up!";
+                ERROR_CODE = 404;
+            }
+            else if(BcryptUtil.ComparePlainAndHashed(password,user.Password)==false)
+            {
+                ERROR_CODE = 401;
+                message = "Bad credentials";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+            ERROR_CODE = 1;
+        }
+        return (message, ERROR_CODE);
     }
 
     public Task<bool> LogoutAsync()

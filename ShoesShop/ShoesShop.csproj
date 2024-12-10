@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Styles\ColorTheme.xaml" />
+    <None Remove="Views\LoginControl.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Remove="Styles\ColorBrushes.xaml" />
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
@@ -57,6 +59,9 @@
     <None Update="Styles\ColorBrushes.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\LoginControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Styles\ColorTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

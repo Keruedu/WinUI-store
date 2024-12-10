@@ -77,6 +77,8 @@ public interface IDao
 
     public Task<int> GetTotalShoesInStockAsync();
 
+    public User GetUserByName(string username);
+
     public Task<Dictionary<string, int>> GetOrderStatisticsAsync(string groupBy);
 
 }

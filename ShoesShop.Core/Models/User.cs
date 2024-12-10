@@ -48,6 +48,5 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
-
     public event PropertyChangedEventHandler PropertyChanged;
 }

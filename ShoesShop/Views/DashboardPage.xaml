@@ -84,7 +84,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid x:Name="ContentArea" Background="{StaticResource CardBackgroundBrush}">
+        <Grid x:Name="ContentArea" Background="{ThemeResource CardBackground}">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>

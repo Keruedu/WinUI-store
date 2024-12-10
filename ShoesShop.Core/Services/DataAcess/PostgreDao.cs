@@ -1639,11 +1639,37 @@ public class PostgreDao : IDao
         return statistics;
     }
 
-
-
-
+    public User GetUserByName(string username)
+    {
+        try
+        {
+            var sqlQuery = $"""
+            SELECT "UserID","Name","Email","Password","PhoneNumber" ,"AddressID","Role"
+            FROM "User" 
+            WHERE "Email" ='{username}'
+            """;
+            var command = new NpgsqlCommand(sqlQuery, dbConnection);
+            //command.Parameters.Add("@username", NpgsqlDbType.Text)
+            //    .Value = username;
+            var reader = command.ExecuteReader();
+            var user = new User();
+            if (reader.Read())
+            {
+                user.ID = (int)reader["UserID"];
+                user.Name = (string)reader["Name"];
+                user.Email = (string)reader["Email"];
+                user.Password = (string)reader["Password"];
+                user.PhoneNumber = (string)reader["PhoneNumber"];
+                user.AddressID = (int)reader["AddressID"];
+                user.Role = (string)reader["Role"];
+            }
+            reader.Close();
+            return user;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
 
 }
-
-
-

@@ -4,6 +4,7 @@
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="GreenDarkMode" Color="Green"/>
             <SolidColorBrush x:Key="NavigatorBackground" Color="#FAFAFA"/>
             <SolidColorBrush x:Key="PageBackground" Color="#E7E7E3"/>
             <SolidColorBrush x:Key="CardBorderBrush" Color="#cbd5e1"/>
@@ -13,6 +14,7 @@
             <SolidColorBrush x:Key="TextAddButton" Color="White"/>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="GreenDarkMode" Color="DarkBlue"/>
             <SolidColorBrush x:Key="NavigatorBackground" Color="Transparent"/>
             <SolidColorBrush x:Key="PageBackground" Color="Transparent"/>
             <SolidColorBrush x:Key="CardBorderBrush" Color="#4b5563"/>

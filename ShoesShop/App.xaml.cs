@@ -83,6 +83,10 @@ public partial class App : Application
             services.AddTransient<IUserDataService, UserDataService>();
             services.AddSingleton<IMediator, Mediator>();
 
+            services.AddTransient<IStoreLoginCredentialsService,StoreCredentialsService>();
+            services.AddTransient<ILocalSettingServiceUsingApplicationData,LocalSettingsServiceUsingApplicationData>();
+            
+
 
             // Core Services
             services.AddSingleton<IDao, PostgreDao>();
@@ -94,6 +98,8 @@ public partial class App : Application
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
             
+
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 
             // Views and ViewModels
@@ -128,6 +134,8 @@ public partial class App : Application
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 
+            services.AddTransient<LoginControl>();
+            services.AddTransient<LoginControllViewModel>();
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
