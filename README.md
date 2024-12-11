@@ -79,7 +79,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
    - Link repository: [Keruedu/WinUI-store](https://github.com/Keruedu/WinUI-store)
    - Latest branch: `main`
    - Video: https://drive.google.com/file/d/1k2opjWWgXxYvLEe0eVdqnTB1wrbuddeq/view?usp=drive_link
-   - Dioxygen: https://drive.google.com/file/d/1eM3VkJ1wNAjVmxo7ju2KWT61nmrby-Dj/view?usp=drive_link
+   - Doxygen: https://drive.google.com/file/d/1eM3VkJ1wNAjVmxo7ju2KWT61nmrby-Dj/view?usp=drive_link
 
 ## Team work
 
