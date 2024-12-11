@@ -1,13 +1,13 @@
 ﻿using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
-
+using ShoesShop.Core.Services.DataAcess;
 namespace ShoesShop.Core.Services;
 public class ShoesDataService : IShoesDataService
 {
-    //private readonly IShoesRepository _ShoesRepository;
-
-    // (Shoess, totalItems, errorMessage, ErrorCode)
+    private readonly IDao _dao;
+    // (Shoes, totalItems, errorMessage, ErrorCode)
     private (IEnumerable<Shoes>, int, string, int) _ShoesDataTuple;
+
 
 
     private string _searchParams;
@@ -21,38 +21,90 @@ public class ShoesDataService : IShoesDataService
         }
     }
 
+    private Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>> _searchQuery;
+
+
+    public Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>> searchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            _searchQuery = value;
+        }
+    }
+
     public (IEnumerable<Shoes>, int, string, int) GetData() => _ShoesDataTuple;
 
-    public ShoesDataService(/*IShoesRepository ShoesRepository*/)
+    public ShoesDataService(IDao dao)
     {
-        //_ShoesRepository = ShoesRepository;
+        _dao = dao;
     }
 
     public async Task<(IEnumerable<Shoes>, int, string, int)> LoadDataAsync()
     {
-        //_ShoesDataTuple = await _ShoesRepository.GetAllShoessAsync(SearchParams);
-
+        var (currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions) = _searchQuery;
+        var (listShoes, totalShoes) = _dao.GetShoes(currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+        _ShoesDataTuple = (listShoes, (int)totalShoes, "Success", 1);
         //return _ShoesDataTuple;
-
-        return (null, 0, "Error", 1);
+        return _ShoesDataTuple;
     }
 
     public async Task<(Shoes, string, int)> CreateShoesAsync(Shoes Shoes)
     {
         //return await Task.Run(async () => await _ShoesRepository.CreateAShoesAsync(Shoes));
-        return await Task.FromResult((Shoes, "Success", 1));
+        var (errorCode, Message, _) = _dao.AddShoes(Shoes);
+        return await Task.FromResult((Shoes, Message, errorCode ? 1 : 0));
     }
 
     public async Task<(string, int)> DeleteShoesAsync(Shoes Shoes)
     {
         //return await Task.Run(async () => await _ShoesRepository.DeleteShoesAsync(Shoes));
-        return await Task.FromResult(("Success", 1));
+        var (errorCode, Message) = _dao.DeleteShoesByID(Shoes.ID);
+        return await Task.FromResult((Message, errorCode ? 1 : 0));
     }
 
     public async Task<(Shoes, string, int)> UpdateShoesAsync(Shoes Shoes)
     {
         //return await Task.Run(async () => await _ShoesRepository.UpdateShoesAsync(Shoes));
-        return await Task.FromResult((Shoes, "Success", 1));
+        var (errorCode, Message, _) = _dao.UpdateShoes(Shoes);
+        return await Task.FromResult((Shoes, Message, errorCode ? 1 : 0));
+    }
+
+    public async Task<(int, string, int)> GetShoesCountByCategoryIdAsync(int categoryId)
+    {
+        try
+        {
+            var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+            var textFieldsOptions = new Dictionary<string, string>();
+            var sortOptions = new Dictionary<string, IDao.SortType>();
+
+            if (categoryId != 0)
+            {
+                numberFieldsOptions["CategoryID"] = new Tuple<decimal, decimal>(categoryId, categoryId);
+            }
+
+            var (listShoes, totalShoes) = _dao.GetShoes(
+                page: 1,
+                rowsPerPage: int.MaxValue,
+                numberFieldsOptions: numberFieldsOptions,
+                textFieldsOptions: textFieldsOptions,
+                sortOptions: sortOptions
+            );
+
+            // Return the count of shoes
+            return await Task.FromResult(((int)totalShoes, "Success", 1));
+        }
+        catch (Exception ex)
+        {
+            // Handle any errors that occur
+            return await Task.FromResult((0, ex.Message, 0));
+        }
     }
 
     public async Task<(string, int)> ImportDataAsync(IEnumerable<Shoes> Shoess)

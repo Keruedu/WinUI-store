@@ -3,9 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Helpers;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services.DataAcess;
+using System.Text.RegularExpressions;
 
-
-namespace ShoesShop.Services;
+namespace ShoesShop.ViewModels;
 
 public partial class ResourceLoadingViewModel : ObservableRecipient
 {
@@ -41,6 +42,16 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
     {
         get; set;
     } = string.Empty;
+
+    public string? SelectedStatus
+    {
+        get; set;
+    }
+
+    public string? SelectedRole
+    {
+        get; set;
+    }
 
     public int MinPrice
     {
@@ -150,6 +161,192 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         return paramBuilder.GetQueryString();
     }
 
+    protected async Task<Tuple<int, int,
+        Dictionary<string, Tuple<decimal, decimal>>,
+        Dictionary<string, string>,
+        Dictionary<string, IDao.SortType>>> BuildSearchQueryAsync()
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (MinPrice > 0)
+        {
+            numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
+        }
+
+        if (MaxPrice > 0)
+        {
+            if (numberFieldsOptions.ContainsKey("Price"))
+            {
+                var minPrice = numberFieldsOptions["Price"].Item1;
+                numberFieldsOptions["Price"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
+            }
+            else
+            {
+                numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
+            }
+        }
+
+        //if (!string.IsNullOrEmpty(SearchQuery))
+        //{
+        //    if (int.TryParse(SearchQuery, out int orderId))
+        //    {
+        //        textFieldsOptions.Add("OrderID", orderId.ToString());
+        //    }
+        //    else
+        //    {
+        //        textFieldsOptions.Add("Name", SearchQuery);
+        //    }
+        //}
+
+        if (SelectedCategory is not null && SelectedCategory.ID != 0)
+        {
+            numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(SelectedCategory.ID, SelectedCategory.ID));
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+        return Tuple.Create(CurrentPage, ItemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
+    protected async Task<Tuple<int, int,
+        Dictionary<string, Tuple<string, string>>,
+        Dictionary<string, Tuple<decimal, decimal>>,
+        Dictionary<string, string>,
+        Dictionary<string, IDao.SortType>>> BuildSearchQueryOrderAsync()
+    {
+        // Lấy các thông số trang và số lượng mục trên mỗi trang từ service
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var dateFieldsOptions = new Dictionary<string, Tuple<string, string>>();
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (MinPrice > 0)
+        {
+            numberFieldsOptions.Add("TotalAmount", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
+        }
+
+        if (MaxPrice > 0)
+        {
+            if (numberFieldsOptions.ContainsKey("TotalAmount"))
+            {
+                var minPrice = numberFieldsOptions["TotalAmount"].Item1;
+                numberFieldsOptions["TotalAmount"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
+            }
+            else
+            {
+                numberFieldsOptions.Add("TotalAmount", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
+            }
+        }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("OrderID", SearchQuery);
+        }
+
+        if (!string.IsNullOrEmpty(SelectedStatus))
+        {
+            textFieldsOptions.Add("Status", SelectedStatus);
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        if (FromDate is not null || ToDate is not null)
+        {
+            string fromDateString = FromDate?.ToString("yyyy-MM-dd") ?? "0001-01-01";
+            string toDateString = ToDate?.ToString("yyyy-MM-dd") ?? "9999-12-31";
+
+            dateFieldsOptions.Add("OrderDate", new Tuple<string, string>(fromDateString, toDateString));
+        }
+
+        // Trả về các giá trị bao gồm trang, số lượng mục trên mỗi trang, các điều kiện tìm kiếm và sort options
+        return Tuple.Create(CurrentPage, ItemsPerPage, dateFieldsOptions, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
+    protected async Task<Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>>> BuildSearchQueryUserAsync()
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (!string.IsNullOrEmpty(SelectedStatus))
+        {
+            textFieldsOptions.Add("Status", SelectedStatus);
+        }
+
+        if (!string.IsNullOrEmpty(SelectedRole))
+        {
+            textFieldsOptions.Add("Role", SelectedRole);
+        }
+
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("Name", SearchQuery);
+        }
+
+        if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
+        {
+            sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        return Tuple.Create(CurrentPage, ItemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
+    protected async Task<Tuple<int, int,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>>> BuildSearchQueryUserAsync(
+        int currentPage,
+        int itemsPerPage,
+        string? selectedStatus,
+        string? selectedRole,
+        string searchQuery,
+        SortObject? selectedSortOption)
+    {
+        ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
+
+        var numberFieldsOptions = new Dictionary<string, Tuple<decimal, decimal>>();
+        var textFieldsOptions = new Dictionary<string, string>();
+        var sortOptions = new Dictionary<string, IDao.SortType>();
+
+        if (!string.IsNullOrEmpty(selectedStatus))
+        {
+            textFieldsOptions.Add("Status", selectedStatus);
+        }
+
+        if (!string.IsNullOrEmpty(selectedRole))
+        {
+            textFieldsOptions.Add("Role", selectedRole);
+        }
+
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            textFieldsOptions.Add("Name", searchQuery);
+        }
+
+        if (selectedSortOption is not null && selectedSortOption.Value != "default")
+        {
+            sortOptions.Add(selectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        return Tuple.Create(currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+    }
+
     public void NotfifyChanges()
     {
         GoToPreviousPageCommand.NotifyCanExecuteChanged();
@@ -218,6 +415,42 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         else
         {
             SelectedCategory = category;
+            IsDirty = true;
+        }
+    }
+
+    public virtual void SelectRole(string role)
+    {
+        if (role == "All")
+        {
+            if (SelectedRole != role)
+            {
+                IsDirty = true;
+            }
+
+            SelectedRole = null;
+        }
+        else
+        {
+            SelectedRole = role;
+            IsDirty = true;
+        }
+    }
+
+    public virtual void SelectStatus(string status)
+    {
+        if (status == "All")
+        {
+            if (SelectedStatus != status)
+            {
+                IsDirty = true;
+            }
+
+            SelectedStatus = null;
+        }
+        else
+        {
+            SelectedStatus = status;
             IsDirty = true;
         }
     }
@@ -298,4 +531,6 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
         IsDirty = true;
     }
 }
+
+
 

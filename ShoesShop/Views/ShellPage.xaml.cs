@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System.Diagnostics;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -42,6 +43,7 @@ public sealed partial class ShellPage : Page
 
         KeyboardAccelerators.Add(BuildKeyboardAccelerator(VirtualKey.Left, VirtualKeyModifiers.Menu));
         KeyboardAccelerators.Add(BuildKeyboardAccelerator(VirtualKey.GoBack));
+        //NavigationFrame.Navigate(typeof(LoginControl));
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -58,6 +60,29 @@ public sealed partial class ShellPage : Page
             Right = AppTitleBar.Margin.Right,
             Bottom = AppTitleBar.Margin.Bottom
         };
+        ViewModel.UpdateVisibility(sender.DisplayMode);
+    }
+
+    private void NavigationView_PaneOpened(NavigationView sender, object args)
+    {
+        if (CategoryExpander != null)
+        {
+            CategoryExpander.Visibility = Visibility.Visible; // Hiển thị khi mở menu
+        }
+    }
+
+    private void NavigationView_PaneClosed(NavigationView sender, object args)
+    {
+        if (CategoryExpander != null)
+        {
+            CategoryExpander.Visibility = Visibility.Collapsed; // Ẩn khi đóng menu
+        }
+    }
+
+    private void CategoryExpander_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        // Mark the event as handled to prevent any default action
+        e.Handled = true;
     }
 
     private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)
@@ -82,4 +107,5 @@ public sealed partial class ShellPage : Page
 
         args.Handled = result;
     }
+
 }

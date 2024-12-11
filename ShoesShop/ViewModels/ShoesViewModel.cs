@@ -16,14 +16,13 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
     public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
 
+    public RelayCommand NavigateToAddShoesPageCommand
+    {
+        get;
+    }
+
     public ShoesViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
-        Source.Add(new Shoes { ID = 1, CategoryID = 1, Name = "Shoes 1", Size = "8", Color = "Black", Price = 49.99m, Stock = 10, Image = null });
-        Source.Add(new Shoes { ID = 2, CategoryID = 2, Name = "Shoes 2", Size = "9", Color = "White", Price = 59.99m, Stock = 5, Image = null });
-        Source.Add(new Shoes { ID = 3, CategoryID = 1, Name = "Shoes 3", Size = "7", Color = "Red", Price = 39.99m, Stock = 8, Image = null });
-        Source.Add(new Shoes { ID = 4, CategoryID = 3, Name = "Shoes 4", Size = "10", Color = "Blue", Price = 69.99m, Stock = 3, Image = null });
-        Source.Add(new Shoes { ID = 5, CategoryID = 2, Name = "Shoes 5", Size = "8.5", Color = "Green", Price = 54.99m, Stock = 12, Image = null });
-
         _navigationService = navigationService;
         _ShoesDataService = ShoesDataService;
         _categoryDataService = categoryDataService;
@@ -32,26 +31,32 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         SortOptions = new List<SortObject>
         {
             new() { Name = "Default", Value = "default", IsAscending = true },
-            new() { Name = "Title (A-Z)", Value = "name", IsAscending = true },
-            new() { Name = "Title (Z-A)", Value="name", IsAscending = false },
-            new() { Name = "Price (Low - High)", Value="sellingPrice", IsAscending = true },
-            new() { Name = "Price (High - Low)", Value="sellingPrice", IsAscending = false },
-            new() { Name = "PublishYear (Past)", Value="publishedYear", IsAscending = true },
-            new() { Name = "PublishYear (Recent)", Value="publishedYear", IsAscending = false },
+            new() { Name = "Name (A-Z)", Value = "Name", IsAscending = true },
+            new() { Name = "Name (Z-A)", Value="Name", IsAscending = false },
+            new() { Name = "Price (Low - High)", Value="Price", IsAscending = true },
+            new() { Name = "Price (High - Low)", Value="Price", IsAscending = false },
+            new() { Name = "Stock (Past)", Value="Stock", IsAscending = true },
+            new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
         };
         SelectedSortOption = SortOptions[0];
+        NavigateToAddShoesPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddShoesViewModel).FullName!));
+        LoadCategories();
     }
 
     public async void LoadCategories()
     {
-        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        await _categoryDataService.LoadDataAsync();
         var (categories, _, _) = _categoryDataService.GetData();
 
         if (categories is not null)
         {
             foreach (var category in categories)
             {
-                CategoryFilters.Add(category);
+                if (!CategoryFilters.Any(c => c.ID == category.ID))
+                {
+                    CategoryFilters.Add(category);
+                }
             }
         }
 
@@ -65,9 +70,13 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         ErrorMessage = string.Empty;
         NotfifyChanges();
 
-        _ShoesDataService.SearchParams = await BuildSearchParamsAsync();
+        //use rest api, not implemented yet
+        //_ShoesDataService.SearchParams = await BuildSearchParamsAsync();
+
+        _ShoesDataService.searchQuery = await BuildSearchQueryAsync();
 
         await Task.Run(async () => await _ShoesDataService.LoadDataAsync());
+
 
         var (data, totalItems, message, ERROR_CODE) = _ShoesDataService.GetData();
 
@@ -77,7 +86,12 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
 
             foreach (var item in data)
             {
+                if (item.Image is null || item.Image == "")
+                {
+                    item.Image = "https://res.cloudinary.com/dyocg3k6j/image/upload/v1732185753/cld-sample-5.jpg";
+                }
                 Source.Add(item);
+
             }
 
             TotalItems = totalItems;
@@ -89,7 +103,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         }
         else
         {
-            if (ERROR_CODE != 0)
+            if (ERROR_CODE == 0)
             {
                 ErrorMessage = message;
             }

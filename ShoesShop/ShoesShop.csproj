@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Styles\ColorTheme.xaml" />
+    <None Remove="Views\LoginControl.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Remove="Styles\ColorBrushes.xaml" />
@@ -27,6 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
@@ -34,6 +37,7 @@
 	<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231008000" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="8.0.5" />
 	<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
 	<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
@@ -54,6 +58,9 @@
     <None Update="Styles\ColorBrushes.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\LoginControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Styles\ColorTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

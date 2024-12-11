@@ -21,9 +21,13 @@ public class PageService : IPageService
         Configure<ShoesDetailViewModel, ShoesDetailPage>();
         Configure<AddShoesViewModel, AddShoesPage>();
         Configure<OrdersViewModel, OrdersPage>();
+        Configure<OrderDetailViewModel, OrderDetailPage>();
         Configure<AddOrderViewModel, AddOrderPage>();
         Configure<ImportDataViewModel, ImportDataPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        Configure<UsersViewModel, UsersPage>();
+        Configure<UserDetailViewModel, UserDetailPage>();
+        Configure<AddUserViewModel, AddUserPage>();
     }
 
     public Type GetPageType(string key)

@@ -3,59 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
-using ShoesShop.Core.Repository;
+using ShoesShop.Core.Services.DataAcess;
 
-
-namespace ShoesShop.Core.Services;
-public class StatisticDataService : IStatisticDataService
+namespace ShoesShop.Core.Services
 {
-    private readonly IStatisticRepository _statisticRepository;
-
-    private (int, string, int) _countSellingShoes;
-    private (int, string, int) _countShoes;
-    private (int, string, int) _countNewOrders;
-
-    public StatisticDataService(IStatisticRepository statisticRepository)
+    public class StatisticDataService : IStatisticDataService
     {
-        _statisticRepository = statisticRepository;
-    }
+        private readonly IDao _dao;
+        private readonly IAuthenticationService _authenticationService;
 
-    public async Task<(int, string, int)> LoadDataAsync(string query)
-    {
-        _countSellingShoes = await _statisticRepository.CountSellingShoesAsync(query);
-        _countShoes = await _statisticRepository.CountShoesAsync();
-        _countNewOrders = await _statisticRepository.CountNewOrdersAsync(query);
+        public StatisticDataService(IDao dao, IAuthenticationService authenticationService)
+        {
+            _dao = dao;
+            _authenticationService = authenticationService;
+        }
 
-        return _countSellingShoes;
-    }
+        public async Task<List<Order>> GetRecentOrdersAsync()
+        {
+            return await _dao.GetRecentOrdersAsync();
+        }
 
-    public (int, string, int) CountShoesAsync()
-    {
-        return _countShoes;
-    }
-    public (int, string, int) CountNewOrdersAsync(string query)
-    {
-        return _countNewOrders;
+        public async Task<int> GetTotalOrdersAsync()
+        {
+            return await _dao.GetTotalOrdersAsync();
+        }
 
-    }
-    public (int, string, int) CountSellingShoesAsync(string query)
-    {
-        return _countSellingShoes;
+        public async Task<int> GetTotalRevenueAsync()
+        {
+            return await _dao.GetTotalRevenueAsync();
+        }
 
-    }
+        public async Task<List<Shoes>> GetTop5BestSellingShoesAsync()
+        {
+            return await _dao.GetTop5BestSellingShoesAsync();
+        }
 
-    public async Task<(IEnumerable<Revenue_Profit>, string, int)> GetRevenue_ProfitAsync(string query)
-    {
+        public async Task<int> GetTotalShoesInStockAsync()
+        {
+            return await _dao.GetTotalShoesInStockAsync();
+        }
 
-        return await _statisticRepository.GetRevenue_ProfitAsync(query);
-
-    }
-        
-    public async Task<(IEnumerable<ShoesSaleStat>, string, int)> GetShoesSaleStatAsync(string query)
-    {
-        return await _statisticRepository.GetShoesSaleStatAsync(query);
+        public async Task<Dictionary<string, int>> GetOrderStatisticsAsync(string groupBy)
+        {
+            return await _dao.GetOrderStatisticsAsync(groupBy);
+        }
     }
 }

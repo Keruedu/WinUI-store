@@ -24,6 +24,10 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
+    public string Role
+    {
+        get; set;
+    }
     public string Password
     {
         get; set; 
@@ -32,6 +36,17 @@ public class User : INotifyPropertyChanged
     {
         get; set;
     }
-
+    public string Status
+    {
+        get; set;
+    }
+    public string Image
+    {
+        get; set;
+    }
+    public Address Address
+    {
+        get; set;
+    }
     public event PropertyChangedEventHandler PropertyChanged;
 }

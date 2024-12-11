@@ -5,12 +5,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services;
+using ShoesShop.Core.Services.DataAcess;
+using CommunityToolkit.Mvvm.Input;
+using ShoesShop.Contracts.Services;
 
 namespace ShoesShop.ViewModels;
 
 public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 {
-    //private readonly ICategoryDataService _categoryDataService;
+    private readonly ICategoryDataService _categoryDataService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     public Category? selected;
@@ -23,59 +28,32 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
 
     public ObservableCollection<Category> CategoryList { get; private set; } = new();
 
-    public CategoriesViewModel(/*ICategoryDataService categoryDataService*/)
+    public RelayCommand NavigateToAddCategoryPageCommand
     {
-        //_categoryDataService = categoryDataService;
-        CategoryList.Add(new Category
-        {
-            ID = 1,
-            Name = "Sneakers",
-            Description = "Comfortable and stylish sneakers for everyday wear."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 2,
-            Name = "Boots",
-            Description = "Durable boots suitable for hiking and rough terrains."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 3,
-            Name = "Sandals",
-            Description = "Lightweight sandals perfect for warm weather."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 4,
-            Name = "Formal Shoes",
-            Description = "Elegant formal shoes for office and special occasions."
-        });
-
-        CategoryList.Add(new Category
-        {
-            ID = 5,
-            Name = "Slippers",
-            Description = "Cozy slippers for indoor comfort."
-        });
-
+        get;
     }
+
+    public CategoriesViewModel(ICategoryDataService categoryDataService, INavigationService navigationService)
+    {
+        _categoryDataService = categoryDataService;
+        _navigationService = navigationService;
+        NavigateToAddCategoryPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddCategoryViewModel).FullName!));
+    }
+
 
 
     public async void LoadCategories()
     {
-        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
-        //var (categories, _, _) = _categoryDataService.GetData();
+        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        var (categories, _, _) = _categoryDataService.GetData();
 
-        //if (categories is not null)
-        //{
-        //    foreach (var category in categories)
-        //    {
-        //        CategoryList.Add(category);
-        //    }
-        //}
+        if (categories is not null)
+        {
+            foreach (var category in categories)
+            {
+                CategoryList.Add(category);
+            }
+        }
 
         IsLoading = false;
         IsContentReady = true;
@@ -90,6 +68,7 @@ public partial class CategoriesViewModel : ObservableRecipient, INavigationAware
     public void OnNavigatedFrom()
     {
     }
+
 
     public void EnsureItemSelected()
     {

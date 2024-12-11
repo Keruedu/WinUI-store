@@ -4,14 +4,12 @@ using Microsoft.UI.Xaml;
 
 using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
-using ShoesShop.Core.Contracts.Repository;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
-using ShoesShop.Core.Repository;
 using ShoesShop.Core.Services;
+using ShoesShop.Core.Services.DataAcess;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
-using ShoesShop.Controls;
 using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
@@ -60,7 +58,6 @@ public partial class App : Application
 
             // Other Activation Handlers
 
-            // Http clients
             services.AddHttpClient("Backend", client =>
             {
                 var host = App.GetService<IStoreServerOriginService>().Host;
@@ -72,25 +69,37 @@ public partial class App : Application
 
 
             // Services
+            services.AddSingleton<ICloudinaryService, CloudinaryService>();
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
-            services.AddTransient<IShoesDataService, ShoesDataService>();
             services.AddTransient<IStorePageSettingsService, StorePageSettingsService>();
             services.AddTransient<IStoreLastOpenPageService, StoreLastOpenPageService>();
             services.AddSingleton<IActivationService, ActivationService>();
+            services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<IReviewDataService, ReviewDataService>();
+            services.AddTransient<IUserDataService, UserDataService>();
+            services.AddSingleton<IMediator, Mediator>();
+
+            services.AddTransient<IStoreLoginCredentialsService,StoreCredentialsService>();
+            services.AddTransient<ILocalSettingServiceUsingApplicationData,LocalSettingsServiceUsingApplicationData>();
+            
 
 
             // Core Services
+            services.AddSingleton<IDao, PostgreDao>();
             services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<ICategoryDataService, CategoryDataService>();
+            services.AddTransient<IShoesDataService, ShoesDataService>();
+            services.AddTransient<IOrderDataService, OrderDataService>();
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
-            services.AddSingleton<IStatisticRepository, StatisticRepository>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
+            
+
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 
             // Views and ViewModels
@@ -98,18 +107,25 @@ public partial class App : Application
             services.AddTransient<SettingsPage>();
             services.AddTransient<ImportDataViewModel>();
             services.AddTransient<ImportDataPage>();
-            services.AddTransient<AddOrderDetailViewModel>();
-            services.AddTransient<AddOrderDetailPage>();
             services.AddTransient<AddOrderViewModel>();
             services.AddTransient<AddOrderPage>();
             services.AddTransient<OrdersViewModel>();
             services.AddTransient<OrdersPage>();
+            services.AddTransient<OrderDetailPage>();
+            services.AddTransient<OrderDetailViewModel>();
+            services.AddTransient<OrderDetailControlViewModel>();
             services.AddTransient<AddShoesViewModel>();
             services.AddTransient<AddShoesPage>();
             services.AddTransient<ShoesViewModel>();
             services.AddTransient<ShoesPage>();
             services.AddTransient<ShoesDetailViewModel>();
             services.AddTransient<ShoesDetailPage>();
+            services.AddTransient<UsersPage>();
+            services.AddTransient<UsersViewModel>();
+            services.AddTransient<UserDetailPage>();
+            services.AddTransient<UserDetailViewModel>();
+            services.AddTransient<AddUserPage>();
+            services.AddTransient<AddUserViewModel>();
             services.AddTransient<AddCategoryViewModel>();
             services.AddTransient<AddCategoryPage>();
             services.AddTransient<CategoriesViewModel>();
@@ -120,6 +136,8 @@ public partial class App : Application
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 
+            services.AddTransient<LoginControl>();
+            services.AddTransient<LoginControllViewModel>();
             // Configuration
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
@@ -127,12 +145,7 @@ public partial class App : Application
 
         UnhandledException += App_UnhandledException;
     }
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddTransient<IStatisticDataService, StatisticDataService>();
-        // Các đăng ký dịch vụ khác
-    }
-
+    
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
@@ -143,7 +156,6 @@ public partial class App : Application
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
-
         await App.GetService<IActivationService>().ActivateAsync(args);
     }
 }

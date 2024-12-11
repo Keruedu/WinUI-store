@@ -1,5 +1,5 @@
 ﻿using ShoesShop.Core.Models;
-
+using ShoesShop.Core.Services.DataAcess;
 namespace ShoesShop.Core.Contracts.Services;
 public interface IOrderDataService
 {
@@ -7,16 +7,27 @@ public interface IOrderDataService
     {
         get; set;
     }
+
+    public Tuple<int, int,
+    Dictionary<string, Tuple<string, string>>,
+    Dictionary<string, Tuple<decimal, decimal>>,
+    Dictionary<string, string>,
+    Dictionary<string, IDao.SortType>> SearchQuery
+    {
+
+        get; set;
+    }
+
     public bool IsDirty
     {
         get; set;
     }
-    public Task<(IEnumerable<OrderDetail>, int, string, int)> LoadDataAsync();
-    public (IEnumerable<OrderDetail>, int, string, int) GetData();
+    public Task<(IEnumerable<Order>, int, string, int)> LoadDataAsync();
+    public (IEnumerable<Order>, int, string, int) GetData();
 
-    Task<(OrderDetail, string, int)> CreateAOrderAsync(List<AddOrderDetail> addOrderDetail);
+    Task<(Order, string, int)> CreateAOrderAsync(Order addOrderDetail);
 
-    Task<(OrderDetail, string, int)> UpdateOrderAsync(OrderDetail order);
+    Task<(Order, string, int)> UpdateOrderAsync(Order order);
 
-    Task<(string, int)> DeleteOrderAsync(OrderDetail order);
+    Task<(string, int)> DeleteOrderAsync(Order order);
 }

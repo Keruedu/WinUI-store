@@ -7,150 +7,368 @@
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:ShoesShop.Core.Models"
     xmlns:views="using:ShoesShop.Views"
-    xmlns:behaviors="using:ShoesShop.Behaviors"
+    xmlns:behaviors="using:ShoesShop.Behaviors" 
+    xmlns:helpers="using:ShoesShop.Helpers" 
+    xmlns:local="using:ShoesShop.Controls"
     behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
-    xmlns:ShoesControls="using:ShoesShop.Controls"
     mc:Ignorable="d">
     <Page.Resources>
-        <DataTemplate x:Key="ItemTemplate" x:DataType="models:Order">
-            <Grid Height="60">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <helpers:StatusToColorConverter x:Key="ColorStatusConverter" />
+        <helpers:PrefixConverter x:Key="PrefixConverter" />
+        <helpers:SelectionModeConverter x:Key="SelectionModeConverter"/>
 
-                <FontIcon
-                    Grid.Column="0"
-                    FontFamily="{StaticResource SymbolThemeFontFamily}"
-                    Glyph="&#xEE92;"
-                    Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center"
-                    Foreground="{StaticResource SystemControlForegroundBaseHighBrush}" />
 
-                <StackPanel
-                    Grid.Column="1"
-                    Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind OrderDate}" Style="{StaticResource ListTitleStyle}" />
-                    <TextBlock Text="{x:Bind Status}" Style="{StaticResource ListSubTitleStyle}" />
-                </StackPanel>
-
-                <StackPanel
-                    Grid.Column="2"
-                    Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center">
-                    <TextBlock Text="{x:Bind UserID}" Style="{StaticResource ListTitleStyle}" />
-                    <!--<TextBlock Text="{x:Bind FinalPrice, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource ListSubTitleStyle}" />-->
-                </StackPanel>
-
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="DetailsTemplate">
-            <Grid>
-                <views:OrdersDetailControl ListDetailsMenuItem="{Binding}" />
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="NoSelectionContentTemplate">
-            <Grid>
-                <TextBlock
-                    x:Uid="Orders_NoSelection"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    TextAlignment="Center"
-                    Style="{ThemeResource SubtitleTextBlockStyle}" />
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="ListHeaderTemplate">
-            <Grid Height="40">
-                <TextBlock
-                    VerticalAlignment="Center"
-                    Style="{StaticResource ListTitleStyle}"
-                    Text="{Binding}" />
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="MinimalListHeaderTemplate">
-            <Grid Height="40">
-                <TextBlock
-                    Margin="96,0,0,0"
-                    VerticalAlignment="Center"
-                    Style="{StaticResource ListTitleStyle}"
-                    Text="{Binding}" />
-            </Grid>
-        </DataTemplate>
+        <Style x:Key="TitleText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+        <Style x:Key="UserText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="Medium" />
+        </Style>
+        <Style x:Key="HeaderText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="20" />
+        </Style>
     </Page.Resources>
 
-    <ScrollViewer>
-
-        <Grid x:Name="ContentArea">
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup>
-                    <VisualState>
-                        <VisualState.StateTriggers>
-                            <!--641 is the default CompactModeThresholdWidth in NavigationView -->
-                            <AdaptiveTrigger MinWindowWidth="641" />
-                        </VisualState.StateTriggers>
-                        <VisualState.Setters>
-                            <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
-
-            <!--Loading-->
-            <ProgressRing 
-            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-            Width="60"
-            Margin="0, 20, 0, 20"
-            Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
-
-            <StackPanel
-            Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}" 
-            Spacing="20"
-            Padding="0, 20, 0, 20">
-                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,20" HorizontalAlignment="Right">
-                    <CalendarDatePicker PlaceholderText="Pick a date" Header="From" x:Name="FromDate" DateChanged="FromDate_DateChanged" />
-                    <CalendarDatePicker PlaceholderText="Pick a date" Header="To" x:Name="ToDate" DateChanged="ToDate_DateChanged" />
-                    <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFilterCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
-                            <FontIcon Glyph="&#xE71C;"  FontSize="16" />
-                            <TextBlock Text="Apply" />
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        
+        <StackPanel Orientation="Vertical" Spacing="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="List Orders" Style="{StaticResource TitleText}" FontSize="32" Grid.Column="0"/>
+                <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
+                            Grid.Column="1" HorizontalAlignment="Right" Padding="10" CornerRadius="8" 
+                            VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddOrderPageCommand}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 10 0" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xECC8;" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Add Order For Client" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Button>
-                </StackPanel>
+                    </StackPanel>
+                </Button>
+            </Grid>
 
-                <controls:ListDetailsView
-                x:Uid="Orders"
-                x:Name="ListDetailsViewControl"
-                BackButtonBehavior="Manual"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                DetailsTemplate="{StaticResource DetailsTemplate}"
-                ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                ItemTemplate="{StaticResource ItemTemplate}"
-                ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
-                NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
-                SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
-                ViewStateChanged="OnViewStateChanged"/>
+            <StackPanel x:Name="FiltersAndSearchPanel" Orientation="Horizontal" Spacing="10">
+                <ComboBox 
+                x:Name="StatusCombobox" 
+                SelectionChanged="StatusCombobox_SelectionChanged" 
+                Header="Status" Width="200" 
+                ItemsSource="{x:Bind ViewModel.StatusFilters, Mode=OneWay}"
+                SelectedIndex="0" />
+                <!--<ComboBox 
+                x:Name="RoleCombobox" 
+                SelectionChanged="RoleCombobox_SelectionChanged" 
+                Header="Role" Width="200" 
+                ItemsSource="{x:Bind ViewModel.RoleFilters, Mode=OneWay}"
+                SelectedIndex="0" />-->
+                <CalendarDatePicker 
+                x:Name="FromDatePicker" 
+                DateChanged="FromDatePicker_DateChanged"
+                PlaceholderText="Pick from date" 
+                Header="From Date" />
 
-                <!--Pagination-->
-                <ShoesControls:PaginationControl 
-                    TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}" 
-                    CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
-                    TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-                    ItemsPerPage="{x:Bind ViewModel.ItemsPerPage, Mode=OneWay}"
-                    From="{x:Bind ViewModel.From, Mode=OneWay}"
-                    To="{x:Bind ViewModel.To, Mode=OneWay}"
-                    HasPreviousPage="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-                    HasNextPage="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-                    GoToPreviousPageCommand="{x:Bind ViewModel.GoToPreviousPageCommand}"
-                    GoToNextPageCommand="{x:Bind ViewModel.GoToNextPageCommand}"
-                    />
+                <CalendarDatePicker 
+                x:Name="ToDatePicker" 
+                DateChanged="ToDatePicker_DateChanged"
+                PlaceholderText="Pick to date" 
+                Header="To Date" />
+
+                <!--<TextBox 
+                x:Name="SearchTextBox"
+                TextChanged="SearchTextBox_TextChanged"
+                KeyDown="SearchTextBox_KeyDown"
+                Header="Search"
+                PlaceholderText="User Name or Mail"
+                IsSpellCheckEnabled="True"
+                MinWidth="100"
+                MaxWidth="200" />-->
+
+                <NumberBox 
+                Header="Min Price"
+                ValueChanged="MinPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                Value="0"
+                MinWidth="100"
+                MaxWidth="200" />
+
+                <NumberBox 
+                Header="Max Price"
+                ValueChanged="MaxPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                MinWidth="100"
+                MaxWidth="200" />
+
+                <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                        <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                        <TextBlock Text="Apply" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
-        </Grid>
+            <Expander
+            Header="Search box with filters"
+            x:Name="SmallFiltersAndSearchPanel">
+                <StackPanel Spacing="12" HorizontalAlignment="Left">
+                    <ComboBox 
+                SelectionChanged="StatusCombobox_SelectionChanged" 
+                Header="Status" Width="100" 
+                ItemsSource="{x:Bind ViewModel.StatusFilters, Mode=OneWay}"
+                DisplayMemberPath="Name" 
+                SelectedIndex="0" />
+
+                <CalendarDatePicker 
+                DateChanged="FromDatePicker_DateChanged"
+                PlaceholderText="Pick from date" 
+                Header="From Date" />
+
+                <CalendarDatePicker 
+                DateChanged="ToDatePicker_DateChanged"
+                PlaceholderText="Pick to date" 
+                Header="To Date" />
+
+                <NumberBox 
+                x:Name="MinPriceTextBox"
+                Header="Min Price"
+                ValueChanged="MinPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                Value="0"
+                MinWidth="100"
+                MaxWidth="200" />
+
+                <NumberBox 
+                x:Name="MaxPriceTextBox"
+                Header="Max Price"
+                ValueChanged="MaxPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                MinWidth="100"
+                MaxWidth="200" />
+                    <!--<TextBox 
+                TextChanged="SearchTextBox_TextChanged"
+                KeyDown="SearchTextBox_KeyDown"
+                Header="Search"
+                PlaceholderText="User Name or Mail"
+                IsSpellCheckEnabled="True"
+                MinWidth="140"
+                MaxWidth="280" />-->
+
+                    <!--<ComboBox 
+                ItemsSource="{x:Bind ViewModel.SortOptions}"
+                DisplayMemberPath="Name"
+                SelectedIndex="0"
+                Header="SortBy" 
+                Width="200"/>-->
+
+                <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                        <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                        <TextBlock Text="Apply" />
+                    </StackPanel>
+                </Button>
+                    
+                </StackPanel>
+            </Expander>
+
+
+            <ListView 
+              x:Name="OrdersListView"
+              ItemsSource="{x:Bind ViewModel.Source}" 
+              IsItemClickEnabled="True"
+              ItemClick="OnItemClick"
+              Background="{ThemeResource CardBackground}"
+              CornerRadius="10"
+              Padding="20"
+              ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                <ListView.Header>
+                    <StackPanel Orientation="Vertical">
+                        <Grid Margin="0 0 0 20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Recent Purchases" Style="{StaticResource TitleText}"/>
+                            <!--<StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10">
+                                <Button Content="Ban" Background="#4A69E2" VerticalAlignment="Stretch" MinWidth="100" Foreground="White" Command="{x:Bind ViewModel.BanUsersCommand}" IsEnabled="{x:Bind ViewModel.CanBanUsers, Mode=OneWay}"/>
+                                <Button Content="Unban" Background="#FFA52F" VerticalAlignment="Stretch" MinWidth="100" Foreground="White" Command="{x:Bind ViewModel.UnbanUsersCommand}" IsEnabled="{x:Bind ViewModel.CanUnbanUsers, Mode=OneWay}" />
+                            </StackPanel>-->
+                        </Grid>
+                        <Grid Margin="0 0 0 10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- CheckBox for Select All -->
+                            <CheckBox Grid.Column="0"
+                              VerticalAlignment="Center"
+                              Checked="OnSelectAllChecked"
+                              Unchecked="OnSelectAllUnchecked"
+                              MinWidth="50"
+                              Content=""/>
+
+                            <TextBlock Grid.Column="1" Text="Product" Style="{StaticResource HeaderText}" />
+                            <TextBlock Grid.Column="2" Text="Order ID" Style="{StaticResource HeaderText}" />
+                            <TextBlock Grid.Column="3" Text="Date" Style="{StaticResource HeaderText}" />
+                            <TextBlock Grid.Column="4" Text="Customer Name" Style="{StaticResource HeaderText}" />
+                            <TextBlock Grid.Column="5" Text="Status" Style="{StaticResource HeaderText}" />
+                            <TextBlock Grid.Column="6" Text="Amount" Style="{StaticResource HeaderText}" />
+                        </Grid>
+                    </StackPanel>
+                </ListView.Header>
+                <ListView.Resources>
+
+                </ListView.Resources>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <!--re implement template-->
+                        <!--<Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Grid>
+                                        <Grid.Background>
+                                            <SolidColorBrush Color="Transparent"/>
+                                        </Grid.Background>
+
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal" />
+ 
+                                                <VisualState x:Name="PointerOver">
+                                                    <Storyboard>
+                                                        <ColorAnimation
+                                                        Storyboard.TargetName="MainGrid"
+                                                        Storyboard.TargetProperty="(Grid.Background).(SolidColorBrush.Color)"
+                                                        To="#33DDEEEE"
+                                                        Duration="0:0:0.2"/>
+                                                    </Storyboard>
+                                                </VisualState>
+
+                                                <VisualState x:Name="Selected">
+                                                    <Storyboard>
+                                                        <ColorAnimation
+                                                        Storyboard.TargetName="MainGrid"
+                                                        Storyboard.TargetProperty="(Grid.Background).(SolidColorBrush.Color)"
+                                                        To="#FFCCCCFF"
+                                                        Duration="0:0:0.2"/>
+                                                    </Storyboard>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+
+                                        <Grid x:Name="MainGrid"
+                                        Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}"
+                                        BorderThickness="0 0 0 1"
+                                        BorderBrush="#70706E">
+
+                                            <ContentPresenter
+                                            Grid.Column="1"
+                                            Content="{TemplateBinding Content}"
+                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Grid>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>-->
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Order">
+                        <Grid Margin="0 30 0 15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox
+                            Grid.Column="0"
+                            Visibility="Visible"
+                            IsChecked="False"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            Checked="OnItemChecked"
+                            Unchecked="OnItemUnchecked" 
+                            MinWidth="50"
+                            Content=""/>
+                            <TextBlock Grid.Column="1" Text="{Binding Details[0].Shoes.Name}" Style="{StaticResource UserText}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding ID, Converter={StaticResource PrefixConverter}}" Style="{StaticResource UserText}"/>
+                            <TextBlock Grid.Column="3" Text="{Binding OrderDate}" Style="{StaticResource UserText}"/>
+                            <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                <Ellipse Width="20" Height="20">
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="{Binding User.Image}" Stretch="UniformToFill"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <TextBlock  Text="{Binding User.Name}" Style="{StaticResource UserText}" Margin="10 0 0 0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="5" Orientation="Horizontal">
+                                <Ellipse
+                                Width="10"
+                                Height="10"
+                                Fill="{Binding Status, Converter={StaticResource ColorStatusConverter}}"
+                                VerticalAlignment="Center" />
+                                <TextBlock  Text="{Binding Status}" Style="{StaticResource UserText}" Margin="10 0 0 0"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Column="6" Text="{Binding TotalAmount}" Style="{StaticResource UserText}"/>
+
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <local:PaginationControl
+             Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
+             TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}" 
+             CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
+             TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
+             ItemsPerPage="{x:Bind ViewModel.ItemsPerPage, Mode=OneWay}"
+             From="{x:Bind ViewModel.From, Mode=OneWay}"
+             To="{x:Bind ViewModel.To, Mode=OneWay}"
+             HasPreviousPage="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
+             HasNextPage="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
+             GoToPreviousPageCommand="{x:Bind ViewModel.GoToPreviousPageCommand}"
+             GoToNextPageCommand="{x:Bind ViewModel.GoToNextPageCommand}" />
+        </StackPanel>
+
     </ScrollViewer>
+
 </Page>

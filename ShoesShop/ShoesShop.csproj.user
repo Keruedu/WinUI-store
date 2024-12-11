@@ -5,6 +5,12 @@
     <None Update="Controls\PaginationControl.xaml">
       <SubType>Designer</SubType>
     </None>
+    <Page Update="Views\LoginControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <None Update="Views\UserDetailPage.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Styles\ColorTheme.xaml">

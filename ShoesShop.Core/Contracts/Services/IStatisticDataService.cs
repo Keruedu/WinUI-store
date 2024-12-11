@@ -8,12 +8,17 @@ using ShoesShop.Core.Models;
 namespace ShoesShop.Core.Contracts.Services;
 public interface IStatisticDataService
 {
-    public Task<(int, string, int)> LoadDataAsync(string query);
-    public (int, string, int) CountSellingShoesAsync(string query);
-    public (int, string, int) CountShoesAsync();
+    Task<int> GetTotalOrdersAsync();
+    Task<List<Order>> GetRecentOrdersAsync();
 
-    public (int, string, int) CountNewOrdersAsync(string query);
+    Task<int> GetTotalRevenueAsync();
 
-    public Task<(IEnumerable<Revenue_Profit>, string, int)> GetRevenue_ProfitAsync(string query);
-    public Task<(IEnumerable<ShoesSaleStat>, string, int)> GetShoesSaleStatAsync(string query);
+    Task<List<Shoes>> GetTop5BestSellingShoesAsync();
+
+    Task<int> GetTotalShoesInStockAsync();
+
+    Task<Dictionary<string, int>> GetOrderStatisticsAsync(string groupBy);
+
 }
+
+

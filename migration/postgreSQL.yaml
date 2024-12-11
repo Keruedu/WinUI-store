@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   postgres:
-    container_name: postgres_container
+    container_name: postgres1
     image: postgres
     environment:
       POSTGRES_USER: root
@@ -10,7 +10,7 @@ services:
     volumes:
        - postgres:/data/postgres
     ports:
-      - 5433:5432
+      - 5432:5432
     restart: unless-stopped
 
 volumes:

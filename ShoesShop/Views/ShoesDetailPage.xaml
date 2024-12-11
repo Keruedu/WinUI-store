@@ -12,6 +12,7 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+        <helpers:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
@@ -39,7 +40,7 @@
             <Style x:Key="PosterBorderStyle" TargetType="Border">
                 <Setter Property="CornerRadius" Value="10" />
                 <Setter Property="Margin" Value="0,0,40,10" />
-                <!--<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />-->
+                <Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
                 <Setter Property="BorderThickness" Value="2" />
             </Style>
         </Grid.Resources>
@@ -90,25 +91,26 @@
                                 </Paragraph>
                             </RichTextBlock>
                         </StackPanel>
-                        <StackPanel x:Name="ShoesAuthor">
-                            <TextBlock Style="{StaticResource LabelStyle}" Text="Author: " />
-                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Color, Mode=TwoWay}" />
+                        <StackPanel x:Name="ShoesBrand" >
+                            <TextBlock Style="{StaticResource LabelStyle}" Text="Brand: " />
+                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Brand, Mode=TwoWay}" />
                         </StackPanel>
-                        <!--<StackPanel x:Name="ShoesSellingPrice">
+                        <StackPanel x:Name="ShoesColor">
+                            <TextBlock Style="{StaticResource LabelStyle}" Text="Color: " />
+                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Color, Mode=OneWay}" />
+                        </StackPanel>
+                        <StackPanel x:Name="ShoesSellingPrice">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Selling Price: " />
-                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding SellingPrice, Mode=TwoWay, Converter={StaticResource VietnamesePriceConverter}}" />
+                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Price, Mode=TwoWay, Converter={StaticResource VietnamesePriceConverter}}" />
                         </StackPanel>
-                        <StackPanel x:Name="ShoesPurchasePrice">
+                        <!--<StackPanel x:Name="ShoesPurchasePrice">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Purchase Price: " />
                             <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding PurchasePrice, Mode=TwoWay, Converter={StaticResource VietnamesePriceConverter}}" />
                         </StackPanel>-->
+                        
                         <StackPanel x:Name="ShoesCategory">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Category: " />
-                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Name, Mode=TwoWay}" />
-                        </StackPanel>
-                        <StackPanel x:Name="ShoesPublishedYear">
-                            <TextBlock Style="{StaticResource LabelStyle}" Text="Published Year: " />
-                            <TextBlock Style="{StaticResource ContentStyle}" Text="{Binding Color, Mode=TwoWay}" />
+                            <TextBlock Style="{StaticResource ContentStyle}" Text="{x:Bind ViewModel.Category.Name, Mode=OneWay}" />
                         </StackPanel>
                         <StackPanel x:Name="ShoesRemaningQuantity">
                             <TextBlock Style="{StaticResource LabelStyle}" Text="Remaining quantity: " />
@@ -127,12 +129,13 @@
                     <StackPanel Spacing="16" x:Name="EditShoesStackPanel" Visibility="{x:Bind ViewModel.IsEditSession, Mode=OneWay}">
 
                         <TextBox Header="Shoes title" PlaceholderText="Title" Text="{x:Bind ViewModel.EditShoes.Name, Mode=TwoWay}" />
-                        <TextBox Header="Author" PlaceholderText="Author name" Text="{x:Bind ViewModel.EditShoes.Color, Mode=TwoWay}" />
-                        <NumberBox Header="Published year" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.EditShoes.Size, Mode=TwoWay}" />
+                        <TextBox Header="Brand" PlaceholderText="Brand" Text="{x:Bind ViewModel.EditShoes.Brand, Mode=TwoWay}" />
+                        <TextBox Header="Color" PlaceholderText="Shoes color" Text="{x:Bind ViewModel.EditShoes.Color, Mode=TwoWay}" />
+                        <NumberBox Header="Size" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.EditShoes.Size, Mode=TwoWay}" />
                         <NumberBox Header="Available quantity" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.EditShoes.Stock, Mode=TwoWay}"/>
-                        <TextBox Header="Description" Height="120" PlaceholderText="Write Shoes description" Text="{x:Bind ViewModel.EditShoes.Name, Mode=TwoWay}" />
-                        <!--<NumberBox Header="Purchase price" Value="{x:Bind ViewModel.EditShoes.PurchasePrice, Mode=TwoWay}" SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />
-                        <NumberBox Header="Selling price" Value="{x:Bind ViewModel.EditShoes.SellingPrice, Mode=TwoWay}"  SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
+                        <TextBox Header="Description" Height="120" PlaceholderText="Write Shoes description" Text="{x:Bind ViewModel.EditShoes.Description, Mode=TwoWay}" />
+                        <!--<NumberBox Header="Purchase price" Value="{x:Bind ViewModel.EditShoes.PurchasePrice, Mode=TwoWay}" SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />-->
+                        <NumberBox Header="Selling price" Value="{x:Bind ViewModel.EditShoes.Price, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"  SmallChange="1000" LargeChange="10000" SpinButtonPlacementMode="Inline" />
                         <ComboBox 
                             x:Name="CategoryCombobox" 
                             SelectionChanged="CategoryCombobox_SelectionChanged"
@@ -175,71 +178,6 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel>
-                    <!--Reviews-->
-                    <TextBlock FontSize="18" FontWeight="Medium" Margin="0,0,0,10">Customer reviews</TextBlock>
-
-                    <!--Loading reviews-->
-                    <ProgressRing 
-                        IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                        Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                        Width="60"
-                        Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
-
-                    <!--Error & Info-->
-                    <InfoBarPanel>
-                        <InfoBar 
-                        x:Name="ErrorInfoBar"
-                        Title="Error Loading reviews"
-                        Severity="Error"
-                        IsClosable="False"
-                        IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
-                        Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-                        />
-
-                        <InfoBar
-                        x:Name="InfoInfoBar"
-                        Title="Info"
-                        Severity="Warning"
-                        IsClosable="False"
-                        IsOpen="{x:Bind ViewModel.HasInfo, Mode=OneWay}"
-                        Message="{x:Bind ViewModel.InfoMessage, Mode=OneWay}"
-                        />
-                    </InfoBarPanel>
-
-                    <ScrollViewer IsTabStop="True">
-                        <ListView x:Name="ContentListView"
-                            SelectionMode="None"
-                            Height="400"
-                            ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                            IsItemClickEnabled="False">
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType='models:Review'>
-                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="2" Padding="12" CornerRadius="4" Margin="0, 8, 0, 0">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Text="{Binding User.Name}" FontWeight="Medium" TextWrapping="Wrap" />
-                                            <TextBlock Grid.Row="1" Text="{Binding Content}" TextWrapping="Wrap" />
-                                            <RatingControl 
-                                                Grid.Row="2"
-                                                HorizontalAlignment="Left"
-                                                IsClearEnabled="True"
-                                                IsReadOnly="True" 
-                                                PlaceholderValue="{Binding Rating}" 
-                                                Caption="{Binding Rating}"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </ScrollViewer>
-                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

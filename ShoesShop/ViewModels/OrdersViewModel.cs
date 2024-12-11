@@ -17,25 +17,33 @@ namespace ShoesShop.ViewModels;
 public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAware
 {
     private readonly IOrderDataService _orderDataService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
-    private OrderDetail? selected;
+    private Order? selected;
+
+    public List<string> StatusFilters
+    {
+        get; set;
+    } = new List<string> {"All", "Pending", "Shipped", "Delivered", "Cancelled" };
+
+    public ObservableCollection<Order> Source { get; private set; } = new ObservableCollection<Order>();
 
 
-    public ObservableCollection<OrderDetail> Source { get; private set; } = new ObservableCollection<OrderDetail>();
-
+    private ObservableCollection<Order> _SelectedOrders = new ObservableCollection<Order>();
+    public ObservableCollection<Order> SelectedOrders
+    {
+        get => _SelectedOrders;
+        set
+        {
+            if (SetProperty(ref _SelectedOrders, value))
+            {
+                
+            }
+        }
+    }
 
     public RelayCommand AddOrderCommand
-    {
-        get;
-    }
-
-    public RelayCommand DeleteOrderCommand
-    {
-        get;
-    }
-
-    public RelayCommand EditOrderCommand
     {
         get;
     }
@@ -44,49 +52,43 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
     {
         get;
     }
-    public OrdersViewModel(IOrderDataService OrderDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+
+    public RelayCommand NavigateToAddOrderPageCommand
+    {
+        get;
+    }
+
+    public OrdersViewModel(INavigationService navigationService, IOrderDataService OrderDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
         _orderDataService = OrderDataService;
+        _navigationService = navigationService;
 
         currentPage = 1;
 
         AddOrderCommand = new RelayCommand(AddOrder);
-        DeleteOrderCommand = new RelayCommand(DeleteOrder, () => Selected != null);
-        EditOrderCommand = new RelayCommand(EditOrder, () => Selected != null);
         ApplyFilterCommand = new RelayCommand(LoadDataAsync);
+        NavigateToAddOrderPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddOrderViewModel).FullName!));
 
         FunctionOnCommand = LoadDataAsync;
     }
 
-    private void UpdateCommands()
-    {
-        DeleteOrderCommand.NotifyCanExecuteChanged();
-        EditOrderCommand.NotifyCanExecuteChanged();
-    }
+
 
     private void AddOrder()
     {
 
     }
 
-    private void DeleteOrder()
-    {
-
-    }
-
-    private void EditOrder()
-    {
-
-    }
 
     private async void LoadDataAsync()
     {
+        IsDirty = false;
         IsLoading = true;
         NotfifyChanges();
 
-        _orderDataService.SearchParams = await BuildSearchParamsAsync();
+        _orderDataService.SearchQuery = await BuildSearchQueryOrderAsync();
 
-        await Task.Run(async () => await _orderDataService.LoadDataAsync());
+        await _orderDataService.LoadDataAsync();
 
         var (data, totalItems, message, ERROR_CODE) = _orderDataService.GetData();
 
@@ -108,7 +110,7 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
         }
         else
         {
-            if (ERROR_CODE != 0)
+            if (ERROR_CODE != 1)
             {
                 ErrorMessage = message;
             }
@@ -116,7 +118,6 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
 
         IsLoading = false;
         NotfifyChanges();
-        EnsureItemSelected();
     }
 
     public void OnNavigatedTo(object parameter)
@@ -124,12 +125,24 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
         LoadDataAsync();
     }
 
+    [RelayCommand]
+    private void OnItemClick(Order? clickedItem)
+    {
+        if (clickedItem != null)
+        {
+            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
+            _navigationService.NavigateTo(typeof(OrderDetailViewModel).FullName!, clickedItem);
+        }
+    }
+
     public void OnNavigatedFrom()
     {
     }
 
-    public void EnsureItemSelected()
+    [RelayCommand]
+    private void OnApplyFiltersAndSearch()
     {
-        Selected = Source.Any() ? Source.First() : null;
+        LoadDataAsync();
     }
+
 }

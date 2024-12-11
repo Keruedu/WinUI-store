@@ -16,6 +16,9 @@ exports.up = async function(knex) {
     table.string('Email', 255).notNullable().unique();
     table.string('PhoneNumber', 50);
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
+    table.enu('Role', ['Admin', 'Manager', 'User']).notNullable().defaultTo('User');
+    table.enu('Status', ['Active', 'Banned']).notNullable().defaultTo('Active');
+    table.string('Image');
   });
 
 
@@ -26,21 +29,23 @@ exports.up = async function(knex) {
   });
 
   await knex.schema.createTable('Shoes', (table) => {
-    table.increments('ShoeID').primary();
+    table.increments('ShoesID').primary();
     table.integer('CategoryID').unsigned().references('CategoryID').inTable('Category').notNullable();
     table.string('Name', 100).notNullable();
-    table.string('Size', 50).notNullable();
-    table.string('Color', 50).notNullable();
+    table.string('Brand', 100);
+    table.string('Size', 50);
+    table.string('Color', 50);
     table.decimal('Price', 10, 2).notNullable();
     table.integer('Stock').notNullable(); 
     table.string('Image');
+    table.string('Description', 255);
   });
 
   await knex.schema.createTable('Order', (table) => {
     table.increments('OrderID').primary();
     table.integer('UserID').unsigned().references('UserID').inTable('User').notNullable();
     table.date('OrderDate').notNullable();
-    table.string('Status', 50).notNullable();
+    table.enu('Status', ['Pending', 'Shipped', 'Delivered', 'Cancelled']).notNullable().defaultTo('Pending');
     table.integer('AddressID').unsigned().references('AddressID').inTable('Address');
     table.decimal('TotalAmount', 10, 2).notNullable();
   });
@@ -48,7 +53,7 @@ exports.up = async function(knex) {
   await knex.schema.createTable('Detail', (table) => {
     table.increments('DetailID').primary();
     table.integer('OrderID').unsigned().references('OrderID').inTable('Order').notNullable();
-    table.integer('ShoeID').unsigned().references('ShoeID').inTable('Shoes').notNullable();
+    table.integer('ShoesID').unsigned().references('ShoesID').inTable('Shoes').notNullable();
     table.integer('Quantity').notNullable();
     table.decimal('Price', 10, 2).notNullable();
   });

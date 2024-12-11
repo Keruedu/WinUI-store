@@ -31,4 +31,16 @@ public class Order
     {
         get; set;
     }
+    public User User
+    {
+        get; set;
+    }
+    public Address Address
+    {
+        get; set;
+    }
+    public ICollection<Detail> Details
+    {
+        get; set;
+    }
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ShoesShop.Views.LoginControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShoesShop.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="Page_Loaded"
+    >
+
+    <Grid x:Name="Login" MinWidth="400" MaxWidth="440" Padding="0,0,0,20" Visibility="{x:Bind ViewModel.IsNotAuthenticated, Mode=OneWay}" Loaded="Login_Loaded">
+        <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="2" Padding="32, 40" CornerRadius="10" Background="{ThemeResource CardBackgroundBrush}">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Login to your account" Margin="0,0,0,32" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />
+                <TextBox Header="Email"  x:Name="LoginEmailBox" Text="{x:Bind ViewModel.Email,Mode=TwoWay}"/>
+                <PasswordBox Header="Password" x:Name="LoginPasswordBox"  />
+                <CheckBox Content="Remember me" x:Name="RememberMeCheckBox" IsChecked="{x:Bind ViewModel.IsSavingSettings,Mode=TwoWay}" />
+
+                <!--Loading-->
+                <ProgressRing
+                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                    Width="60"
+                    Margin="0, 20, 0, 20"
+                    Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
+
+                <!--Error & Info-->
+                <InfoBarPanel>
+                    <InfoBar
+                        x:Name="ErrorInfoBar"
+                        Title="Error Logging in"
+                        Severity="Error"
+                        IsClosable="False"
+                        IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                        Margin="0, 20, 0, 20"
+                        />
+                </InfoBarPanel>
+
+
+                <Button Style="{StaticResource AccentButtonStyle}" Content="LOGIN" HorizontalAlignment="Center" FontSize="18" Margin="0, 16, 0, 0" Width="80" IsEnabled="{x:Bind ViewModel.IsNotLoading, Mode=OneWay}" x:Name="LoginButton" Click="LoginButton_Click" />
+
+                <!--settings-->
+                <!--<Expander
+                    MinWidth="300"
+                    Margin="0, 32, 0, 0"
+                    HorizontalAlignment="Center"
+                    IsExpanded="False"
+                    ExpandDirection="Down"
+                    VerticalAlignment="Top"
+                    Header="Settings">
+                    <StackPanel Spacing="12" MinWidth="300">
+                        <TextBox Header="Server host (http://localhost)"  x:Name="ServerHostBox" Text="{x:Bind ViewModel.ServerHost, Mode=TwoWay}" />
+                        <NumberBox Header="Server port (8080)"  x:Name="ServerPortBox" Value="{x:Bind ViewModel.ServerPort, Mode=TwoWay}" />
+                        <Button Style="{StaticResource AccentButtonStyle}" Content="Save" HorizontalAlignment="Right" Margin="0, 16, 0, 0" Width="80" Command="{x:Bind ViewModel.SaveSettingsCommand}" />
+                    </StackPanel>
+                </Expander>-->
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

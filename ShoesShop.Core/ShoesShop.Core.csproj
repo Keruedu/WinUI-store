@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+	<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 	<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageReference Include="Npgsql" Version="8.0.5" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
