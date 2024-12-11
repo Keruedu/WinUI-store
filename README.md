@@ -90,7 +90,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
 
 | Week | Task                                                                                       | Lê Hoàng Việt | Lê Quang Vinh | Nguyễn Quốc Vinh |
 |------|--------------------------------------------------------------------------------------------|---------------|---------------|------------------|
-| 1    | Initial UI design for User, Order, Shoes                                                   | 1 hours       |               |                  |
+| 1    | Initial UI design for User, Order, Shoes                                                   | 0.5 hours     |               |                  |
 | 1    | Write necessary Data Services for Dashboard                                                |               | 0.5 hours     |                  |
 | 1    | Research and build Cloudinary Service                                                      |               |               | 0.5 hours        |
 | 2    | Display user details on click                                                              | 0.5 hours     |               |                  |
@@ -98,7 +98,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
 | 2    | Add filtering options for Shoes and Order                                                  |               | 0.5 hours     |                  |
 | 2    | Research OxyPlot                                                                           |               |               | 1 hours          |
 | 2    | Build Auth Service and LoginControl                                                        |               |               | 0.5 hours        |
-| 3    | Integrate functions for Add/Update/Ban/Unban User                                          | 1 hours       |               |                  |
+| 3    | Integrate functions for Add/Update/Ban/Unban User                                          | 0.5 hours     |               |                  |
 | 3    | Fix display issues and list bugs                                                           | 0.5 hours     |               |                  |
 | 3    | Complete Dashboard UI                                                                      |               | 0.5 hours     |                  |
 | 3    | Prepare report and demo video                                                              |               |  0.5 hours    |                  |
