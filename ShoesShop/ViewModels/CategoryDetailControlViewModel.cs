@@ -72,6 +72,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
 
         if (ERROR_CODE == 1)
         {
+            _mediator.Notify();
             Item = returnedBook;
             OnCancelEdit();
         }

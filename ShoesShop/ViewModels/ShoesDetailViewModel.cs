@@ -21,6 +21,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     private readonly INavigationService _navigationService;
     private readonly ICategoryDataService _categoryDataService;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly IMediator _mediator;
 
     [ObservableProperty]
     public bool isEditSession = false;
@@ -78,9 +79,10 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
         get; set;
     }
 
-    public ShoesDetailViewModel(IShoesDataService ShoesDataService, INavigationService navigationService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService, ICloudinaryService cloudinaryService) : base(storePageSettingsService)
+    public ShoesDetailViewModel(IShoesDataService ShoesDataService,IMediator mediator , INavigationService navigationService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService, ICloudinaryService cloudinaryService) : base(storePageSettingsService)
     {
         _ShoesDataService = ShoesDataService;
+        _mediator = mediator;
         _navigationService = navigationService;
         _categoryDataService = categoryDataService;
         _cloudinaryService = cloudinaryService;
@@ -91,6 +93,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             NotifyThisChanges();
         });
 
+        
         SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
         RemoveImageButtonCommand = new RelayCommand(RemoveImage);
         CancelButtonCommand = new RelayCommand(CancelEdit, () => !IsEditLoading);
