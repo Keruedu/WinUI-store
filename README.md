@@ -115,7 +115,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
    - Messenger, Drive, Git, Google meet
 
 2. **Work Flow**
-   - Team meets regularly at 3PM every Thursday to report progress and divide tasks
+   - Team meets regularly at 3PM every Wednesday to report progress and divide tasks
    - Project materials and references are uploaded to Drive or pinned in the team's private Messenger group
    - Meeting minutes: [Google Docs - Vietmamese](https://docs.google.com/document/d/1aqO8fGVvLPGIK6Ay-KMkrwZ34DUbOCRPOZugCG_Anyo/edit?usp=drive_link)
 
