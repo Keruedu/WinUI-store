@@ -112,13 +112,45 @@ public sealed partial class OrdersPage : Page
         }
     }
 
-    private void RoleCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void MinPriceTextBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        var selectedItem = (sender as ComboBox)?.SelectedItem as string;
-
-        if (selectedItem is not null)
+        if (sender.Value > MaxPriceTextBox?.Value)
         {
-            ViewModel.SelectRole(selectedItem);
+            sender.Value = MaxPriceTextBox.Value;
+            ViewModel.SetMinPrice((int)sender.Value);
+        }
+        else
+        {
+            ViewModel.SetMinPrice((int)sender.Value);
+        }
+    }
+
+    private void FromDatePicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+    {
+        if (args.NewDate.HasValue)
+        {
+            ViewModel.SetFromDate(args.NewDate.Value.DateTime);
+        }
+    }
+
+    private void ToDatePicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+    {
+        if (args.NewDate.HasValue)
+        {
+            ViewModel.SetToDate(args.NewDate.Value.DateTime);
+        }
+    }
+
+    private void MaxPriceTextBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (sender.Value < MinPriceTextBox?.Value)
+        {
+            sender.Value = MinPriceTextBox.Value;
+            ViewModel.SetMaxPrice((int)sender.Value);
+        }
+        else
+        {
+            ViewModel.SetMaxPrice((int)sender.Value);
         }
     }
 
@@ -129,6 +161,8 @@ public sealed partial class OrdersPage : Page
             ViewModel.ItemClickCommand.Execute(clickedOrder);
         }
     }
+    
+
 
     private CheckBox FindCheckBoxInTemplate(DependencyObject container)
     {

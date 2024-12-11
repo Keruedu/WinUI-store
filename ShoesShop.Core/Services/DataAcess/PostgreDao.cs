@@ -598,10 +598,26 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, List<Detail>>(true, string.Empty, new List<Detail>());
 
             var sqlQuery = $"""
-            SELECT "DetailID", "OrderID", "ShoesID", "Quantity", "Price"
-            FROM "Detail"
-            WHERE "OrderID" = ANY(@OrderIds);
-            """;
+        SELECT 
+            d."DetailID", 
+            d."OrderID", 
+            d."ShoesID", 
+            d."Quantity", 
+            d."Price",
+            s."ShoesID",
+            s."CategoryID", 
+            s."Name", 
+            s."Brand", 
+            s."Size", 
+            s."Color", 
+            s."Price" AS ShoesPrice, 
+            s."Stock", 
+            s."Image", 
+            s."Description"
+        FROM "Detail" d
+        INNER JOIN "Shoes" s ON d."ShoesID" = s."ShoesID"
+        WHERE d."OrderID" = ANY(@OrderIds);
+        """;
 
             var command = new NpgsqlCommand(sqlQuery, dbConnection);
             command.Parameters.AddWithValue("@OrderIds", orderIds);
@@ -611,13 +627,28 @@ public class PostgreDao : IDao
             {
                 while (reader.Read())
                 {
+                    var shoes = new Shoes
+                    {
+                        ID = (int)reader["ShoesID"],
+                        CategoryID = (int)reader["CategoryID"],
+                        Name = reader["Name"].ToString(),
+                        Brand = reader["Brand"].ToString(),
+                        Size = reader["Size"].ToString(),
+                        Color = reader["Color"].ToString(),
+                        Price = (decimal)reader["ShoesPrice"],
+                        Stock = (int)reader["Stock"],
+                        Image = reader["Image"].ToString(),
+                        Description = reader["Description"].ToString()
+                    };
+
                     var detail = new Detail
                     {
                         ID = (int)reader["DetailID"],
                         OrderID = (int)reader["OrderID"],
                         ShoesID = (int)reader["ShoesID"],
                         Quantity = (int)reader["Quantity"],
-                        Price = (decimal)reader["Price"]
+                        Price = (decimal)reader["Price"],
+                        Shoes = shoes
                     };
                     details.Add(detail);
                 }
@@ -632,7 +663,7 @@ public class PostgreDao : IDao
     }
 
 
-   
+
 
     public Tuple<bool, string, Dictionary<int, Shoes>> GetShoesByIds(List<int> shoesIds)
     {

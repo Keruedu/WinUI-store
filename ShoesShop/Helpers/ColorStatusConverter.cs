@@ -13,6 +13,9 @@ public class StatusToColorConverter : IValueConverter
         {
             "active" => new SolidColorBrush(ColorUtils.HexToColor("#4A69E2")),
             "banned" => new SolidColorBrush(ColorUtils.HexToColor("#FFA52F")),
+            "shipped" => new SolidColorBrush(ColorUtils.HexToColor("#FFA52F")),
+            "delivered" => new SolidColorBrush(ColorUtils.HexToColor("#4A69E2")),
+            "cancelled" => new SolidColorBrush(ColorUtils.HexToColor("D00000")),
             _ => new SolidColorBrush(Colors.Gray)
         };
     }

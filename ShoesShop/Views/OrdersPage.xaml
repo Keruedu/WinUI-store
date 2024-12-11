@@ -38,42 +38,27 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
-
+        
         <StackPanel Orientation="Vertical" Spacing="20">
-            <TextBlock Text="List Orders" Style="{StaticResource TitleText}" FontSize="32"/>
-            <!--Info User Page-->
-            <StackPanel Orientation="Horizontal" Spacing="20">
-                <!--<StackPanel Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="15" Spacing="10">
-                    <TextBlock Text="Total Users:" FontWeight="Medium" FontSize="16"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="#4A69E2" Padding="5" CornerRadius="5" Margin="0 0 25 0">
-                            <FontIcon Glyph="&#xEE57;" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-                        </Border>
-                        <TextBlock Text="{x:Bind ViewModel.TotalUsers, Mode=TwoWay}" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="15" Spacing="10">
-                    <TextBlock Text="Banned Users:" FontWeight="Medium" FontSize="16"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="#FFA52F" Padding="5" CornerRadius="5" Margin="0 0 25 0">
-                            <FontIcon Glyph="&#xEB90;" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-                        </Border>
-                        <TextBlock Text="{x:Bind ViewModel.BannedUsers, Mode=TwoWay}" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </StackPanel>-->
-
-                <!--<Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" Padding="20" CornerRadius="15" VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddOrderPageCommand}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="List Orders" Style="{StaticResource TitleText}" FontSize="32" Grid.Column="0"/>
+                <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
+                            Grid.Column="1" HorizontalAlignment="Right" Padding="10" CornerRadius="8" 
+                            VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddOrderPageCommand}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 25 0" VerticalAlignment="Center">
-                                <FontIcon Glyph="&#xECC8;" FontSize="40" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 10 0" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xECC8;" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </Border>
-                            <TextBlock Text="Add new User" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                            <TextBlock Text="Add Order For Client" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
-                </Button>-->
-            </StackPanel>
+                </Button>
+            </Grid>
 
             <StackPanel x:Name="FiltersAndSearchPanel" Orientation="Horizontal" Spacing="10">
                 <ComboBox 
@@ -88,32 +73,53 @@
                 Header="Role" Width="200" 
                 ItemsSource="{x:Bind ViewModel.RoleFilters, Mode=OneWay}"
                 SelectedIndex="0" />-->
+                <CalendarDatePicker 
+                x:Name="FromDatePicker" 
+                DateChanged="FromDatePicker_DateChanged"
+                PlaceholderText="Pick from date" 
+                Header="From Date" />
 
-                <TextBox 
+                <CalendarDatePicker 
+                x:Name="ToDatePicker" 
+                DateChanged="ToDatePicker_DateChanged"
+                PlaceholderText="Pick to date" 
+                Header="To Date" />
+
+                <!--<TextBox 
                 x:Name="SearchTextBox"
                 TextChanged="SearchTextBox_TextChanged"
                 KeyDown="SearchTextBox_KeyDown"
                 Header="Search"
                 PlaceholderText="User Name or Mail"
                 IsSpellCheckEnabled="True"
-                MinWidth="140"
-                MaxWidth="280" />
+                MinWidth="100"
+                MaxWidth="200" />-->
 
-                <!--<ComboBox 
-                SelectionChanged="SortByComboBox_SelectionChanged"
-                ItemsSource="{x:Bind ViewModel.SortOptions}"
-                DisplayMemberPath="Name"
-                SelectedIndex="0"
-                Header="SortBy" 
-                x:Name="SortByComboBox"
-                Width="200"/>-->
+                <NumberBox 
+                Header="Min Price"
+                ValueChanged="MinPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                Value="0"
+                MinWidth="100"
+                MaxWidth="200" />
 
-                <!--<Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                <NumberBox 
+                Header="Max Price"
+                ValueChanged="MaxPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                MinWidth="100"
+                MaxWidth="200" />
+
+                <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
                         <FontIcon Glyph="&#xE71C;"  FontSize="16" />
                         <TextBlock Text="Apply" />
                     </StackPanel>
-                </Button>-->
+                </Button>
             </StackPanel>
             <Expander
             Header="Search box with filters"
@@ -121,25 +127,49 @@
                 <StackPanel Spacing="12" HorizontalAlignment="Left">
                     <ComboBox 
                 SelectionChanged="StatusCombobox_SelectionChanged" 
-                Header="Status" Width="200" 
+                Header="Status" Width="100" 
                 ItemsSource="{x:Bind ViewModel.StatusFilters, Mode=OneWay}"
                 DisplayMemberPath="Name" 
                 SelectedIndex="0" />
-                    <!--<ComboBox 
-                SelectionChanged="RoleCombobox_SelectionChanged" 
-                Header="Role" Width="200" 
-                ItemsSource="{x:Bind ViewModel.RoleFilters, Mode=OneWay}"
-                DisplayMemberPath="Name" 
-                SelectedIndex="0" />-->
 
-                    <TextBox 
+                <CalendarDatePicker 
+                DateChanged="FromDatePicker_DateChanged"
+                PlaceholderText="Pick from date" 
+                Header="From Date" />
+
+                <CalendarDatePicker 
+                DateChanged="ToDatePicker_DateChanged"
+                PlaceholderText="Pick to date" 
+                Header="To Date" />
+
+                <NumberBox 
+                x:Name="MinPriceTextBox"
+                Header="Min Price"
+                ValueChanged="MinPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                Value="0"
+                MinWidth="100"
+                MaxWidth="200" />
+
+                <NumberBox 
+                x:Name="MaxPriceTextBox"
+                Header="Max Price"
+                ValueChanged="MaxPriceTextBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                SmallChange="1000"
+                LargeChange="100000"
+                MinWidth="100"
+                MaxWidth="200" />
+                    <!--<TextBox 
                 TextChanged="SearchTextBox_TextChanged"
                 KeyDown="SearchTextBox_KeyDown"
                 Header="Search"
                 PlaceholderText="User Name or Mail"
                 IsSpellCheckEnabled="True"
                 MinWidth="140"
-                MaxWidth="280" />
+                MaxWidth="280" />-->
 
                     <!--<ComboBox 
                 ItemsSource="{x:Bind ViewModel.SortOptions}"
@@ -148,12 +178,13 @@
                 Header="SortBy" 
                 Width="200"/>-->
 
-                    <!--<Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
-                            <FontIcon Glyph="&#xE71C;"  FontSize="16" />
-                            <TextBlock Text="Apply" />
-                        </StackPanel>
-                    </Button>-->
+                <Button  VerticalAlignment="Bottom" Command="{x:Bind ViewModel.ApplyFiltersAndSearchCommand}" IsEnabled="{x:Bind ViewModel.IsDirty, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                        <FontIcon Glyph="&#xE71C;"  FontSize="16" />
+                        <TextBlock Text="Apply" />
+                    </StackPanel>
+                </Button>
+                    
                 </StackPanel>
             </Expander>
 

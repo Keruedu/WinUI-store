@@ -25,7 +25,7 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
     public List<string> StatusFilters
     {
         get; set;
-    } = new List<string> { "Pending", "Shipped", "Delivered", "Cancelled" };
+    } = new List<string> {"All", "Pending", "Shipped", "Delivered", "Cancelled" };
 
     public ObservableCollection<Order> Source { get; private set; } = new ObservableCollection<Order>();
 
@@ -72,29 +72,17 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
         FunctionOnCommand = LoadDataAsync;
     }
 
-    private void UpdateCommands()
-    {
-        //DeleteOrderCommand.NotifyCanExecuteChanged();
-        //EditOrderCommand.NotifyCanExecuteChanged();
-    }
+
 
     private void AddOrder()
     {
 
     }
 
-    private void DeleteOrder()
-    {
-
-    }
-
-    private void EditOrder()
-    {
-
-    }
 
     private async void LoadDataAsync()
     {
+        IsDirty = false;
         IsLoading = true;
         NotfifyChanges();
 
@@ -138,17 +126,23 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
     }
 
     [RelayCommand]
-    private void OnItemClick(User? clickedItem)
+    private void OnItemClick(Order? clickedItem)
     {
         if (clickedItem != null)
         {
             _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(UserDetailViewModel).FullName!, clickedItem);
+            _navigationService.NavigateTo(typeof(OrderDetailViewModel).FullName!, clickedItem);
         }
     }
 
     public void OnNavigatedFrom()
     {
+    }
+
+    [RelayCommand]
+    private void OnApplyFiltersAndSearch()
+    {
+        LoadDataAsync();
     }
 
 }

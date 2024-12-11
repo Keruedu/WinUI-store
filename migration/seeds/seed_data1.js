@@ -99,6 +99,13 @@ exports.seed = async function(knex) {
   ]);
   await knex.raw('SELECT setval(\'"Shoes_ShoesID_seq"\', (SELECT MAX("ShoesID") FROM "Shoes"))');
 
+  function getRandomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  }
+  
+  const startDate = new Date(2022, 0, 1); // January 1, 2022
+  const endDate = new Date(); 
+
   // Insert seed entries for Orders
   await knex('Order').insert([
     { OrderID: 1, UserID: 1, OrderDate: '2023-10-31', Status: 'Pending', AddressID: 1, TotalAmount: 270.00 },
@@ -110,11 +117,11 @@ exports.seed = async function(knex) {
     // Generate 21 additional orders
     ...Array.from({ length: 21 }, (_, i) => {
       const id = i + 6;
-      const userId = (id % 5) + 1; // Rotate UserID from 1 to 5
-      const addressId = (id % 3) + 1; // Rotate AddressID from 1 to 3
+      const userId = (id % 15) + 1; // Rotate UserID from 1 to 15
+      const addressId = (id % 8) + 1; // Rotate AddressID from 1 to 8
       const totalAmount = Math.floor(Math.random() * 1500) + 100; // Random total amount between 100 and 1500
-      const orderDate = new Date(2023, 10, i + 5).toISOString().split('T')[0]; // Random date in November
-      const status = ['Pending', 'Shipped', 'Delivered'][Math.floor(Math.random() * 3)]; // Random status
+      const orderDate = getRandomDate(startDate, endDate).toISOString().split('T')[0]; // Random date in November
+      const status = ['Pending', 'Shipped', 'Delivered', 'Cancelled'][Math.floor(Math.random() * 4)]; // Random status
 
       return {
         OrderID: id,
@@ -161,7 +168,7 @@ exports.seed = async function(knex) {
         {
           DetailID: detailIdStart,
           OrderID: orderId,
-          ShoesID: (orderId % 10) + 1,
+          ShoesID: (orderId % 18) + 1,
           Quantity: Math.floor(Math.random() * 5) + 1, // Random quantity between 1 and 5
           Price: Math.floor(Math.random() * 300) + 50, // Random price between 50 and 300
         },

@@ -129,9 +129,6 @@
   <data name="Categories_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>
   </data>
-  <data name="Shell_AddCategory.Content" xml:space="preserve">
-    <value>AddCategory</value>
-  </data>
   <data name="Shoes_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>
   </data>
@@ -143,9 +140,6 @@
   </data>
   <data name="Shell_Orders.Content" xml:space="preserve">
     <value>Orders</value>
-  </data>
-  <data name="Shell_AddOrder.Content" xml:space="preserve">
-    <value>AddOrder</value>
   </data>
   <data name="Shell_ImportData.Content" xml:space="preserve">
     <value>ImportData</value>

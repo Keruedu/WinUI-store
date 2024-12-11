@@ -4,7 +4,7 @@ using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Helpers;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
-
+using System.Text.RegularExpressions;
 
 namespace ShoesShop.ViewModels;
 
@@ -190,10 +190,17 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
             }
         }
 
-        if (!string.IsNullOrEmpty(SearchQuery))
-        {
-            textFieldsOptions.Add("Name", SearchQuery);
-        }
+        //if (!string.IsNullOrEmpty(SearchQuery))
+        //{
+        //    if (int.TryParse(SearchQuery, out int orderId))
+        //    {
+        //        textFieldsOptions.Add("OrderID", orderId.ToString());
+        //    }
+        //    else
+        //    {
+        //        textFieldsOptions.Add("Name", SearchQuery);
+        //    }
+        //}
 
         if (SelectedCategory is not null && SelectedCategory.ID != 0)
         {
@@ -208,10 +215,10 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
     }
 
     protected async Task<Tuple<int, int,
-    Dictionary<string, Tuple<string, string>>,
-    Dictionary<string, Tuple<decimal, decimal>>,
-    Dictionary<string, string>,
-    Dictionary<string, IDao.SortType>>> BuildSearchQueryOrderAsync()
+        Dictionary<string, Tuple<string, string>>,
+        Dictionary<string, Tuple<decimal, decimal>>,
+        Dictionary<string, string>,
+        Dictionary<string, IDao.SortType>>> BuildSearchQueryOrderAsync()
     {
         // Lấy các thông số trang và số lượng mục trên mỗi trang từ service
         ItemsPerPage = await _storePageSettingsService.GetItemsPerPageAsync();
@@ -223,35 +230,43 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
 
         if (MinPrice > 0)
         {
-            numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
+            numberFieldsOptions.Add("TotalAmount", new Tuple<decimal, decimal>(MinPrice, decimal.MaxValue));
         }
 
         if (MaxPrice > 0)
         {
-            if (numberFieldsOptions.ContainsKey("Price"))
+            if (numberFieldsOptions.ContainsKey("TotalAmount"))
             {
-                var minPrice = numberFieldsOptions["Price"].Item1;
-                numberFieldsOptions["Price"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
+                var minPrice = numberFieldsOptions["TotalAmount"].Item1;
+                numberFieldsOptions["TotalAmount"] = new Tuple<decimal, decimal>(minPrice, MaxPrice);
             }
             else
             {
-                numberFieldsOptions.Add("Price", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
+                numberFieldsOptions.Add("TotalAmount", new Tuple<decimal, decimal>(decimal.MinValue, MaxPrice));
             }
         }
 
         if (!string.IsNullOrEmpty(SearchQuery))
         {
-            textFieldsOptions.Add("Name", SearchQuery);
+            textFieldsOptions.Add("OrderID", SearchQuery);
         }
 
-        if (SelectedCategory is not null && SelectedCategory.ID != 0)
+        if (!string.IsNullOrEmpty(SelectedStatus))
         {
-            numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(SelectedCategory.ID, SelectedCategory.ID));
+            textFieldsOptions.Add("Status", SelectedStatus);
         }
 
         if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
         {
             sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed
+        }
+
+        if (FromDate is not null || ToDate is not null)
+        {
+            string fromDateString = FromDate?.ToString("yyyy-MM-dd") ?? "0001-01-01";
+            string toDateString = ToDate?.ToString("yyyy-MM-dd") ?? "9999-12-31";
+
+            dateFieldsOptions.Add("OrderDate", new Tuple<string, string>(fromDateString, toDateString));
         }
 
         // Trả về các giá trị bao gồm trang, số lượng mục trên mỗi trang, các điều kiện tìm kiếm và sort options
