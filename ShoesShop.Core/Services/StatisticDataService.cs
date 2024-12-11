@@ -30,6 +30,11 @@ namespace ShoesShop.Core.Services
             return await _dao.GetTotalOrdersAsync();
         }
 
+        public async Task<int> GetTotalRevenueAsync()
+        {
+            return await _dao.GetTotalRevenueAsync();
+        }
+
         public async Task<List<Shoes>> GetTop5BestSellingShoesAsync()
         {
             return await _dao.GetTop5BestSellingShoesAsync();

@@ -44,7 +44,7 @@
                 <Button Style="{StaticResource AccentButtonStyle}" Content="LOGIN" HorizontalAlignment="Center" FontSize="18" Margin="0, 16, 0, 0" Width="80" IsEnabled="{x:Bind ViewModel.IsNotLoading, Mode=OneWay}" x:Name="LoginButton" Click="LoginButton_Click" />
 
                 <!--settings-->
-                <Expander
+                <!--<Expander
                     MinWidth="300"
                     Margin="0, 32, 0, 0"
                     HorizontalAlignment="Center"
@@ -57,7 +57,7 @@
                         <NumberBox Header="Server port (8080)"  x:Name="ServerPortBox" Value="{x:Bind ViewModel.ServerPort, Mode=TwoWay}" />
                         <Button Style="{StaticResource AccentButtonStyle}" Content="Save" HorizontalAlignment="Right" Margin="0, 16, 0, 0" Width="80" Command="{x:Bind ViewModel.SaveSettingsCommand}" />
                     </StackPanel>
-                </Expander>
+                </Expander>-->
             </StackPanel>
         </Border>
     </Grid>

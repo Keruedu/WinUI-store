@@ -11,6 +11,8 @@ public interface IStatisticDataService
     Task<int> GetTotalOrdersAsync();
     Task<List<Order>> GetRecentOrdersAsync();
 
+    Task<int> GetTotalRevenueAsync();
+
     Task<List<Shoes>> GetTop5BestSellingShoesAsync();
 
     Task<int> GetTotalShoesInStockAsync();

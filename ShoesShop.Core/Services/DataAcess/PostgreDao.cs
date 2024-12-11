@@ -1615,6 +1615,34 @@ public class PostgreDao : IDao
         return recentOrders;
     }
 
+    public async Task<int> GetTotalRevenueAsync()
+    {
+
+        try
+        {
+            string query = @"
+                SELECT SUM(o.""TotalAmount"") 
+                FROM ""Order"" o
+                WHERE o.""Status"" = 'Delivered'";
+
+            await using (var command = new NpgsqlCommand(query, dbConnection))
+            {
+                var result = await command.ExecuteScalarAsync();
+                if (result != DBNull.Value)
+                {
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception (log it, rethrow it, etc.)
+            throw new Exception("Error calculating total revenue", ex);
+        }
+
+        return 0;
+    }
+
     public async Task<List<Shoes>> GetTop5BestSellingShoesAsync()
     {
         var topSellingShoes = new List<Shoes>();

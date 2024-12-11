@@ -76,6 +76,8 @@ public interface IDao
 
     public Task<int> GetTotalOrdersAsync();
 
+    public Task<int> GetTotalRevenueAsync();
+
     public Task<List<Shoes>> GetTop5BestSellingShoesAsync();
 
     public Task<int> GetTotalShoesInStockAsync();

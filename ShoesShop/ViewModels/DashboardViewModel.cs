@@ -35,6 +35,9 @@ public partial class DashboardViewModel : ObservableRecipient
     [ObservableProperty]
     private PlotModel _orderStatisticsPlotModel = new();
 
+    [ObservableProperty]
+    private int _totalRevenue;
+
     public DashboardViewModel(IStatisticDataService statisticDataService)
     {
         _statisticDataService = statisticDataService;
@@ -57,6 +60,7 @@ public partial class DashboardViewModel : ObservableRecipient
         {
             TotalOrders = await _statisticDataService.GetTotalOrdersAsync();
             TotalShoesInStock = await _statisticDataService.GetTotalShoesInStockAsync();
+            
 
             var recentOrders = await _statisticDataService.GetRecentOrdersAsync();
             RecentOrders.Clear();
@@ -71,6 +75,8 @@ public partial class DashboardViewModel : ObservableRecipient
             {
                 Top5BestSellingShoes.Add(shoes);
             }
+
+            TotalRevenue = await _statisticDataService.GetTotalRevenueAsync();
 
             await LoadOrderStatisticsAsync(SelectedGroupBy);
         }
