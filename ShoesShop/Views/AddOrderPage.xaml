@@ -266,8 +266,9 @@
                                     <TextBlock Grid.Column="2" Text="Size" Style="{StaticResource DetailShoes}"/>
                                     <TextBlock Grid.Column="3" Text="Brand" Style="{StaticResource DetailShoes}"/>
                                     <TextBlock Grid.Column="4" Text="Color" Style="{StaticResource DetailShoes}"/>
-                                    <TextBlock Grid.Column="5" Text="Price" Style="{StaticResource DetailShoes}" Foreground="Green"/>
                                     <TextBlock Grid.Column="5" Text="Quantity" Style="{StaticResource DetailShoes}"/>
+                                    <TextBlock Grid.Column="6" Text="Price" Style="{StaticResource DetailShoes}"/>
+                                    
                                 </Grid>
                             </Border>
                             <GridView
@@ -303,7 +304,8 @@
                                                 <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
                                                 <TextBlock Grid.Column="3" Text="{x:Bind Brand, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
                                                 <TextBlock Grid.Column="4" Text="{x:Bind Color, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                                <TextBlock Grid.Column="5" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
+                                                <TextBlock Grid.Column="5" Text="1"/>
+                                                <TextBlock Grid.Column="6" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

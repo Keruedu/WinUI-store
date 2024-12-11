@@ -95,6 +95,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         };
         picker.FileTypeFilter.Add(".jpg");
         picker.FileTypeFilter.Add(".jpeg");
+        picker.FileTypeFilter.Add(".png");
 
         var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
         InitializeWithWindow.Initialize(picker, hwnd);
