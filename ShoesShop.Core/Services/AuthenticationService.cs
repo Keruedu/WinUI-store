@@ -29,14 +29,15 @@ public class AuthenticationService : IAuthenticationService
     public string GetAccessToken() => AccessToken;
     public string GetUserId() => UserId;
     public bool IsAuthenticated() => !string.IsNullOrEmpty(AccessToken);
-    public async Task<(string, int)> LoginAsync(string email, string password)
+    public async Task<(string, int,User)> LoginAsync(string email, string password)
     {
         var message = "Success";
         var ERROR_CODE = 0;
+        User user =null;
         try
         {
             // Retrieve the user from the database
-            User user = dao.GetUserByName(email);
+            user = dao.GetUserByName(email);
 
             if (user == null || string.IsNullOrEmpty(user.Email))
             {
@@ -53,15 +54,14 @@ public class AuthenticationService : IAuthenticationService
                 message = "Your account is banned.";
                 ERROR_CODE = 403;
             }
-            else if (user.Role == "User") // Assuming 'User' is not allowed in admin
+            else if (user.Role == "User") 
             {
                 message = "You do not have access to the admin page.";
                 ERROR_CODE = 403;
             }
             else
             {
-                // Authentication successful
-                AccessToken = GenerateAccessToken(user); // Assume a method to generate token
+                AccessToken = GenerateAccessToken(user); 
                 UserId = user.ID.ToString();
             }
         }
@@ -71,7 +71,12 @@ public class AuthenticationService : IAuthenticationService
             ERROR_CODE = 1;
         }
 
-        return (message, ERROR_CODE);
+        return (message, ERROR_CODE,user);
+    }
+
+    public void Logout()
+    {
+
     }
 
     private string GenerateAccessToken(User user)

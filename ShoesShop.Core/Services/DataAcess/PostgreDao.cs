@@ -20,7 +20,7 @@ public class PostgreDao : IDao
         var connectionConfig = """
             Host = localhost;
             Port=5433;
-            Database = postgres;
+            Database = shop;
             User ID = root;
             Password = root;
         """;

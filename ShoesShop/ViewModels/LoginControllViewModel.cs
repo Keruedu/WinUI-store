@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,16 +13,17 @@ using Microsoft.UI.Xaml.Controls;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
+using ShoesShop.Core.Models;
 using ShoesShop.Core.Services;
 using ShoesShop.Views;
-
 namespace ShoesShop.ViewModels;
 
 public partial class LoginControllViewModel : ObservableRecipient
 {
     private readonly INavigationService _navigationService;
     private readonly IAuthenticationService _authenticationService;
-
+    private readonly ILocalSettingServiceUsingApplicationData _localSettingServiceUsingApplicationData
+        =App.GetService<ILocalSettingServiceUsingApplicationData>();
     [ObservableProperty]
     private string accessToken = string.Empty;
 
@@ -66,10 +68,9 @@ public partial class LoginControllViewModel : ObservableRecipient
     {
         IsLoading = true;
         NotifyChanges();
-        var (message, ErrorCode) = await Task.Run(async () => await _authenticationService.LoginAsync(Email, Password));
-
+        var (message, ErrorCode,user) = await Task.Run(async () => await _authenticationService.LoginAsync(Email, Password));
         IsLoading = false;
-
+        _localSettingServiceUsingApplicationData.SaveSettingSync("userInfor",JsonSerializer.Serialize(user));
         if (ErrorCode == 0)
         {
             AccessToken = _authenticationService.GetAccessToken();

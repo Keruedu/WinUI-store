@@ -108,4 +108,9 @@ public sealed partial class ShellPage : Page
         args.Handled = result;
     }
 
+    private void handleLogout(object sender, RoutedEventArgs e)
+    {
+        ViewModel.Logout();
+        App.MainWindow.Content = App.GetService<LoginControl>();
+    }
 }
