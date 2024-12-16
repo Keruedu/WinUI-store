@@ -43,8 +43,6 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
 
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
 
-    public ObservableCollection<Review> Source { get; } = new ObservableCollection<Review>();
-
     public RelayCommand SelectImageButtonCommand
     {
         get; set;
@@ -92,7 +90,7 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
             NotifyThisChanges();
         }, () => IsImageSelected);
         UpdateButtonCommand = new RelayCommand(UpdateUser, () => EditUser is not null);
-        CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(UsersViewModel).FullName!));
+        CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!));
 
     }
 

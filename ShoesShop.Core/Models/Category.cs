@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class Category
+public class Category : INotifyPropertyChanged
 {
     public int ID
     {

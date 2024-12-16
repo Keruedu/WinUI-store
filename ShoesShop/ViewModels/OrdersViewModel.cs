@@ -142,6 +142,7 @@ public partial class OrdersViewModel : ResourceLoadingViewModel, INavigationAwar
     [RelayCommand]
     private void OnApplyFiltersAndSearch()
     {
+        currentPage = 1;
         LoadDataAsync();
     }
 

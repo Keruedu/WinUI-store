@@ -12,6 +12,7 @@ public class StatusToColorConverter : IValueConverter
         return status.ToLower() switch
         {
             "active" => new SolidColorBrush(ColorUtils.HexToColor("#4A69E2")),
+            "inactive" => new SolidColorBrush(ColorUtils.HexToColor("#FFA52F")),
             "banned" => new SolidColorBrush(ColorUtils.HexToColor("#FFA52F")),
             "shipped" => new SolidColorBrush(ColorUtils.HexToColor("#FFA52F")),
             "delivered" => new SolidColorBrush(ColorUtils.HexToColor("#4A69E2")),

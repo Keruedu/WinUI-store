@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class Shoes
+public class Shoes : INotifyPropertyChanged
 {
     public int ID
     {
@@ -32,6 +32,10 @@ public class Shoes
     {
         get; set;
     }
+    public decimal Cost
+    {
+        get; set;
+    }
     public decimal Price
     {
         get; set;
@@ -45,6 +49,10 @@ public class Shoes
         get; set;
     }
     public string Description
+    {
+        get; set;
+    }
+    public string Status
     {
         get; set;
     }

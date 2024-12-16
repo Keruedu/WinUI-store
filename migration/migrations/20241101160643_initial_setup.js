@@ -35,11 +35,13 @@ exports.up = async function(knex) {
     table.string('Brand', 100);
     table.string('Size', 50);
     table.string('Color', 50);
+    table.decimal('Cost', 10, 2).defaultTo(0).notNullable();
     table.decimal('Price', 10, 2).notNullable();
     table.integer('Stock').notNullable(); 
     table.string('Image');
     table.string('Description', 255);
-  });
+    table.enu('Status', ['Active', 'Inactive']).defaultTo('active');
+});
 
   await knex.schema.createTable('Order', (table) => {
     table.increments('OrderID').primary();

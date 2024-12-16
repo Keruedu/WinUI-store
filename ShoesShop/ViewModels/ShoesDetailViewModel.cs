@@ -40,6 +40,8 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     public string selectedImageName = string.Empty;
     [ObservableProperty]
     public string selectedImagePath = string.Empty;
+    [ObservableProperty]
+    public Category selectedCategory = new Category();
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
     public bool HasEditError => !string.IsNullOrEmpty(EditErrorMessage);
 
@@ -50,16 +52,16 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
     [ObservableProperty]
     public Shoes? editShoes;
 
-    [ObservableProperty]
-    public Category? category;
-
-
     public RelayCommand SetEditItemSessionButtonCommand
     {
         get; set;
     }
 
     public RelayCommand SelectImageButtonCommand
+    {
+        get; set;
+    }
+    public RelayCommand UpdateButtonCommand
     {
         get; set;
     }
@@ -94,10 +96,24 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
         });
 
         
-        SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
-        RemoveImageButtonCommand = new RelayCommand(RemoveImage);
-        CancelButtonCommand = new RelayCommand(CancelEdit, () => !IsEditLoading);
-        EditShoesButtonCommand = new RelayCommand(UpdateShoes, () => !IsEditLoading);
+        //SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
+        //RemoveImageButtonCommand = new RelayCommand(RemoveImage);
+        //CancelButtonCommand = new RelayCommand(CancelEdit, () => !IsEditLoading);
+        //EditShoesButtonCommand = new RelayCommand(UpdateShoes, () => !IsEditLoading);
+
+        SelectImageButtonCommand = new RelayCommand(SelectImage);
+        RemoveImageButtonCommand = new RelayCommand(() =>
+        {
+            SelectedImageName = string.Empty;
+            SelectedImagePath = string.Empty;
+            if (EditShoes is not null)
+            {
+                EditShoes.Image = string.Empty;
+            }
+            NotifyThisChanges();
+        }, () => IsImageSelected);
+        UpdateButtonCommand = new RelayCommand(UpdateShoes, () => EditShoes is not null);
+        CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!));
     }
 
     public async void LoadCategories()
@@ -138,7 +154,6 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             SelectedImageName = file.Name;
             SelectedImagePath = file.Path;
             EditShoes.Image = SelectedImagePath;
-            OnPropertyChanged(nameof(EditShoes.Image));
         }
 
         NotifyThisChanges();
@@ -183,6 +198,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
 
         try
         {
+            EditShoes.CategoryID = SelectedCategory.ID;
             // Check if there is an image to upload
             if (!string.IsNullOrEmpty(EditShoes?.Image) && EditShoes.Image == SelectedImagePath)
             {
@@ -195,6 +211,7 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             {
                 Item = returnedShoes;
                 CancelEdit();
+                _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!);
             }
             else
             {
@@ -227,12 +244,13 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             Item = Shoes;
             EditShoes = Item;
             LoadCategories();
-            foreach (var cate in CategoryOptions)
+            for (int i = 0; i < CategoryOptions.Count; i++)
             {
-                if(cate.ID == Item.CategoryID)
+
+                if (CategoryOptions[i].ID == Item.CategoryID)
                 {
 
-                    Category = cate;
+                    SelectedCategory = CategoryOptions[i];
                     break;
                 }
             }

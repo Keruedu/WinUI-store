@@ -41,6 +41,8 @@ public sealed partial class CategoriesDetailControl : UserControl
     {
         ViewModel.Item = ListDetailsMenuItem ?? new();
         ViewModel.EditCategory = ListDetailsMenuItem ?? new();
+
+        DeleteItemButton.IsEnabled = ViewModel.Item?.ID != 1;
     }
 
     private async void DeleteItemButton_Click(object sender, RoutedEventArgs e)
@@ -48,7 +50,7 @@ public sealed partial class CategoriesDetailControl : UserControl
         var deleteFileDialog = new ContentDialog
         {
             Title = "Delete this category permanently?",
-            Content = "If you delete this category, you won't be able to recover it. Do you want to delete it?",
+            Content = "If you delete this category, you won't be able to recover it. All shoes in this category with move to Uncategorized. Do you want to delete it?",
             PrimaryButtonText = "Delete",
             CloseButtonText = "Cancel",
             XamlRoot = ForegroundElement.XamlRoot

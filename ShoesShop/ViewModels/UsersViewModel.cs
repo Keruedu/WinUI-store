@@ -169,13 +169,13 @@ public partial class UsersViewModel : ResourceLoadingViewModel, INavigationAware
         {
             _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
             _navigationService.NavigateTo(typeof(UserDetailViewModel).FullName!, clickedItem);
-            var hehe = 0;
         }
     }
 
     [RelayCommand]
     private void OnApplyFiltersAndSearch()
     {
+        currentPage = 1;
         LoadData();
     }
 

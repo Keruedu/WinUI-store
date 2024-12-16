@@ -43,7 +43,6 @@ public partial class AddUserViewModel : ResourceLoadingViewModel, INavigationAwa
 
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
 
-    public ObservableCollection<Review> Source { get; } = new ObservableCollection<Review>();
 
     public RelayCommand SelectImageButtonCommand
     {
@@ -142,7 +141,6 @@ public partial class AddUserViewModel : ResourceLoadingViewModel, INavigationAwa
             SelectedImageName = file.Name;
             SelectedImagePath = file.Path;
             NewUser.Image = SelectedImagePath;
-            OnPropertyChanged(nameof(NewUser.Image));
         }
 
         NotifyThisChanges();

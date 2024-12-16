@@ -5,8 +5,6 @@ using Microsoft.UI.Xaml.Navigation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.ViewModels;
-using ShoesShop.Contracts.Services;
-using ShoesShop.Core.Models;
 using ShoesShop;
 
 namespace ShoesShop.Views;
@@ -22,27 +20,27 @@ public sealed partial class ShoesDetailPage : Page
     {
         ViewModel = App.GetService<ShoesDetailViewModel>();
         InitializeComponent();
-        Loaded += UpdateVisualState;
-        SizeChanged += UpdateVisualState;
+        //Loaded += UpdateVisualState;
+        //SizeChanged += UpdateVisualState;
     }
 
     // Responsive 
 
-    private void UpdateVisualState(object sender, RoutedEventArgs e)
-    {
-        var windowWidth = App.MainWindow.Width;
+    //private void UpdateVisualState(object sender, RoutedEventArgs e)
+    //{
+    //    var windowWidth = App.MainWindow.Width;
 
-        if (windowWidth < 960)
-        {
-            DetailPanel.Orientation = Orientation.Vertical;
-            EditShoesStackPanel.MinWidth = 300;
-        }
-        else
-        {
-            DetailPanel.Orientation = Orientation.Horizontal;
-            EditShoesStackPanel.MinWidth = 600;
-        }
-    }
+    //    if (windowWidth < 960)
+    //    {
+    //        DetailPanel.Orientation = Orientation.Vertical;
+    //        EditShoesStackPanel.MinWidth = 300;
+    //    }
+    //    else
+    //    {
+    //        DetailPanel.Orientation = Orientation.Horizontal;
+    //        EditShoesStackPanel.MinWidth = 600;
+    //    }
+    //}
 
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -64,23 +62,23 @@ public sealed partial class ShoesDetailPage : Page
         }
     }
 
-    private async void DeleteItemButton_Click(object sender, RoutedEventArgs e)
-    {
-        var deleteFileDialog = new ContentDialog
-        {
-            Title = "Delete Shoes permanently?",
-            Content = "If you delete this Shoes, you won't be able to recover it. Do you want to delete it?",
-            PrimaryButtonText = "Delete",
-            CloseButtonText = "Cancel",
-            XamlRoot = DetailPanel.XamlRoot
-        };
-        var result = await deleteFileDialog.ShowAsync();
+    //private async void DeleteItemButton_Click(object sender, RoutedEventArgs e)
+    //{
+    //    var deleteFileDialog = new ContentDialog
+    //    {
+    //        Title = "Delete Shoes permanently?",
+    //        Content = "If you delete this Shoes, you won't be able to recover it. Do you want to delete it?",
+    //        PrimaryButtonText = "Delete",
+    //        CloseButtonText = "Cancel",
+    //        XamlRoot = DetailPanel.XamlRoot
+    //    };
+    //    var result = await deleteFileDialog.ShowAsync();
 
-        if (result == ContentDialogResult.Primary)
-        {
-            ViewModel.DeleteShoes();
-        }
-    }
+    //    if (result == ContentDialogResult.Primary)
+    //    {
+    //        ViewModel.DeleteShoes();
+    //    }
+    //}
 
     private void CategoryCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

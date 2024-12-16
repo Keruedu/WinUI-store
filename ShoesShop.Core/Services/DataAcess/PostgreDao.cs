@@ -419,19 +419,40 @@ public class PostgreDao : IDao
                 return new Tuple<string, int>("Invalid Category ID", 0);
             }
 
-            var query = $"DELETE FROM \"Category\" WHERE \"CategoryID\" = @CategoryId";
-
-            using var command = new NpgsqlCommand(query, dbConnection);
-            command.Parameters.AddWithValue("@CategoryId", categoryId);
-            var rowsAffected = command.ExecuteNonQuery();
-
-            if (rowsAffected > 0)
+            // Check if there are any shoes associated with this category
+            var checkShoesQuery = $"SELECT COUNT(*) FROM \"Shoes\" WHERE \"CategoryID\" = @CategoryId";
+            using (var checkCommand = new NpgsqlCommand(checkShoesQuery, dbConnection))
             {
-                return new Tuple<string, int>("Category deleted successfully", rowsAffected);
+                checkCommand.Parameters.AddWithValue("@CategoryId", categoryId);
+                var shoesCount = (long)checkCommand.ExecuteScalar();
+
+                if (shoesCount > 0)
+                {
+                    // Update shoes to have a category ID of 1
+                    var updateShoesQuery = $"UPDATE \"Shoes\" SET \"CategoryID\" = 1 WHERE \"CategoryID\" = @CategoryId";
+                    using (var updateCommand = new NpgsqlCommand(updateShoesQuery, dbConnection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@CategoryId", categoryId);
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
             }
-            else
+
+            // Delete the category
+            var deleteQuery = $"DELETE FROM \"Category\" WHERE \"CategoryID\" = @CategoryId";
+            using (var deleteCommand = new NpgsqlCommand(deleteQuery, dbConnection))
             {
-                return new Tuple<string, int>("Category not found", 0);
+                deleteCommand.Parameters.AddWithValue("@CategoryId", categoryId);
+                var rowsAffected = deleteCommand.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    return new Tuple<string, int>("Category deleted successfully", rowsAffected);
+                }
+                else
+                {
+                    return new Tuple<string, int>("Category not found", 0);
+                }
             }
         }
         catch (Exception e)
@@ -440,17 +461,18 @@ public class PostgreDao : IDao
         }
     }
 
+
     public Tuple<List<Shoes>, long> GetShoes(int page, int rowsPerPage,
         Dictionary<string, Tuple<decimal, decimal>> numberFieldsOptions,
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions)
     {
         var shoesTextFields = new string[]{
-            "Name","Brand", "Size", "Color","Image", "Description"
+            "Name","Brand", "Size", "Color","Image", "Description", "Status"
         };
         var shoesNumberFields = new string[]
         {
-            "ID", "CategoryID", "Price", "Stock"
+            "ID", "CategoryID", "Cost", "Price", "Stock"
         };
         var shoesFields = shoesTextFields.Concat(shoesNumberFields).ToArray();
         var sortString = GetSortString(shoesFields, sortOptions);
@@ -461,7 +483,7 @@ public class PostgreDao : IDao
         var whereString = GetWhereCondition(emptyfields, noUsage, shoesNumberFields,
             numberFieldsOptions, shoesTextFields, textFieldsOptions);
         var sqlQuery = $"""
-            SELECT count(*) over() as Total,"ShoesID","CategoryID","Name","Brand","Size","Color","Price","Stock","Image","Description"
+            SELECT count(*) over() as Total,"ShoesID","CategoryID","Name","Brand","Size","Color","Cost","Price","Stock","Image","Description","Status"
             FROM "Shoes" {whereString} {sortString} 
             LIMIT @Take
             OFFSET @Skip
@@ -490,10 +512,12 @@ public class PostgreDao : IDao
                         Brand = (string)reader["Brand"],
                         Size = (string)reader["Size"],
                         Color = (string)reader["Color"],
+                        Cost = (decimal)reader["Cost"],
                         Price = (decimal)reader["Price"],
                         Stock = (int)reader["Stock"],
                         Image = reader["Image"] as string,
                         Description = (string)reader["Description"],
+                        Status = (string)reader["Status"],
                     };
                     result.Add(shoes);
                 }
@@ -513,11 +537,11 @@ public class PostgreDao : IDao
             }
 
             var fields = new string[] { "CategoryID", "Name", "Brand",
-                "Size", "Color", "Price", "Stock", "Image", "Description" };
+                "Size", "Color", "Cost", "Price", "Stock", "Image", "Description", "Status" };
             var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}",
-                $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}" };
+                $"{newShoes.Color}", $"{newShoes.Cost}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}", $"{newShoes.Status}" };
             var types = new string[] { "integer", "string", "string",
-                "string", "string", "decimal", "integer", "string", "string" };
+                "string", "string", "decimal", "decimal", "integer", "string", "string", "string" };
             var query = CreateInsertQuery("Shoes", "ShoesID", fields, values, types);
 
             using (var command = new NpgsqlCommand(query, dbConnection))
@@ -543,8 +567,8 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Shoes>(false, "Can't add null Shoes", null);
             }
 
-            var fields = new string[] { "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description" };
-            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}" };
+            var fields = new string[] { "CategoryID", "Name", "Brand", "Size", "Color", "Cost", "Price", "Stock", "Image", "Description", "Status"  };
+            var values = new string[] { $"{newShoes.CategoryID}", $"{newShoes.Name}", $"{newShoes.Brand}", $"{newShoes.Size}", $"{newShoes.Color}", $"{newShoes.Cost}", $"{newShoes.Price}", $"{newShoes.Stock}", $"{newShoes.Image}", $"{newShoes.Description}", $"{newShoes.Status}" };
             var query = CreateUpdateQuery("Shoes", "ShoesID", newShoes.ID, fields, values);
 
             using (var command = new NpgsqlCommand(query, dbConnection))
@@ -561,14 +585,18 @@ public class PostgreDao : IDao
     }
 
 
-
+    
     public Tuple<bool, string> DeleteShoesByID(int shoesID)
     {
         try
         {
             bool result = false;
             var sqlQuery = $"""
-            DELETE FROM "Shoes" 
+            UPDATE "Shoes" 
+            SET "Status" = CASE 
+                WHEN "Status" = 'Active' THEN 'Inactive' 
+                ELSE 'Active' 
+            END
             WHERE "ShoesID"=@id
             """;
             using var command = new NpgsqlCommand(sqlQuery, dbConnection);
@@ -579,7 +607,7 @@ public class PostgreDao : IDao
             {
                 result = true;
             }
-            var msg = result ? "Delete success" : "can't find shoes with given ID";
+            var msg = result ? "Status toggled successfully" : "Can't find shoes with given ID";
             return new Tuple<bool, string>(result, msg);
         }
         catch (Exception ex)
@@ -602,18 +630,20 @@ public class PostgreDao : IDao
             d."DetailID", 
             d."OrderID", 
             d."ShoesID", 
-            d."Quantity", 
+            d."Quantity",
             d."Price",
             s."ShoesID",
             s."CategoryID", 
             s."Name", 
             s."Brand", 
             s."Size", 
-            s."Color", 
+            s."Color",
+            s."Cost",
             s."Price" AS ShoesPrice, 
             s."Stock", 
             s."Image", 
-            s."Description"
+            s."Description",
+            s."Status"
         FROM "Detail" d
         INNER JOIN "Shoes" s ON d."ShoesID" = s."ShoesID"
         WHERE d."OrderID" = ANY(@OrderIds);
@@ -635,10 +665,12 @@ public class PostgreDao : IDao
                         Brand = reader["Brand"].ToString(),
                         Size = reader["Size"].ToString(),
                         Color = reader["Color"].ToString(),
+                        Cost = (decimal)reader["Cost"],
                         Price = (decimal)reader["ShoesPrice"],
                         Stock = (int)reader["Stock"],
                         Image = reader["Image"].ToString(),
-                        Description = reader["Description"].ToString()
+                        Description = reader["Description"].ToString(),
+                        Status = reader["Status"].ToString()
                     };
 
                     var detail = new Detail
@@ -673,7 +705,7 @@ public class PostgreDao : IDao
                 return new Tuple<bool, string, Dictionary<int, Shoes>>(true, string.Empty, new Dictionary<int, Shoes>());
 
             var sqlQuery = $"""
-            SELECT "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Price", "Stock", "Image", "Description"
+            SELECT "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Cost", "Price", "Stock", "Image", "Description", "Status"
             FROM "Shoes"
             WHERE "ShoesID" = ANY(@ShoesIDs);
             """;
@@ -694,10 +726,12 @@ public class PostgreDao : IDao
                         Brand = (string)reader["Brand"],
                         Size = (string)reader["Size"],
                         Color = (string)reader["Color"],
+                        Cost = (decimal)reader["Cost"],
                         Price = (decimal)reader["Price"],
                         Stock = (int)reader["Stock"],
                         Image = (string)reader["Image"],
-                        Description = (string)reader["Description"]
+                        Description = (string)reader["Description"],
+                        Status = (string)reader["Status"]
                     };
                     shoesDictionary[shoes.ID] = shoes;
                 }

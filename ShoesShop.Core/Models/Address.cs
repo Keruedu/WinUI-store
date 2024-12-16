@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ShoesShop.Core.Models;
-public class Address
+public class Address : INotifyPropertyChanged
 {
     public int ID
     {

@@ -16,6 +16,7 @@
     <Page.Resources>
         <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
         <helpers:CategoryIdToNameConverter x:Key="CategoryIdToNameConverter"/>
+        <helpers:StatusToColorConverter x:Key="ColorStatusConverter" />
         <helpers:ShoesSoldConverter x:Key="ShoesSoldConverter"/>
     </Page.Resources>
 
@@ -230,23 +231,33 @@
                         <controls:AdaptiveGridView.ItemTemplate>
                             <DataTemplate x:DataType="models:Shoes">
                                 <StackPanel Orientation="Vertical" Spacing="20" Background="{ThemeResource CardBackground}" CornerRadius="16" Padding="16">
-                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                    <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Stretch">
                                         <Border HorizontalAlignment="Center" Width="84" Height="84" CornerRadius="8">
                                             <Image Source="{x:Bind Image}" Stretch="UniformToFill" VerticalAlignment="Center"/>
                                         </Border>
-                                        <Grid>
+                                        <Grid HorizontalAlignment="Stretch">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="2*" />
                                             </Grid.RowDefinitions>
                                             <TextBlock Text="{x:Bind Name}" FontSize="20" FontWeight="Medium" Grid.Row="0"/>
-                                            <TextBlock Text="{x:Bind CategoryID, Converter={StaticResource CategoryIdToNameConverter}}" Grid.Row="1"/>
+                                            <TextBlock Text="{x:Bind CategoryID, Converter={StaticResource CategoryIdToNameConverter}}" Grid.Row="1" />
                                             <TextBlock Text="{x:Bind Price}" VerticalAlignment="Bottom" FontWeight="Bold" FontSize="18" Grid.Row="2"/>
                                         </Grid>
                                     </StackPanel>
-                                    <StackPanel Orientation="Vertical">
-                                        <TextBlock Text="Summary" FontSize="20" FontWeight="Medium"/>
+                                    <!--Description and Status-->
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                        <Grid Grid.Row="1" HorizontalAlignment="Stretch" ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Summary" FontSize="20" FontWeight="Medium" Grid.Column="0"/>
+                                            <Border Background="{x:Bind Status, Converter={StaticResource ColorStatusConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="3" CornerRadius="4" Grid.Column="1">
+                                                <TextBlock Text="{x:Bind Status}" Foreground="White" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
                                         <TextBlock Text="{x:Bind Description}" MinHeight="38" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <StackPanel BorderThickness="2" BorderBrush="Gray" Padding="16" CornerRadius="8" Spacing="5">

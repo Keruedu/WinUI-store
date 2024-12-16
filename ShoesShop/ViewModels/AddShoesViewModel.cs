@@ -7,6 +7,7 @@ using ShoesShop;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using ShoesShop.Contracts.Services;
+using ShoesShop.Services;
 
 namespace ShoesShop.ViewModels;
 
@@ -15,19 +16,11 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     private readonly IShoesDataService _ShoesDataService;
     private readonly ICategoryDataService _categoryDataService;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly INavigationService _navigationService;
     private readonly IMediator _mediator;
 
     [ObservableProperty]
-    private Shoes newShoes = new()
-    {
-        CategoryID = 1,
-        Name = "Your Shoes Name",
-        Brand = "Your Shoes Brand",
-        Stock = 1,
-        Price = 1000,
-        Color = "Black",
-        Size = "40",
-    };
+    public Shoes? newShoes;
 
     [ObservableProperty]
     public List<Category> categoryOptions = new();
@@ -46,6 +39,8 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
 
     [ObservableProperty]
     private string selectedImagePath = string.Empty;
+    [ObservableProperty]
+    public Category selectedCategory = new Category();
 
     public bool IsImageSelected => !string.IsNullOrEmpty(SelectedImageName);
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
@@ -67,27 +62,59 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         get; set;
     }
 
+    public RelayCommand CreateButtonCommand
+    {
+        get; set;
+    }
+
+    public RelayCommand CancelButtonCommand
+    {
+        get; set;
+    }
+
     public RelayCommand ResetButtonCommand
     {
         get; set;
     }
 
-    public AddShoesViewModel(IShoesDataService ShoesDataService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService, IMediator mediator)
+    public AddShoesViewModel(IShoesDataService ShoesDataService, INavigationService navigationService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService, IMediator mediator)
     {
         _ShoesDataService = ShoesDataService;
+        _navigationService = navigationService;
         _categoryDataService = categoryDataService;
         _cloudinaryService = cloudinaryService;
         _mediator = mediator;
 
-        SelectImageButtonCommand = new RelayCommand(SelectImage, () => !IsImageSelected);
+        newShoes = new Shoes
+        {
+            CategoryID = 1,
+            Name = "Your Shoes Name",
+            Brand = "Your Shoes Brand",
+            Stock = 1,
+            Cost = 500,
+            Price = 1000,
+            Color = "Black",
+            Size = "40",
+            Image = "",
+            Status = "Active",
+        };
+
+        SelectImageButtonCommand = new RelayCommand(SelectImage);
         RemoveImageButtonCommand = new RelayCommand(RemoveImage, () => IsImageSelected);
-        AddShoesButtonCommand = new RelayCommand(AddShoes, () => !IsLoading);
-        ResetButtonCommand = new RelayCommand(Reset, () => !IsLoading);
-        
+        //AddShoesButtonCommand = new RelayCommand(AddShoes, () => !IsLoading);
+        //ResetButtonCommand = new RelayCommand(Reset, () => !IsLoading);
+
+        CreateButtonCommand = new RelayCommand(AddShoes, () => NewShoes is not null);
+        CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!));
     }
 
     public async void SelectImage()
     {
+        if (NewShoes is null)
+        {
+            return;
+        }
+
         var picker = new FileOpenPicker
         {
             ViewMode = PickerViewMode.Thumbnail,
@@ -101,12 +128,13 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         InitializeWithWindow.Initialize(picker, hwnd);
 
         var file = await picker.PickSingleFileAsync();
+        //Binding img make string to BitMapImage
+        //Use StringToBitmapImageConverter to convertback
         if (file != null)
         {
             SelectedImageName = file.Name;
             SelectedImagePath = file.Path;
             NewShoes.Image = SelectedImagePath;
-            OnPropertyChanged(nameof(NewShoes));
         }
 
         NotfifyChanges();
@@ -120,45 +148,48 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         NotfifyChanges();
     }
 
-    public async void AddShoes()
-    {
-        IsLoading = true;
-        ErrorMessage = string.Empty;
-        SuccessMessage = string.Empty;
-        NotfifyChanges();
-        try {
-            if (!string.IsNullOrEmpty(NewShoes?.Image) && NewShoes.Image == SelectedImagePath)
-            {
-                var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image, "shoes");
-                NewShoes.Image = imageUrl;
-            }
-            var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
-
-            if (ERROR_CODE == 1)
-            {
-               
-                SuccessMessage = message;
-                _mediator.Notify();
-                Reset();
-            }
-            else
-            {
-                ErrorMessage = message;
-            }
-
-        } catch (Exception ex) {
-            ErrorMessage = $"An error occurred: {ex.Message}";
-        }
-        finally
+public async void AddShoes()
+{
+    IsLoading = true;
+    ErrorMessage = string.Empty;
+    SuccessMessage = string.Empty;
+    NotfifyChanges();
+    try {
+        if (!string.IsNullOrEmpty(NewShoes?.Image) && NewShoes.Image == SelectedImagePath)
         {
-            IsLoading = false;
-            NotfifyChanges();
+            var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image, "shoes");
+            NewShoes.Image = imageUrl;
         }
+        var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
+
+        if (ERROR_CODE == 1)
+        {
+            SuccessMessage = message;
+            _mediator.Notify();
+            Reset();
+            _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!);
+        }
+        else
+        {
+            ErrorMessage = message;
+        }
+
+    } catch (Exception ex) {
+        ErrorMessage = $"An error occurred: {ex.Message}";
     }
+    finally
+    {
+        IsLoading = false;
+        NotfifyChanges();
+    }
+}
+
 
     public async void LoadCategories()
     {
-        await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        //Todo: Task run must be done when Navigate call
+        //await Task.Run(async () => await _categoryDataService.LoadDataAsync());
+        await _categoryDataService.LoadDataAsync();
         var (categories, _, _) = _categoryDataService.GetData();
 
         if (categories is not null)
@@ -193,6 +224,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     public void OnNavigatedTo(object parameter)
     {
         LoadCategories();
+        SelectedCategory = CategoryOptions.FirstOrDefault();
     }
 
     public void OnNavigatedFrom()

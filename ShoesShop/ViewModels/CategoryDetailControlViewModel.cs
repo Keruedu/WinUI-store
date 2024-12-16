@@ -28,7 +28,7 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
 
     public bool IsEditButtonVisible => !IsEditSession;
     public bool HasEditError => !string.IsNullOrEmpty(EditErrorMessage);
-
+    
 
     public RelayCommand CancelButtonCommand
     {
@@ -68,12 +68,12 @@ public partial class CategoryDetailControlViewModel : ObservableRecipient
     {
         IsEditLoading = true;
 
-        var (returnedBook, message, ERROR_CODE) = await _categoryDataservice.UpdateCategoryAsync(EditCategory);
+        var (returnedCate, message, ERROR_CODE) = await _categoryDataservice.UpdateCategoryAsync(EditCategory);
 
         if (ERROR_CODE == 1)
         {
             _mediator.Notify();
-            Item = returnedBook;
+            Item = returnedCate;
             OnCancelEdit();
         }
         else

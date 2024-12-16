@@ -139,6 +139,7 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
     [RelayCommand]
     private void OnApplyFiltersAndSearch()
     {
+        currentPage = 1;
         LoadData();
     }
 }
