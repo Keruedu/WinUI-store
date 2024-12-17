@@ -22,6 +22,8 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     [ObservableProperty]
     public Shoes? newShoes;
 
+    public event Action<string, string>? ShowDialogRequested;
+
     [ObservableProperty]
     public List<Category> categoryOptions = new();
 
@@ -167,15 +169,19 @@ public async void AddShoes()
             SuccessMessage = message;
             _mediator.Notify();
             Reset();
+            ShowDialogRequested?.Invoke("Success", "Shoes added successfully.");
             _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!);
         }
         else
         {
             ErrorMessage = message;
+            ShowDialogRequested?.Invoke("Error", message);
+
         }
 
     } catch (Exception ex) {
         ErrorMessage = $"An error occurred: {ex.Message}";
+        ShowDialogRequested?.Invoke("Error", ErrorMessage);
     }
     finally
     {

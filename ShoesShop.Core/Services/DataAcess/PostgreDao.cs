@@ -467,65 +467,75 @@ public class PostgreDao : IDao
         Dictionary<string, string> textFieldsOptions,
         Dictionary<string, IDao.SortType> sortOptions)
     {
-        var shoesTextFields = new string[]{
-            "Name","Brand", "Size", "Color","Image", "Description", "Status"
-        };
-        var shoesNumberFields = new string[]
+        try
         {
+            var shoesTextFields = new string[]
+            {
+            "Name", "Brand", "Size", "Color", "Image", "Description", "Status"
+            };
+            var shoesNumberFields = new string[]
+            {
             "ID", "CategoryID", "Cost", "Price", "Stock"
-        };
-        var shoesFields = shoesTextFields.Concat(shoesNumberFields).ToArray();
-        var sortString = GetSortString(shoesFields, sortOptions);
-        //tech-debt: re-factory
-        var emptyfields = new string[0] { };
-        var noUsage = new Dictionary<string, Tuple<string, string>>();
-        //
-        var whereString = GetWhereCondition(emptyfields, noUsage, shoesNumberFields,
-            numberFieldsOptions, shoesTextFields, textFieldsOptions);
-        var sqlQuery = $"""
-            SELECT count(*) over() as Total,"ShoesID","CategoryID","Name","Brand","Size","Color","Cost","Price","Stock","Image","Description","Status"
+            };
+            var shoesFields = shoesTextFields.Concat(shoesNumberFields).ToArray();
+            var sortString = GetSortString(shoesFields, sortOptions);
+            // tech-debt: re-factory
+            var emptyfields = new string[0] { };
+            var noUsage = new Dictionary<string, Tuple<string, string>>();
+            //
+            var whereString = GetWhereCondition(emptyfields, noUsage, shoesNumberFields,
+                numberFieldsOptions, shoesTextFields, textFieldsOptions);
+            var sqlQuery = $"""
+            SELECT count(*) over() as Total, "ShoesID", "CategoryID", "Name", "Brand", "Size", "Color", "Cost", "Price", "Stock", "Image", "Description", "Status"
             FROM "Shoes" {whereString} {sortString} 
             LIMIT @Take
             OFFSET @Skip
         """;
-        using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
-        {
-            command.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
-            command.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
-
-            using (var reader = command.ExecuteReader())
+            using (var command = new NpgsqlCommand(sqlQuery, dbConnection))
             {
-                long totalShoes = 0;
-                var result = new List<Shoes>();
-                while (reader.Read())
-                {
-                    if (totalShoes == 0)
-                    {
-                        totalShoes = (long)reader["Total"];
-                    }
+                command.Parameters.Add("@Skip", NpgsqlDbType.Integer).Value = (page - 1) * rowsPerPage;
+                command.Parameters.Add("@Take", NpgsqlDbType.Integer).Value = rowsPerPage;
 
-                    var shoes = new Shoes
+                using (var reader = command.ExecuteReader())
+                {
+                    long totalShoes = 0;
+                    var result = new List<Shoes>();
+                    while (reader.Read())
                     {
-                        ID = (int)reader["ShoesID"],
-                        CategoryID = (int)reader["CategoryID"],
-                        Name = (string)reader["Name"],
-                        Brand = (string)reader["Brand"],
-                        Size = (string)reader["Size"],
-                        Color = (string)reader["Color"],
-                        Cost = (decimal)reader["Cost"],
-                        Price = (decimal)reader["Price"],
-                        Stock = (int)reader["Stock"],
-                        Image = reader["Image"] as string,
-                        Description = (string)reader["Description"],
-                        Status = (string)reader["Status"],
-                    };
-                    result.Add(shoes);
+                        if (totalShoes == 0)
+                        {
+                            totalShoes = (long)reader["Total"];
+                        }
+
+                        var shoes = new Shoes
+                        {
+                            ID = (int)reader["ShoesID"],
+                            CategoryID = (int)reader["CategoryID"],
+                            Name = (string)reader["Name"],
+                            Brand = (string)reader["Brand"],
+                            Size = (string)reader["Size"],
+                            Color = (string)reader["Color"],
+                            Cost = (decimal)reader["Cost"],
+                            Price = (decimal)reader["Price"],
+                            Stock = (int)reader["Stock"],
+                            Image = reader["Image"] as string,
+                            Description = (string)reader["Description"],
+                            Status = (string)reader["Status"],
+                        };
+                        result.Add(shoes);
+                    }
+                    reader.Close();
+                    return new Tuple<List<Shoes>, long>(result, totalShoes);
                 }
-                reader.Close();
-                return new Tuple<List<Shoes>, long>(result, totalShoes);
             }
         }
+        catch (Exception ex)
+        {
+            // Log the exception (logging mechanism not shown here)
+            return new Tuple<List<Shoes>, long>(new List<Shoes>(), 0);
+        }
     }
+
 
     public Tuple<bool, string, Shoes> AddShoes(Shoes newShoes)
     {
@@ -1287,6 +1297,36 @@ public class PostgreDao : IDao
             return new Tuple<bool, string, Detail>(false, e.Message, null);
         }
     }
+
+
+    public Tuple<bool, string, Address> AddAddress(Address address)
+    {
+        try
+        {
+            string query = $"""
+            INSERT INTO "Address" ("Street", "City", "State", "ZipCode", "Country")
+            VALUES (@Street, @City, @State, @ZipCode, @Country)
+            RETURNING "AddressID";
+            """;
+
+            using var command = new NpgsqlCommand(query, dbConnection);
+            command.Parameters.AddWithValue("@Street", address.Street);
+            command.Parameters.AddWithValue("@City", address.City);
+            command.Parameters.AddWithValue("@State", address.State);
+            command.Parameters.AddWithValue("@ZipCode", address.ZipCode);
+            command.Parameters.AddWithValue("@Country", address.Country);
+
+            var newAddressId = (int)command.ExecuteScalar();
+            address.ID = newAddressId;
+
+            return new Tuple<bool, string, Address>(true, "Address added successfully", address);
+        }
+        catch (Exception ex)
+        {
+            return new Tuple<bool, string, Address>(false, $"An error occurred: {ex.Message}", null);
+        }
+    }
+
 
 
     public User GetUserByID(int userID)

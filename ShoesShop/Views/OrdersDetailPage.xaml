@@ -60,7 +60,7 @@
                         <Button Width="56" Height="50">
                             <FontIcon Glyph="&#xF406;" FontSize="16"/>
                         </Button>
-                        <Button Content="Save" FontSize="12" Width="56" Height="50"/>
+                        <Button Content="Save" FontSize="12" Width="56" Height="50" Command="{x:Bind ViewModel.SaveButtonCommand}"/>
                     </StackPanel>
                 </Grid>
                 

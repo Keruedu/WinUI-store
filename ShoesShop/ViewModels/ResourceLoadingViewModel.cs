@@ -207,6 +207,11 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
             numberFieldsOptions.Add("CategoryID", new Tuple<decimal, decimal>(SelectedCategory.ID, SelectedCategory.ID));
         }
 
+        if (SelectedStatus != null && SelectedStatus != "All")
+        {
+            textFieldsOptions.Add("Status", SelectedStatus);
+        }
+
         if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
         {
             sortOptions.Add(SelectedSortOption.SortString, IDao.SortType.Ascending); // Adjust SortType as needed

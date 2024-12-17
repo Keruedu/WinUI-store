@@ -15,6 +15,7 @@ public sealed partial class AddShoesPage : Page
     {
         ViewModel = App.GetService<AddShoesViewModel>();
         InitializeComponent();
+        ViewModel.ShowDialogRequested += OnShowDialogRequested;
     }
 
     private void CategoryCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -25,5 +26,19 @@ public sealed partial class AddShoesPage : Page
         {
             ViewModel.NewShoes.CategoryID = category.ID;
         }
+    }
+
+
+    private async void OnShowDialogRequested(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = this.Content.XamlRoot
+        };
+
+        await dialog.ShowAsync();
     }
 }

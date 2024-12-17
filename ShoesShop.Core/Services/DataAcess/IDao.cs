@@ -70,6 +70,9 @@ public interface IDao
     public Tuple<bool, string> AddDetail(int orderId, Detail detail);
     public Tuple<bool, string> DeleteDetail(int orderId, int detailId);
 
+    //address
+    public Tuple<bool, string, Address> AddAddress(Address address);
+
     //dashboard
 
     public Task<List<Order>> GetRecentOrdersAsync();

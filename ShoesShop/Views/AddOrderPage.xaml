@@ -121,15 +121,23 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*" />
-                        <!-- Cột 1 -->
                         <ColumnDefinition Width="7*" />
-                        <!-- Cột 2 -->
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Spacing="12" Margin="10" Grid.Column="0">
                         <TextBox Header="User ID" Text="{x:Bind ViewModel.UserId, Mode=TwoWay}" Width="200"/>
                         <CalendarDatePicker Header="Order Date" Date="{x:Bind ViewModel.OrderDate, Mode=TwoWay}" Width="200"/>
-                        <TextBox Header="Status" Text="{x:Bind ViewModel.Status, Mode=TwoWay}" Width="200"/>
-                        <ComboBox Header="Address" ItemsSource="{x:Bind ViewModel.Addresses}" SelectedItem="{x:Bind ViewModel.SelectedAddress, Mode=TwoWay}" Width="200"/>
+                        <ComboBox SelectedValue="{x:Bind ViewModel.SelectedStatusOrder, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="200" Height="50">
+                            <ComboBoxItem Content="Pending" />
+                            <ComboBoxItem Content="Shipped" />
+                            <ComboBoxItem Content="Delivered" />
+                            <ComboBoxItem Content="Cancelled" />
+                        </ComboBox>
+
+                        <TextBox Header="Street" Text="{x:Bind ViewModel.NewAddress.Street, Mode=TwoWay}" Width="200"/>
+                        <TextBox Header="City" Text="{x:Bind ViewModel.NewAddress.City, Mode=TwoWay}" Width="200"/>
+                        <TextBox Header="State" Text="{x:Bind ViewModel.NewAddress.State, Mode=TwoWay}" Width="200"/>
+                        <TextBox Header="Zip Code" Text="{x:Bind ViewModel.NewAddress.ZipCode, Mode=TwoWay}" Width="200"/>
+                        <TextBox Header="Country" Text="{x:Bind ViewModel.NewAddress.Country, Mode=TwoWay}" Width="200"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical" Grid.Column="1">

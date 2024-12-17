@@ -9,6 +9,7 @@ using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
 using ShoesShop.Core.Models;
 using ShoesShop.Services;
+using WinUIEx.Messaging;
 
 namespace ShoesShop.ViewModels;
 
@@ -18,6 +19,9 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
     private readonly IShoesDataService _ShoesDataService;
     private readonly IOrderDataService _orderDataService;
     private readonly ICategoryDataService _categoryDataService;
+    private readonly IAddressDataService _addressDataService;
+
+    public event Action<string, string>? ShowDialogRequested;
 
     public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
     public ObservableCollection<Shoes> SelectedShoes { get; } = new ObservableCollection<Shoes>();
@@ -36,15 +40,20 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         get; set;
     } = 1;
     public DateTimeOffset OrderDate { get; set; } = DateTimeOffset.Now;
-    public string Status
-    {
-        get; set;
-    } = "Pending";
+
+    public Address NewAddress { get; set; } = new Address();
+
     public ObservableCollection<string> Addresses { get; } = new ObservableCollection<string>();
     public string SelectedAddress
     {
         get; set;
     }
+    public string SelectedStatusOrder
+    {
+
+        get; set;
+    }
+
     public decimal TotalAmount => SelectedShoes.Sum(shoes =>
     {
         var quantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID)?.Item2 ?? 1;
@@ -61,7 +70,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         get; set;
     } = new ObservableCollection<Tuple<int, int>>();
 
-    public AddOrderViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+    public AddOrderViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IAddressDataService addressDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
         AddOrderCommand = new RelayCommand(OnAddOrder);
 
@@ -69,6 +78,9 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         _ShoesDataService = ShoesDataService;
         _categoryDataService = categoryDataService;
         _orderDataService = orderDataService;
+        _addressDataService = addressDataService;
+
+        SelectedStatusOrder = "Pending";
 
         FunctionOnCommand = LoadData;
 
@@ -83,6 +95,16 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             new() { Name = "Stock (Past)", Value="Stock", IsAscending = true },
             new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
         };
+
+        NewAddress = new Address
+        {
+            Street = "123 Default St",
+            City = "Default City",
+            State = "Default State",
+            ZipCode = "12345",
+            Country = "Default Country"
+        };
+
         SelectedSortOption = SortOptions[0];
         ToggleShoesSelectionCommand = new RelayCommand<Shoes>(ToggleShoesSelection);
         OnPropertyChanged(nameof(TotalAmount));
@@ -147,39 +169,59 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             return;
         }
 
-        var orderDetails = SelectedShoes.Select(shoes =>
+        try
         {
-            var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
-            return new Detail
+            // Create a new address
+            var (newAddress, addressErrorMessage, addressErrorCode) = await _addressDataService.CreateAddressAsync(NewAddress);
+            if (addressErrorCode == 0)
             {
-                ShoesID = shoes.ID,
-                Quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock,
-                Price = shoes.Price
+                ErrorMessage = addressErrorMessage;
+                NotfifyChanges();
+                return;
+            }
+            NewAddress = newAddress;
+
+            var orderDetails = SelectedShoes.Select(shoes =>
+            {
+                var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
+                return new Detail
+                {
+                    ShoesID = shoes.ID,
+                    Quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock,
+                    Price = shoes.Price
+                };
+            }).ToList();
+
+            var order = new Order
+            {
+                UserID = UserId,
+                OrderDate = OrderDate.ToString(),
+                Status = SelectedStatusOrder,
+                Details = orderDetails,
+                AddressID = NewAddress.ID,
             };
-        }).ToList();
 
-        var order = new Order
-        {
-            UserID = UserId,
-            OrderDate = OrderDate.ToString(),
-            Status = Status,
-            Details = orderDetails,
-            AddressID = 1,
-        };
+            var (_, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
 
-        var (_, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
-
-
-        if (errorCode == 1)
-        {
-            _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
+            if (errorCode == 1)
+            {
+                ShowDialogRequested?.Invoke("Success", "Order updated successfully.");
+                _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
+            }
+            else
+            {
+                ErrorMessage = errorMessage;
+                ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                NotfifyChanges();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            ErrorMessage = errorMessage;
-            ErrorMessage = string.Empty;
+            ErrorMessage = $"An error occurred: {ex.Message}";
+            ShowDialogRequested?.Invoke("Error", ErrorMessage);
             NotfifyChanges();
         }
+
     }
 
     public async void LoadData()
@@ -192,7 +234,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
 
         _ShoesDataService.searchQuery = await BuildSearchQueryAsync();
 
-        await Task.Run(async () => await _ShoesDataService.LoadDataAsync());
+        await _ShoesDataService.LoadDataAsync();
 
         var (data, totalItems, message, ERROR_CODE) = _ShoesDataService.GetData();
 

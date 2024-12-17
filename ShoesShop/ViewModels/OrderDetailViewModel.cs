@@ -32,7 +32,7 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
     public ObservableCollection<Order> OrderItems { get; } = new ObservableCollection<Order>();
 
 
-    public RelayCommand UpdateButtonCommand
+    public RelayCommand SaveButtonCommand
     {
         get; set;
     }
@@ -52,7 +52,7 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
         _navigationService = navigationService;
         
 
-        UpdateButtonCommand = new RelayCommand(UpdateOrder, () => EditOrder is not null);
+        SaveButtonCommand = new RelayCommand(UpdateOrder, () => EditOrder is not null);
         NavigateToAddUserPageCommand = new RelayCommand(() =>
         {
             if (Item != null)
@@ -99,7 +99,7 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
 
     public void NotifyThisChanges()
     {
-        UpdateButtonCommand.NotifyCanExecuteChanged();
+        SaveButtonCommand.NotifyCanExecuteChanged();
         CancelButtonCommand.NotifyCanExecuteChanged();
     }
 

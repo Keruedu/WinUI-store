@@ -95,6 +95,7 @@ public partial class App : Application
             services.AddSingleton<ICategoryDataService, CategoryDataService>();
             services.AddTransient<IShoesDataService, ShoesDataService>();
             services.AddTransient<IOrderDataService, OrderDataService>();
+            services.AddSingleton<IAddressDataService, AddressDataService>();
             services.AddSingleton<IStatisticDataService, StatisticDataService>();
             services.AddSingleton<IStoreServerOriginService, StoreServerOriginService>();
             

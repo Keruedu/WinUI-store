@@ -30,13 +30,27 @@ public sealed partial class ShoesPage : Page
         {
             FiltersAndSearchPanel.Visibility = Visibility.Collapsed;
             SmallFiltersAndSearchPanel.Visibility = Visibility.Visible;
+            ToggleFiltersButton.Visibility = Visibility.Collapsed;
         }
         else
         {
             FiltersAndSearchPanel.Visibility = Visibility.Visible;
             SmallFiltersAndSearchPanel.Visibility = Visibility.Collapsed;
+            ToggleFiltersButton.Visibility = Visibility.Visible;
         }
     }
+    private void ToggleFiltersButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (FiltersAndSearchPanel.Visibility == Visibility.Visible)
+        {
+            FiltersAndSearchPanel.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            FiltersAndSearchPanel.Visibility = Visibility.Visible;
+        }
+    }
+
 
     private void SortByComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -45,6 +59,16 @@ public sealed partial class ShoesPage : Page
         if (selectedItem is not null)
         {
             ViewModel.SelectSortOption(selectedItem);
+        }
+    }
+
+    private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selectedItem = (sender as ComboBox)?.SelectedItem as ComboBoxItem;
+
+        if (selectedItem is not null)
+        {
+            ViewModel.SelectStatus(selectedItem.Content.ToString());
         }
     }
 

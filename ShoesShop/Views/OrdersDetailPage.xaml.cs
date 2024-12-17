@@ -17,8 +17,21 @@ public sealed partial class OrderDetailPage : Page
         InitializeComponent();
         ViewModel = App.GetService<OrderDetailViewModel>();
         DataContext = ViewModel;
+        ViewModel.ShowDialogRequested += OnShowDialogRequested;
     }
 
+    private async void OnShowDialogRequested(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = this.Content.XamlRoot
+        };
+        
+        await dialog.ShowAsync();
+    }
     //private CheckBox FindCheckBoxInTemplate(DependencyObject container)
     //{
     //    if (container == null) return null;

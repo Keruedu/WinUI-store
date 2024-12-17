@@ -12,6 +12,7 @@ using ShoesShop.Services;
 using ShoesShop;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
+using WinUIEx.Messaging;
 
 namespace ShoesShop.ViewModels;
 
@@ -25,6 +26,8 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
 
     [ObservableProperty]
     public bool isEditSession = false;
+
+    public event Action<string, string>? ShowDialogRequested;
 
     public bool IsEditButtonVisible => !IsEditSession;
 
@@ -211,16 +214,19 @@ public partial class ShoesDetailViewModel : ResourceLoadingViewModel, INavigatio
             {
                 Item = returnedShoes;
                 CancelEdit();
+                ShowDialogRequested?.Invoke("Success", "Shoes updated successfully.");
                 _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!);
             }
             else
             {
                 EditErrorMessage = message;
+                ShowDialogRequested?.Invoke("Error", message);
             }
         }
         catch (Exception ex)
         {
             EditErrorMessage = $"An error occurred: {ex.Message}";
+            ShowDialogRequested?.Invoke("Error", EditErrorMessage);
         }
         finally
         {

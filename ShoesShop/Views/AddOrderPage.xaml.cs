@@ -20,6 +20,20 @@ public sealed partial class AddOrderPage : Page
         InitializeComponent();
         Loaded += UpdateVisualState;
         SizeChanged += UpdateVisualState;
+        ViewModel.ShowDialogRequested += OnShowDialogRequested;
+    }
+
+    private async void OnShowDialogRequested(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = this.Content.XamlRoot
+        };
+
+        await dialog.ShowAsync();
     }
 
     private void UpdateVisualState(object sender, RoutedEventArgs e)
