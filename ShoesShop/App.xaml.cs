@@ -114,7 +114,6 @@ public partial class App : Application
             services.AddTransient<OrdersPage>();
             services.AddTransient<OrderDetailPage>();
             services.AddTransient<OrderDetailViewModel>();
-            services.AddTransient<OrderDetailControlViewModel>();
             services.AddTransient<AddShoesViewModel>();
             services.AddTransient<AddShoesPage>();
             services.AddTransient<ShoesViewModel>();

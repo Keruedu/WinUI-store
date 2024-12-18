@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.UI.Controls;
@@ -7,8 +9,7 @@ using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
-using ShoesShop.Core.Services;
-using ShoesShop.Services;
+using ShoesShop.Core.Utils;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using WinUIEx.Messaging;
@@ -22,9 +23,10 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
 
 
     public event Action<string, string>? ShowDialogRequested;
+    public event Action<string>? ShowPasswordDialogRequested;
 
 
-    [ObservableProperty]
+[ObservableProperty]
     public string editErrorMessage = string.Empty;
     [ObservableProperty]
     public bool isEditLoading = false;
@@ -71,6 +73,11 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
     {
         get; set;
     }
+    public RelayCommand ChangePasswordCommand
+    {
+        get; set;
+    }
+
 
     public UserDetailViewModel(IUserDataService UserDataService, INavigationService navigationService, IStorePageSettingsService storePageSettingsService, ICloudinaryService cloudinaryService) : base(storePageSettingsService)
     {
@@ -91,9 +98,13 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
         }, () => IsImageSelected);
         UpdateButtonCommand = new RelayCommand(UpdateUser, () => EditUser is not null);
         CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(ShoesViewModel).FullName!));
-
+        ChangePasswordCommand = new RelayCommand(OnChangePassword);
     }
 
+    private void OnChangePassword()
+    {
+        ShowPasswordDialogRequested?.Invoke("Please enter your new password.");
+    }
     public async void SelectImage()
     {
         if (EditUser is null)
@@ -127,6 +138,49 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
         NotifyThisChanges();
     }
 
+    private bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+        // tínnhan.vn -> xn--tnnhan-pta.vn
+        try
+        {
+            // Use IdnMapping class to convert Unicode domain names.
+            email = Regex.Replace(email, @"(@)(.+)$", DomainMapper,
+                                  RegexOptions.None, TimeSpan.FromMilliseconds(200));
+
+            // Examines the domain part of the email and normalizes it.
+            string DomainMapper(Match match)
+            {
+                var idn = new IdnMapping();
+
+                // Use IdnMapping class to convert Unicode domain names.
+                string domainName = idn.GetAscii(match.Groups[2].Value);
+
+                return match.Groups[1].Value + domainName;
+            }
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+
+        try
+        {
+            return Regex.IsMatch(email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+    }
+
     public async void UpdateUser()
     {
         IsEditLoading = true;
@@ -135,6 +189,12 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
 
         try
         {
+            if (!IsValidEmail(EditUser.Email))
+            {
+                EditErrorMessage = "Invalid email address.";
+                ShowDialogRequested?.Invoke("Error", EditErrorMessage);
+                return;
+            }
             // Check if there is an image to upload
             if (!string.IsNullOrEmpty(EditUser?.Image) && EditUser.Image == SelectedImagePath)
             {
@@ -151,8 +211,16 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
             }
             else
             {
-                EditErrorMessage = message;
-                ShowDialogRequested?.Invoke("Error", message);
+                if (message.Contains("23505: duplicate key value violates unique constraint \"user_email_unique\"")) // check if email is already in use
+                {
+                    EditErrorMessage = "The email address is already in use. Please use a different email.";
+                }
+                else
+                {
+
+                    EditErrorMessage = message;
+                }
+                ShowDialogRequested?.Invoke("Error", EditErrorMessage);
             }
         }
         catch (Exception ex)
@@ -166,6 +234,39 @@ public partial class UserDetailViewModel : ResourceLoadingViewModel, INavigation
             NotifyThisChanges();
         }
     }
+    public async void UpdateUserPassword(string newPassword)
+    {
+        IsEditLoading = true;
+        NotifyThisChanges();
+
+        try
+        {
+            EditUser.Password = BcryptUtil.HashPassword(newPassword);
+            var (returnedUser, message, ERROR_CODE) = await _UserDataService.UpdateUserAsync(EditUser);
+
+            if (ERROR_CODE == 1)
+            {
+                Item = returnedUser;
+                ShowDialogRequested?.Invoke("Success", "Password updated successfully.");
+            }
+            else
+            {
+                EditErrorMessage = message;
+                ShowDialogRequested?.Invoke("Error", EditErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            EditErrorMessage = $"An error occurred: {ex.Message}";
+            ShowDialogRequested?.Invoke("Error", EditErrorMessage);
+        }
+        finally
+        {
+            IsEditLoading = false;
+            NotifyThisChanges();
+        }
+    }
+
 
 
     public void NotifyThisChanges()

@@ -27,7 +27,7 @@
             <Setter Property="FontWeight" Value="Medium" />
         </Style>
         <Style x:Key="ButtonSize" TargetType="Button">
-            <Setter Property="MaxWidth" Value="100" />
+            <Setter Property="MaxWidth" Value="150" />
             <Setter Property="MaxHeight" Value="46" />
             <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="CornerRadius" Value="4" />
@@ -93,15 +93,21 @@
                 <TextBlock Text="Actions" FontWeight="Bold" FontSize="18" />
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <Button Content="Update" 
-                Background="#232321" 
-                Foreground="White" 
-                Style="{StaticResource ButtonSize}" 
-                Command="{x:Bind ViewModel.UpdateButtonCommand}" />
+                    Background="#232321" 
+                    Foreground="White" 
+                    Style="{StaticResource ButtonSize}" 
+                    Command="{x:Bind ViewModel.UpdateButtonCommand}" />
                     <Button Content="Cancel" 
-                BorderThickness="2" 
-                BorderBrush="#232321" 
-                Style="{StaticResource ButtonSize}" 
-                Command="{x:Bind ViewModel.CancelButtonCommand}" />
+                    BorderThickness="2" 
+                    BorderBrush="#232321" 
+                    Style="{StaticResource ButtonSize}" 
+                    Command="{x:Bind ViewModel.CancelButtonCommand}" />
+                    <Button
+                    Background="#232321" 
+                    Foreground="White" 
+                    Content="Change Password"
+                    Style="{StaticResource ButtonSize}" 
+                    Command="{x:Bind ViewModel.ChangePasswordCommand}" />
                 </StackPanel>
             </StackPanel>
             <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsEditLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">

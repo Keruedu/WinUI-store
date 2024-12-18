@@ -57,7 +57,7 @@
                             <ComboBoxItem Content="Delivered" />
                             <ComboBoxItem Content="Cancelled" />
                         </ComboBox>
-                        <Button Width="56" Height="50">
+                        <Button Width="56" Height="50" Command="{x:Bind ViewModel.CopyToClipboardCommand}">
                             <FontIcon Glyph="&#xF406;" FontSize="16"/>
                         </Button>
                         <Button Content="Save" FontSize="12" Width="56" Height="50" Command="{x:Bind ViewModel.SaveButtonCommand}"/>
@@ -160,6 +160,8 @@
                             <!-- CheckBox for Select All -->
                             <CheckBox Grid.Column="0"
                               VerticalAlignment="Center"
+                              Checked="OnSelectAllChecked"
+                              Unchecked="OnSelectAllUnchecked"
                               MinWidth="50"
                               Content=""/>
 
@@ -201,6 +203,8 @@
                             IsChecked="False"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"
+                            Checked="OnItemChecked"
+                            Unchecked="OnItemUnchecked" 
                             MinWidth="50"
                             Content=""/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -224,18 +228,18 @@
                 </ListView.Footer>
             </ListView>
 
-            <!--<local:PaginationControl
-             Visibility="{x:Bind ViewModel.ShowPagination, Mode=OneWay}"
-             TotalPages="{x:Bind ViewModel.TotalPages, Mode=OneWay}" 
-             CurrentPage="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
-             TotalItems="{x:Bind ViewModel.TotalItems, Mode=OneWay}"
-             ItemsPerPage="{x:Bind ViewModel.ItemsPerPage, Mode=OneWay}"
-             From="{x:Bind ViewModel.From, Mode=OneWay}"
-             To="{x:Bind ViewModel.To, Mode=OneWay}"
-             HasPreviousPage="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}"
-             HasNextPage="{x:Bind ViewModel.HasNextPage, Mode=OneWay}"
-             GoToPreviousPageCommand="{x:Bind ViewModel.GoToPreviousPageCommand}"
-             GoToNextPageCommand="{x:Bind ViewModel.GoToNextPageCommand}" />-->
+            <!--<local:paginationcontrol
+             visibility="{x:bind viewmodel.showpagination, mode=oneway}"
+             totalpages="{x:bind viewmodel.totalpages, mode=oneway}" 
+             currentpage="{x:bind viewmodel.currentpage, mode=oneway}"
+             totalitems="{x:bind viewmodel.totalitems, mode=oneway}"
+             itemsperpage="{x:bind viewmodel.itemsperpage, mode=oneway}"
+             from="{x:bind viewmodel.from, mode=oneway}"
+             to="{x:bind viewmodel.to, mode=oneway}"
+             haspreviouspage="{x:bind viewmodel.haspreviouspage, mode=oneway}"
+             hasnextpage="{x:bind viewmodel.hasnextpage, mode=oneway}"
+             gotopreviouspagecommand="{x:bind viewmodel.gotopreviouspagecommand}"
+             gotonextpagecommand="{x:bind viewmodel.gotonextpagecommand}" />-->
         </StackPanel>
     </ScrollViewer>
 </Page>

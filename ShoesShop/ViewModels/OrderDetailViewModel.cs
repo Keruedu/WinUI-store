@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using CloudinaryDotNet.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
@@ -6,6 +7,7 @@ using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -45,6 +47,23 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
     {
         get;
     }
+    public RelayCommand CopyToClipboardCommand
+    {
+        get; set;
+    }
+
+    private ObservableCollection<Detail> _selectedDetails = new ObservableCollection<Detail>();
+    public ObservableCollection<Detail> SelectedDetails
+    {
+        get => _selectedDetails;
+        set
+        {
+            if (SetProperty(ref _selectedDetails, value))
+            {
+
+            }
+        }
+    }
 
     public OrderDetailViewModel(IOrderDataService orderDataService, INavigationService navigationService) : base(null)
     {
@@ -61,6 +80,7 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
             }
         });
         CancelButtonCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersViewModel).FullName!));
+        CopyToClipboardCommand = new RelayCommand(CopyToClipboard);
     }
 
     public async void UpdateOrder()
@@ -96,6 +116,50 @@ public partial class OrderDetailViewModel : ResourceLoadingViewModel, INavigatio
             NotifyThisChanges();
         }
     }
+
+    private void CopyToClipboard()
+    {
+        if (Item != null && Item.User != null && Item.Address != null && Item.Details != null)
+        {
+            // Nội dung bạn muốn sao chép
+            string contentToCopy =
+            $@"Order ID: {Item.ID}
+Order Date: {DateTime.Now:MM/dd/yyyy}
+Total Amount: {Item.TotalAmount:C}
+
+Customer Information:
+Name: {Item.User.Name}
+Address: {Item.Address.Street}, {Item.Address.City}, {Item.Address.State}, {Item.Address.ZipCode}, {Item.Address.Country}
+Phone: {Item.User.PhoneNumber}
+
+Order Details:";
+
+            foreach (var shoes in Item.Details)
+            {
+                if (shoes != null && shoes.Shoes != null)
+                {
+                    contentToCopy += $"\n- {shoes.Shoes.Name} - Size {shoes.Shoes.Size} - Color {shoes.Shoes.Color} (Quantity: {shoes.Quantity}) - {shoes.Price:C}";
+                }
+            }
+
+            contentToCopy += $@"
+
+Order Status: {Item.Status}
+
+Thank you for shopping at ShoesShop!";
+
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(contentToCopy);
+            Clipboard.SetContent(dataPackage);
+
+            ShowDialogRequested?.Invoke("Copied", "Order details have been copied to clipboard.");
+        }
+        else
+        {
+            ShowDialogRequested?.Invoke("Error", "No order to copy or missing order details.");
+        }
+    }
+
 
     public void NotifyThisChanges()
     {
