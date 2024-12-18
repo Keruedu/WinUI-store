@@ -24,6 +24,10 @@ public partial class LoginControllViewModel : ObservableRecipient
     private readonly IAuthenticationService _authenticationService;
     private readonly ILocalSettingServiceUsingApplicationData _localSettingServiceUsingApplicationData
         =App.GetService<ILocalSettingServiceUsingApplicationData>();
+
+    private readonly IThemeSelectorService _themeSelectorService
+        =App.GetService<IThemeSelectorService>();
+
     [ObservableProperty]
     private string accessToken = string.Empty;
 
@@ -77,6 +81,7 @@ public partial class LoginControllViewModel : ObservableRecipient
             NotifyChanges();
             App.MainWindow.Content = App.GetService<ShellPage>();
             _navigationService.NavigateTo(typeof(DashboardViewModel).FullName!);
+            _themeSelectorService.SetThemeAsync(_themeSelectorService.Theme);
         }
         else
         {
