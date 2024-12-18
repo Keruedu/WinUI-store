@@ -101,7 +101,9 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEE92;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Users" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.UsersViewModel">
+                <NavigationViewItem 
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
+                    x:Uid="Shell_Users" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.UsersViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDC7;"/>
                     </NavigationViewItem.Icon>

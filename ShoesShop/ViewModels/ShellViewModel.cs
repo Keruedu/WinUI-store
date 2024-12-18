@@ -40,6 +40,14 @@ public partial class ShellViewModel : ObservableRecipient, INotifyPropertyChange
     get; set; 
     }
 
+    public bool IsAdmin
+    {
+        get
+        {
+            return user.Role.ToLower() == "admin";
+        }
+    }
+
     public class CategoryFilter
     {
         public Category Category
