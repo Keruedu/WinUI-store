@@ -29,6 +29,7 @@ public interface IUserDataService
     public Task<(IEnumerable<User>, int, string, int)> GetBannedUsersAsync();
 
     public Task<(User, string, int)> UpdateUserAsync(User User);
-    public Task<(string, int)> ImportDataAsync(IEnumerable<User> User);
+
+    public  Task<(string, int)> ImportDataFromExcelAsync(string filePath);
 
 }

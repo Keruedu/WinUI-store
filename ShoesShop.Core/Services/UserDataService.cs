@@ -1,6 +1,11 @@
-﻿using ShoesShop.Core.Contracts.Services;
+﻿using OfficeOpenXml;
+using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+
 namespace ShoesShop.Core.Services;
 public class UserDataService : IUserDataService
 {
@@ -92,11 +97,56 @@ public class UserDataService : IUserDataService
         return await Task.FromResult((users, (int)totalUsers, Message, errorCode ? 1 : 0));
     }
 
-    public async Task<(string, int)> ImportDataAsync(IEnumerable<User> User)
-    {
-        //return await Task.Run(async () => await _ShoesRepository.ImportDataAsync(Shoess));
-        return await Task.FromResult(("Success", 1));
-    }
 
+    public async Task<(string, int)> ImportDataFromExcelAsync(string filePath)
+    {
+        var users = new List<User>();
+        try
+        {
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets[0];
+                var rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var user = new User
+                    {
+                        Name = worksheet.Cells[row, 1].Text,
+                        Email = worksheet.Cells[row, 2].Text,
+                        Role = worksheet.Cells[row, 3].Text,
+                        Password = worksheet.Cells[row, 4].Text,
+                        PhoneNumber = worksheet.Cells[row, 5].Text,
+                        Status = worksheet.Cells[row, 6].Text,
+                        Image = worksheet.Cells[row, 7].Text,
+                        Address = new Address
+                        {
+                            Street = worksheet.Cells[row, 8].Text,
+                            City = worksheet.Cells[row, 9].Text,
+                            State = worksheet.Cells[row, 10].Text,
+                            ZipCode = worksheet.Cells[row, 11].Text,
+                            Country = worksheet.Cells[row, 12].Text
+                        }
+                    };
+                    users.Add(user);
+                }
+            }
+
+            foreach (var user in users)
+            {
+                var (errorCode, message, _) = _dao.AddUser(user);
+                if (!errorCode)
+                {
+                    return (message, 0);
+                }
+            }
+
+            return ("Import successful", 1);
+        }
+        catch (Exception ex)
+        {
+            return ($"Error: {ex.Message}", 0);
+        }
+    }
 
 }

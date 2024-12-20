@@ -2,18 +2,20 @@
 
 using ShoesShop.ViewModels;
 
-namespace ShoesShop.Views;
-
-public sealed partial class ImportDataPage : Page
+namespace ShoesShop.Views
 {
-    public ImportDataViewModel ViewModel
+    public sealed partial class ImportDataPage : Page
     {
-        get;
-    }
+        public ImportDataViewModel ViewModel
+        {
+            get;
+        }
 
-    public ImportDataPage()
-    {
-        ViewModel = App.GetService<ImportDataViewModel>();
-        InitializeComponent();
+        public ImportDataPage()
+        {
+            ViewModel = App.GetService<ImportDataViewModel>();
+            InitializeComponent();
+            DataContext = ViewModel;
+        }
     }
 }

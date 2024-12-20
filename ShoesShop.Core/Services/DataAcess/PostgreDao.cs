@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 using NpgsqlTypes;
+using OfficeOpenXml;
 using ShoesShop.Core.Models;
 using static ShoesShop.Core.Services.DataAcess.IDao;
 
@@ -19,8 +20,8 @@ public class PostgreDao : IDao
     {
         var connectionConfig = """
             Host = localhost;
-            Port=5433;
-            Database = postgres;
+            Port=5432;
+            Database = postgres1;
             User ID = root;
             Password = root;
         """;
@@ -1852,5 +1853,9 @@ public class PostgreDao : IDao
             return null;
         }
     }
+
+
+
+  
 
 }
