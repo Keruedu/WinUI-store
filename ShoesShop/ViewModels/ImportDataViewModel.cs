@@ -28,7 +28,7 @@ public partial class ImportDataViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    public async Task ImportDataAsync()
+    public async Task ImportUserDataAsync()
     {
         if (string.IsNullOrEmpty(FilePath))
         {
@@ -37,7 +37,22 @@ public partial class ImportDataViewModel : ObservableRecipient
         }
 
         IsImporting = true;
-        var (message, _) = await _userDataService.ImportDataFromExcelAsync(FilePath);
+        var (message, _) = await _userDataService.ImportUserFromExcelAsync(FilePath);
+        StatusMessage = message;
+        IsImporting = false;
+    }
+
+    [RelayCommand]
+    public async Task ImportShoesDataAsync()
+    {
+        if (string.IsNullOrEmpty(FilePath))
+        {
+            StatusMessage = "Please select a file.";
+            return;
+        }
+
+        IsImporting = true;
+        var (message, _) = await _userDataService.ImportShoesFromExcelAsync(FilePath);
         StatusMessage = message;
         IsImporting = false;
     }

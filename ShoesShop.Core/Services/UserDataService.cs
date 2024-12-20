@@ -98,7 +98,7 @@ public class UserDataService : IUserDataService
     }
 
 
-    public async Task<(string, int)> ImportDataFromExcelAsync(string filePath)
+    public async Task<(string, int)> ImportUserFromExcelAsync(string filePath)
     {
         var users = new List<User>();
         try
@@ -148,5 +148,56 @@ public class UserDataService : IUserDataService
             return ($"Error: {ex.Message}", 0);
         }
     }
+
+    public async Task<(string, int)> ImportShoesFromExcelAsync(string filePath)
+    {
+        var shoesList = new List<Shoes>();
+        try
+        {
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets[0];
+                var rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var shoes = new Shoes
+                    {
+                        Name = worksheet.Cells[row, 1].Text,
+                        Brand = worksheet.Cells[row, 2].Text,
+                        Size = worksheet.Cells[row, 3].Text,
+                        Color = worksheet.Cells[row, 4].Text,
+                        Cost = decimal.Parse(worksheet.Cells[row, 5].Text),
+                        Price = decimal.Parse(worksheet.Cells[row, 6].Text),
+                        Stock = int.Parse(worksheet.Cells[row, 7].Text),
+                        Image = worksheet.Cells[row, 8].Text,
+                        Description = worksheet.Cells[row, 9].Text,
+                        Status = worksheet.Cells[row, 10].Text,
+                        CategoryID = int.Parse(worksheet.Cells[row, 11].Text)
+                    };
+                    shoesList.Add(shoes);
+                }
+            }
+
+            foreach (var shoes in shoesList)
+            {
+                var (errorCode, message, _) = _dao.AddShoes(shoes);
+                if (!errorCode)
+                {
+                    return (message, 0);
+                }
+            }
+
+            return ("Import successful", 1);
+        }
+        catch (Exception ex)
+        {
+            return ($"Error: {ex.Message}", 0);
+        }
+    }
+
+
+
+
 
 }

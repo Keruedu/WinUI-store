@@ -13,7 +13,8 @@
             <Button Content="Select File" Command="{Binding SelectFileCommand}" Width="200" />
             <TextBlock Text="{Binding FilePath}" Width="400" TextWrapping="Wrap" />
 
-            <Button Content="Import Data" Command="{Binding ImportDataCommand}" Width="200" />
+            <Button Content="Import User Data" Command="{Binding ImportUserDataCommand}" Width="200" />
+            <Button Content="Import Shoes Data" Command="{Binding ImportShoesDataCommand}" Width="200" />
             <TextBlock Text="{Binding StatusMessage}" Width="400" TextWrapping="Wrap" />
 
             <ProgressRing IsActive="{Binding IsImporting}" Width="50" Height="50" />

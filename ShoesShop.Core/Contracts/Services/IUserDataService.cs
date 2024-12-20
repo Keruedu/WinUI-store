@@ -30,6 +30,9 @@ public interface IUserDataService
 
     public Task<(User, string, int)> UpdateUserAsync(User User);
 
-    public  Task<(string, int)> ImportDataFromExcelAsync(string filePath);
+    public  Task<(string, int)> ImportUserFromExcelAsync(string filePath);
+
+    public Task<(string, int)> ImportShoesFromExcelAsync(string filePath);
+
 
 }
