@@ -22,6 +22,18 @@ public partial class ImportDataViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isImporting;
 
+    [ObservableProperty]
+    private string _successMessage = string.Empty;
+
+    [ObservableProperty]
+    private string _errorMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _isSuccessVisible;
+
+    [ObservableProperty]
+    private bool _isErrorVisible;
+
     public ImportDataViewModel(IUserDataService userDataService)
     {
         _userDataService = userDataService;
@@ -30,36 +42,62 @@ public partial class ImportDataViewModel : ObservableRecipient
     [RelayCommand]
     public async Task ImportUserDataAsync()
     {
+        ClearMessages();
+
         if (string.IsNullOrEmpty(FilePath))
         {
-            StatusMessage = "Please select a file.";
+            ErrorMessage = "Please select a file.";
+            IsErrorVisible = true;
             return;
         }
 
         IsImporting = true;
-        var (message, _) = await _userDataService.ImportUserFromExcelAsync(FilePath);
-        StatusMessage = message;
+        var (message, result) = await _userDataService.ImportUserFromExcelAsync(FilePath);
+        if (result != 0)
+        {
+            SuccessMessage = message;
+            IsSuccessVisible = true;
+        }
+        else
+        {
+            ErrorMessage = message;
+            IsErrorVisible = true;
+        }
         IsImporting = false;
     }
 
     [RelayCommand]
     public async Task ImportShoesDataAsync()
     {
+        ClearMessages();
+
         if (string.IsNullOrEmpty(FilePath))
         {
-            StatusMessage = "Please select a file.";
+            ErrorMessage = "Please select a file.";
+            IsErrorVisible = true;
             return;
         }
 
         IsImporting = true;
-        var (message, _) = await _userDataService.ImportShoesFromExcelAsync(FilePath);
-        StatusMessage = message;
+        var (message, result) = await _userDataService.ImportShoesFromExcelAsync(FilePath);
+        if (result != 0)
+        {
+            SuccessMessage = message;
+            IsSuccessVisible = true;
+        }
+        else
+        {
+            ErrorMessage = message;
+            IsErrorVisible = true;
+        }
         IsImporting = false;
     }
 
     [RelayCommand]
     public async void SelectFile()
     {
+        ClearMessages();
+
         var picker = new FileOpenPicker();
         picker.ViewMode = PickerViewMode.Thumbnail;
         picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
@@ -76,5 +114,13 @@ public partial class ImportDataViewModel : ObservableRecipient
             FilePath = file.Path;
             StatusMessage = "File selected: " + FilePath;
         }
+    }
+
+    private void ClearMessages()
+    {
+        SuccessMessage = string.Empty;
+        ErrorMessage = string.Empty;
+        IsSuccessVisible = false;
+        IsErrorVisible = false;
     }
 }

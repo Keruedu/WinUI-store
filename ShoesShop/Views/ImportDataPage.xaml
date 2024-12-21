@@ -4,20 +4,72 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:ShoesShop.Helpers"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    xmlns:local="using:ShoesShop.Views"
+    xmlns:behaviors="using:ShoesShop.Behaviors"
+    behaviors:NavigationViewHeaderBehavior.HeaderMode="Never">
 
-    <Grid x:Name="ContentArea" Padding="20">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-            <TextBlock Text="Import Data" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" />
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="TitleText" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+    </Page.Resources>
 
-            <Button Content="Select File" Command="{Binding SelectFileCommand}" Width="200" />
-            <TextBlock Text="{Binding FilePath}" Width="400" TextWrapping="Wrap" />
+    <ScrollViewer>
+        <StackPanel Spacing="20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Import Data" Style="{StaticResource TitleText}" FontSize="32"/>
+                <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
+                        Grid.Column="1" HorizontalAlignment="Left" Padding="10" CornerRadius="8" 
+                        VerticalAlignment="Stretch" Command="{Binding SelectFileCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="Transparent" Padding="5" CornerRadius="5" Margin="0 0 10 0" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8A7;" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Select File" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
 
-            <Button Content="Import User Data" Command="{Binding ImportUserDataCommand}" Width="200" />
-            <Button Content="Import Shoes Data" Command="{Binding ImportShoesDataCommand}" Width="200" />
-            <TextBlock Text="{Binding StatusMessage}" Width="400" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding FilePath}" Width="400" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20" />
 
-            <ProgressRing IsActive="{Binding IsImporting}" Width="50" Height="50" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20">
+                <Button Content="Import User Data" Command="{Binding ImportUserDataCommand}" Width="200" Height="40" />
+                <Button Content="Import Shoes Data" Command="{Binding ImportShoesDataCommand}" Width="200" Height="40" />
+            </StackPanel>
+
+            <ProgressRing IsActive="{Binding IsImporting}" Width="50" Height="50" HorizontalAlignment="Center" Margin="0,20,0,0" />
+
+            <!-- Success message display -->
+            <muxc:InfoBar
+                IsOpen="{Binding IsSuccessVisible}"
+                Severity="Success"
+                Title="Success"
+                Message="{Binding SuccessMessage}"
+                Margin="0,15,0,0"
+                HorizontalAlignment="Center"
+                Width="500"/>
+
+            <!-- Error message display -->
+            <muxc:InfoBar
+                IsOpen="{Binding IsErrorVisible}"
+                Severity="Error"
+                Title="Error"
+                Message="{Binding ErrorMessage}"
+                Margin="0,15,0,0" 
+                HorizontalAlignment="Center"
+                Width="500"/>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>
