@@ -6,8 +6,10 @@ using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
+using ShoesShop.Core.Models;
 using ShoesShop.Core.Services;
 using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Utils;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
 using ShoesShop.Services;
@@ -46,6 +48,56 @@ public partial class App : Application
 
     public App()
     {
+
+        //test purpose
+        var order = new Order
+        {
+            User = new User
+            {
+                Name = "Vinh",
+            },
+            ID = 1,
+            OrderDate = "2024-12-22",
+            TotalAmount = 1000000,
+            Details = new List<Detail>()
+            {
+                new Detail
+                {
+                    Shoes=new Shoes
+                    {
+                        Name="Product-0001",
+                        Image="https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196148/adidas3_yls1aa.jpg"
+                    },
+                    Quantity=1,
+                },
+                new Detail
+                {
+                    Shoes=new Shoes
+                    {
+                        Name="Product-0002",
+                        Image="https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196148/adidas5_uliobk.jpg"
+                    },
+                    Quantity=2,
+                },
+                new Detail
+                {
+                    Shoes=new Shoes
+                    {
+                        Name="Product-0002",
+                        Image="https://res.cloudinary.com/dyocg3k6j/image/upload/v1732196147/nike3_fchusm.jpg"
+                    }
+                }
+            }
+        };
+
+        var orderutil=new OrderNotificationUtil();
+        string content = orderutil.createStringOfHtmlNotificationForCustomer(order);
+
+        var mailservice = new GmailService();
+        string[] emptycc = new string[0];
+        mailservice.sendMail("vinh01515@gmail.com",emptycc, "Order notification", content, true);
+
+        //test purpose
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
