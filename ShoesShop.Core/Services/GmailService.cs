@@ -25,7 +25,10 @@ public class GmailService : IEmailService
             Body = payload,
             IsBodyHtml = isHtml,
         };
-        mailMessage.To.Add(to);
+        if (to!=null && to.Trim().Length!=0)
+        {
+            mailMessage.To.Add(to);
+        }
         foreach (var item in cc)
         {
             mailMessage.CC.Add(item);
