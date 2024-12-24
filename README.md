@@ -77,9 +77,9 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
 
 5. **Sources**
    - Link repository: [Keruedu/WinUI-store](https://github.com/Keruedu/WinUI-store)
-   - Latest branch: `feature/update-ui`
+   - Latest branch: `main`
    - Video: https://drive.google.com/file/d/1k2opjWWgXxYvLEe0eVdqnTB1wrbuddeq/view?usp=drive_link
-   - Dioxygen: https://drive.google.com/file/d/1eM3VkJ1wNAjVmxo7ju2KWT61nmrby-Dj/view?usp=drive_link
+   - Doxygen: https://drive.google.com/file/d/1eM3VkJ1wNAjVmxo7ju2KWT61nmrby-Dj/view?usp=drive_link
 
 ## Team work
 
@@ -90,7 +90,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
 
 | Week | Task                                                                                       | Lê Hoàng Việt | Lê Quang Vinh | Nguyễn Quốc Vinh |
 |------|--------------------------------------------------------------------------------------------|---------------|---------------|------------------|
-| 1    | Initial UI design for User, Order, Shoes                                                   | 1 hours       |               |                  |
+| 1    | Initial UI design for User, Order, Shoes                                                   | 0.5 hours     |               |                  |
 | 1    | Write necessary Data Services for Dashboard                                                |               | 0.5 hours     |                  |
 | 1    | Research and build Cloudinary Service                                                      |               |               | 0.5 hours        |
 | 2    | Display user details on click                                                              | 0.5 hours     |               |                  |
@@ -98,7 +98,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
 | 2    | Add filtering options for Shoes and Order                                                  |               | 0.5 hours     |                  |
 | 2    | Research OxyPlot                                                                           |               |               | 1 hours          |
 | 2    | Build Auth Service and LoginControl                                                        |               |               | 0.5 hours        |
-| 3    | Integrate functions for Add/Update/Ban/Unban User                                          | 1 hours       |               |                  |
+| 3    | Integrate functions for Add/Update/Ban/Unban User                                          | 0.5 hours     |               |                  |
 | 3    | Fix display issues and list bugs                                                           | 0.5 hours     |               |                  |
 | 3    | Complete Dashboard UI                                                                      |               | 0.5 hours     |                  |
 | 3    | Prepare report and demo video                                                              |               |  0.5 hours    |                  |
@@ -115,7 +115,7 @@ The Shoes Store Manager is a comprehensive retail management solution designed f
    - Messenger, Drive, Git, Google meet
 
 2. **Work Flow**
-   - Team meets regularly at 3PM every Thursday to report progress and divide tasks
+   - Team meets regularly at 3PM every Wednesday to report progress and divide tasks
    - Project materials and references are uploaded to Drive or pinned in the team's private Messenger group
    - Meeting minutes: [Google Docs - Vietmamese](https://docs.google.com/document/d/1aqO8fGVvLPGIK6Ay-KMkrwZ34DUbOCRPOZugCG_Anyo/edit?usp=drive_link)
 
