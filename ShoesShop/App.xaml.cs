@@ -6,8 +6,10 @@ using ShoesShop.Activation;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
+using ShoesShop.Core.Models;
 using ShoesShop.Core.Services;
 using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Utils;
 using ShoesShop.Helpers;
 using ShoesShop.Models;
 using ShoesShop.Services;
@@ -46,6 +48,7 @@ public partial class App : Application
 
     public App()
     {
+
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.

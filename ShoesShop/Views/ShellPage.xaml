@@ -101,7 +101,9 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEE92;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Users" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.UsersViewModel">
+                <NavigationViewItem 
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay}"
+                    x:Uid="Shell_Users" helpers:NavigationHelper.NavigateTo="ShoesShop.ViewModels.UsersViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDC7;"/>
                     </NavigationViewItem.Icon>
@@ -157,9 +159,47 @@
                 </NavigationViewItem>
                 
             </NavigationView.MenuItems>
-            
-            <Grid Padding="40" Background="{ThemeResource PageBackground}">
-                <Frame x:Name="NavigationFrame" />
+
+            <Grid Background="{ThemeResource PageBackground}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid Padding="40,40,40,10">
+                    <Frame x:Name="NavigationFrame" />
+                </Grid>
+
+                <Grid Grid.Row="1" Background="{ThemeResource PageBackground}" Padding="15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0">
+                        <Image Source="https://github.com/shadcn.png" 
+                           Width="30" 
+                           Height="30" 
+                           Margin="0,0,10,0" 
+                           VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Bind ViewModel.user.Name}"
+                                Foreground="Black" FontWeight="Bold"/>
+                            <TextBlock>-</TextBlock>
+                            <TextBlock Text="{x:Bind ViewModel.user.Role}" FontWeight="Bold"></TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button Content="Log out"
+                        Grid.Column="2"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Background="White"
+                        Foreground="#4A69E2"
+                        FontWeight="Bold"
+                        Padding="10,5"
+                        CornerRadius="5"
+                        Click="handleLogout"
+                         />
+                </Grid>
             </Grid>
         </NavigationView>
     </Grid>

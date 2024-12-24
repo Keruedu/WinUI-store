@@ -14,6 +14,7 @@ using ShoesShop.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.UI.Xaml.Controls;
+using System.Text.Json;
 
 namespace ShoesShop.ViewModels;
 
@@ -31,6 +32,21 @@ public partial class ShellViewModel : ObservableRecipient, INotifyPropertyChange
     private readonly ICategoryDataService _categoryDataService;
     private readonly IShoesDataService _shoesDataService;
     private readonly IMediator _mediator;
+    private readonly ILocalSettingServiceUsingApplicationData _localSettingServiceUsingApplicationData
+        =App.GetService<ILocalSettingServiceUsingApplicationData>();
+
+    public User user
+    {
+    get; set; 
+    }
+
+    public bool IsAdmin
+    {
+        get
+        {
+            return user.Role.ToLower() == "admin";
+        }
+    }
 
     public class CategoryFilter
     {
@@ -70,16 +86,20 @@ public partial class ShellViewModel : ObservableRecipient, INotifyPropertyChange
 
 
     private Dictionary<string, SortType> _sortOptions = new();
-    public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService, ICategoryDataService categoryDataService, IShoesDataService shoesDataService, IMediator mediator)
+    public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService,
+        ICategoryDataService categoryDataService, IShoesDataService shoesDataService, IMediator mediator)
     {
         NavigationService = navigationService;
         NavigationService.Navigated += OnNavigated;
         NavigationViewService = navigationViewService;
         _categoryDataService = categoryDataService;
         _shoesDataService = shoesDataService;
+
         _mediator = mediator;
         _mediator.Subscribe(LoadCategories);
         LoadCategories();
+
+        user = JsonSerializer.Deserialize<User>(_localSettingServiceUsingApplicationData.ReadSettingSync("userInfor"));
     }
 
     public async void LoadCategories()
@@ -131,4 +151,9 @@ public partial class ShellViewModel : ObservableRecipient, INotifyPropertyChange
         IsExpandedVisible = mode != NavigationViewDisplayMode.Compact;
     }
 
+    public void Logout()
+    {
+
+        _localSettingServiceUsingApplicationData.DeleteSettingSync("userInfor");
+    }
 }

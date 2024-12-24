@@ -19,7 +19,8 @@ public sealed partial class ShellPage : Page
     {
         get;
     }
-
+    private readonly IThemeSelectorService _themeSelectorService
+        =App.GetService<IThemeSelectorService>();
     public ShellPage(ShellViewModel viewModel)
     {
         ViewModel = viewModel;
@@ -108,4 +109,10 @@ public sealed partial class ShellPage : Page
         args.Handled = result;
     }
 
+    private void handleLogout(object sender, RoutedEventArgs e)
+    {
+        ViewModel.Logout();
+        App.MainWindow.Content = App.GetService<LoginControl>();
+        _themeSelectorService.SetThemeAsync(_themeSelectorService.Theme);
+    }
 }
