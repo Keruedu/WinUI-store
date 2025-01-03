@@ -15,6 +15,8 @@ using ShoesShop.Models;
 using ShoesShop.Services;
 using ShoesShop.ViewModels;
 using ShoesShop.Views;
+using Windows.System;
+using WinUIEx.Messaging;
 
 namespace ShoesShop;
 
@@ -48,7 +50,6 @@ public partial class App : Application
 
     public App()
     {
-
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.

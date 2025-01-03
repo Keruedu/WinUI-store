@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace ShoesShop.Core.Contracts.Services;
 public interface IEmailService
 {
-    void sendMail(string to, string[] cc,string subject,string payload,bool isHtml);
+    void sendMail(string to, IEnumerable<String> cc,string subject,string payload,bool isHtml);
 }

@@ -16,7 +16,7 @@ public class GmailService : IEmailService
     {
 
     }
-    public void sendMail(string to,string[] cc,string subject, string payload, bool isHtml)
+    public void sendMail(string to,IEnumerable<String> cc,string subject, string payload, bool isHtml)
     {
         MailMessage mailMessage = new MailMessage
         {
