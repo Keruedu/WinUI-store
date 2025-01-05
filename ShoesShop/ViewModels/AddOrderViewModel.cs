@@ -9,6 +9,7 @@ using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services;
 using ShoesShop.Services;
 using WinUIEx.Messaging;
 
@@ -21,6 +22,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
     private readonly IOrderDataService _orderDataService;
     private readonly ICategoryDataService _categoryDataService;
     private readonly IAddressDataService _addressDataService;
+    private readonly IUserDataService _userDataService;
 
     public event Action<string, string>? ShowDialogRequested;
 
@@ -71,7 +73,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         get; set;
     } = new ObservableCollection<Tuple<int, int>>();
 
-    public AddOrderViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IAddressDataService addressDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+    public AddOrderViewModel(INavigationService navigationService, IUserDataService userDataService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IAddressDataService addressDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
         AddOrderCommand = new RelayCommand(OnAddOrder);
 
@@ -80,6 +82,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         _categoryDataService = categoryDataService;
         _orderDataService = orderDataService;
         _addressDataService = addressDataService;
+        _userDataService = userDataService;
 
         SelectedStatusOrder = "Pending";
 
@@ -219,10 +222,11 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                     return;
                 }
             }
-
+            var user = await _userDataService.GetUserByIdAsync(UserId);
             var order = new Order
             {
                 UserID = UserId,
+                User = user,
                 OrderDate = OrderDate.ToString(),
                 Status = SelectedStatusOrder,
                 Details = orderDetails,
@@ -234,6 +238,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             if (errorCode == 1)
             {
                 ShowDialogRequested?.Invoke("Success", "Order updated successfully.");
+                GmailNotificationService gmailNotificationService = new GmailNotificationService(_userDataService);
+                gmailNotificationService.NotifyMakingOrder(order);
                 _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
             }
             else

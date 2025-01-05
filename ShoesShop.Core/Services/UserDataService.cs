@@ -212,6 +212,12 @@ public class UserDataService : IUserDataService
         }
     }
 
+    public async Task<User> GetUserByIdAsync(int userId)
+    {
+        var (users, _, _, _) = await LoadDataAsync();
+        return users.FirstOrDefault(u => u.ID == userId);
+    }
+
 
     public async Task<(IEnumerable<User>, int, string, int)> GetCustomers()
     {
