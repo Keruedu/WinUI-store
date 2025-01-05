@@ -100,6 +100,11 @@ public partial class ShellViewModel : ObservableRecipient, INotifyPropertyChange
         LoadCategories();
 
         user = JsonSerializer.Deserialize<User>(_localSettingServiceUsingApplicationData.ReadSettingSync("userInfor"));
+        if (string.IsNullOrEmpty(user.Image))
+        {
+            var userName = user.Name.Replace(" ", "+");
+            user.Image = $"https://ui-avatars.com/api/?name={userName}&background=random";
+        }
     }
 
     public async void LoadCategories()

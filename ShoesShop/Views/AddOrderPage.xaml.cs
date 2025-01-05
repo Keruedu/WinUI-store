@@ -23,6 +23,13 @@ public sealed partial class AddOrderPage : Page
         ViewModel.ShowDialogRequested += OnShowDialogRequested;
     }
 
+    private void NumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (sender.DataContext is Shoes shoes)
+        {
+            ViewModel.SetQuantityForShoes(shoes.ID, (int)sender.Value);
+        }
+    }
     private async void OnShowDialogRequested(string title, string message)
     {
         var dialog = new ContentDialog
@@ -51,6 +58,18 @@ public sealed partial class AddOrderPage : Page
         {
             FiltersAndSearchPanel.Visibility = Visibility.Visible;
             SmallFiltersAndSearchPanel.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void ToggleFormButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (FormOrder.Visibility == Visibility.Visible)
+        {
+            FormOrder.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            FormOrder.Visibility = Visibility.Visible;
         }
     }
 
@@ -133,13 +152,13 @@ public sealed partial class AddOrderPage : Page
             ViewModel.ToggleShoesSelectionCommand.Execute(shoes);
         }
     }
-
-    private void OnQuantityChanged(object sender, NumberBoxValueChangedEventArgs e)
+    private void ToggleAddOrderPageButton_Checked(object sender, RoutedEventArgs e)
     {
-        var shoes = (sender as NumberBox)?.DataContext as Shoes;
-        if (shoes != null)
-        {
-            ViewModel.UpdateQuantityCommand.Execute(shoes);
-        }
+        FormOrder.Visibility = Visibility.Visible;
+    }
+
+    private void ToggleAddOrderPageButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        FormOrder.Visibility = Visibility.Collapsed;
     }
 }

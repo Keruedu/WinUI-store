@@ -2,6 +2,7 @@
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
+using ShoesShop.Core.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -65,6 +66,13 @@ public class UserDataService : IUserDataService
 
     public async Task<(User, string, int)> CreateUserAsync(User User)
     {
+        User.Image = User.Image.Trim();
+        if (string.IsNullOrEmpty(User.Image))
+        {
+            var userName = User.Name.Replace(" ", "+");
+            User.Image = $"https://ui-avatars.com/api/?name={userName}&background=random";
+        }
+
         var (errorCode, Message, _) = _dao.AddUser(User);
         return await Task.FromResult((User, Message, errorCode ? 1 : 0));
     }
@@ -128,6 +136,14 @@ public class UserDataService : IUserDataService
                             Country = worksheet.Cells[row, 12].Text
                         }
                     };
+
+                    user.Password = BcryptUtil.HashPassword(user.Password);
+
+                    if (string.IsNullOrEmpty(user.Image))
+                    {
+                        user.Image = "";
+                    }
+
                     users.Add(user);
                 }
             }

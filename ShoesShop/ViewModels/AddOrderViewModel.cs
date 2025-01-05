@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Xaml;
 using ShoesShop.Contracts.Services;
 using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
@@ -118,14 +119,13 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
 
     public void SetQuantityForShoes(int shoesId, int quantity)
     {
-        for (int i = 0; i < newDetailQuantity.Count; i++)
+        var detail = newDetailQuantity.FirstOrDefault(d => d.Item1 == shoesId);
+        if (detail != null)
         {
-            if (newDetailQuantity[i].Item1 == shoesId)
-            {
-                newDetailQuantity[i] = new Tuple<int, int>(shoesId, quantity);
-                break;
-            }
+            newDetailQuantity.Remove(detail);
         }
+        newDetailQuantity.Add(new Tuple<int, int>(shoesId, quantity));
+        OnPropertyChanged(nameof(newDetailQuantity));
 
         OnPropertyChanged(nameof(TotalAmount)); // Cập nhật lại tổng tiền
     }
@@ -181,16 +181,44 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             }
             NewAddress = newAddress;
 
-            var orderDetails = SelectedShoes.Select(shoes =>
+
+            var orderDetails = new List<Detail>();
+            foreach (var shoes in SelectedShoes)
             {
                 var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
-                return new Detail
+                var quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock;
+
+                if (shoes.Stock == 0)
+                {
+                    ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
+                    NotfifyChanges();
+                    return;
+                }
+                if (shoes.Stock < quantity)
+                {
+                    ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
+                    NotfifyChanges();
+                    return;
+                }
+
+                orderDetails.Add(new Detail
                 {
                     ShoesID = shoes.ID,
-                    Quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock,
+                    Quantity = quantity,
                     Price = shoes.Price
-                };
-            }).ToList();
+                });
+
+                // Update the stock
+                shoes.Stock -= quantity;
+                var (_, errorMessageShoes, errorCodeShoes) = await Task.Run(async () => await _ShoesDataService.UpdateShoesAsync(shoes));
+                if (errorCodeShoes == 0)
+                {
+                    ErrorMessage = errorMessageShoes;
+                    ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                    NotfifyChanges();
+                    return;
+                }
+            }
 
             var order = new Order
             {
@@ -241,12 +269,14 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         if (data is not null)
         {
             Source.Clear();
-            newDetailQuantity.Clear();
 
             foreach (var item in data)
             {
+                if (item.Image is null || item.Image == "")
+                {
+                    item.Image = "https://res.cloudinary.com/dyocg3k6j/image/upload/v1732185753/cld-sample-5.jpg";
+                }
                 Source.Add(item);
-                newDetailQuantity.Add(new Tuple<int, int>(item.ID, 1));
             }
 
             IsLoading = false;
@@ -268,15 +298,6 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         NotfifyChanges();
     }
 
-    public void UpdateDetailQuantities()
-    {
-        for (int i = 0; i < newDetailQuantity.Count; i++)
-        {
-            var item = newDetailQuantity[i];
-            newDetailQuantity[i] = new Tuple<int, int>(item.Item1, 1);
-        }
-    }
-
     public void OnNavigatedTo(object parameter)
     {
         if (Source.Count <= 0)
@@ -289,7 +310,6 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
     public void OnNavigatedFrom()
     {
     }
-
 
 
     [RelayCommand]
