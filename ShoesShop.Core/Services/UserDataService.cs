@@ -197,7 +197,18 @@ public class UserDataService : IUserDataService
     }
 
 
-
-
+    public async Task<(IEnumerable<User>, int, string, int)> GetCustomers()
+    {
+        const int DEFAULT_FIRST_PAGE = 1;
+        const int MAX_CUSTOMER = 1000;
+        const string ROW_NAME_OF_ROLE = "Role";
+        const string CUSTOMER_ROLE = "User";
+        var numberFieldOptions = new Dictionary<string, Tuple<Decimal,Decimal>>();
+        var textFieldOptions=new Dictionary<string, string>();
+        var sortOptions=new Dictionary<string, IDao.SortType>();
+        textFieldOptions.Add(ROW_NAME_OF_ROLE, CUSTOMER_ROLE);
+        var (errorCode, Message, users, totalUsers) = _dao.GetUsers(DEFAULT_FIRST_PAGE, MAX_CUSTOMER, numberFieldOptions, textFieldOptions, sortOptions);
+        return await Task.FromResult((users, (int)totalUsers, Message, errorCode ? 1 : 0));
+    }
 
 }
