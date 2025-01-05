@@ -208,7 +208,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 {
                     ShoesID = shoes.ID,
                     Quantity = quantity,
-                    Price = shoes.Price
+                    Price = shoes.Price,
+                    Shoes = shoes
                 });
 
                 // Update the stock
@@ -233,13 +234,16 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 AddressID = NewAddress.ID,
             };
 
-            var (_, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
+            var (neworder, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
+
+            neworder.User = user;
+            neworder.Details = orderDetails;
 
             if (errorCode == 1)
             {
                 ShowDialogRequested?.Invoke("Success", "Order updated successfully.");
                 GmailNotificationService gmailNotificationService = new GmailNotificationService(_userDataService);
-                gmailNotificationService.NotifyMakingOrder(order);
+                gmailNotificationService.NotifyMakingOrder(neworder);
                 _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
             }
             else

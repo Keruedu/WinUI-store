@@ -62,13 +62,13 @@ public interface IDao
     public Tuple<bool, string, User> AddUser(User user);
     public Tuple<bool, string, User> UpdateUser(User user);
     public Tuple<bool, string> BanAndUnbanUser(User user);
-    public User GetUserByID(
-        int userID);
+    public User GetUserByID(int userID);
     public Tuple<bool, string, Dictionary<int, Address>> GetAddressesByIds(List<int> addressIds);
     public Tuple<bool, string, Dictionary<int, User>> GetUserByIds(List<int> userIds);
     public Tuple<bool, string, List<Detail>> GetDetailsByOrderIds(List<int> orderIds);
     public Tuple<bool, string> AddDetail(int orderId, Detail detail);
     public Tuple<bool, string> DeleteDetail(int orderId, int detailId);
+
 
     //address
     public Tuple<bool, string, Address> AddAddress(Address address);

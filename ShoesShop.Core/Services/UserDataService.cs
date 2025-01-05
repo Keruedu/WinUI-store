@@ -214,8 +214,7 @@ public class UserDataService : IUserDataService
 
     public async Task<User> GetUserByIdAsync(int userId)
     {
-        var (users, _, _, _) = await LoadDataAsync();
-        return users.FirstOrDefault(u => u.ID == userId);
+        return await Task.Run(() => _dao.GetUserByID(userId));
     }
 
 
