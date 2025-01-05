@@ -28,7 +28,6 @@ public sealed partial class AddShoesPage : Page
         }
     }
 
-
     private async void OnShowDialogRequested(string title, string message)
     {
         var dialog = new ContentDialog

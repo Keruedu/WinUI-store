@@ -82,20 +82,70 @@
             <DataTemplate x:Key="BoldHeaderTemplate">
                 <TextBlock Text="{Binding}" FontWeight="Bold"/>
             </DataTemplate>
+            
+            
+            
 
         </Grid.Resources>
 
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!--<Setter Target="GridView.ItemsPanel">
+                            <Setter.Value>
+                                <ItemsPanelTemplate>
+                                    <ItemsStackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </Setter.Value>
+                        </Setter>-->
+                        <Setter Target="ShoesSelection.(Grid.Column)" Value="0"/>
+                        <Setter Target="ShoesSelection.(Grid.Row)" Value="1"/>
+                        <Setter Target="BodyAddOrder.ColumnDefinitions" Value="*, Auto"/>
+                        <Setter Target="HeaderListShoes_Narrow.Visibility" Value="Visible"/>
+                        <Setter Target="HeaderListShoes_Wide.Visibility" Value="Collapsed"/>
+                        <Setter Target="GridViewShoes_Narrow.Visibility" Value="Visible"/>
+                        <Setter Target="GridViewShoes_Wide.Visibility" Value="Collapsed"/>
 
+                    </VisualState.Setters>
+                    
+                </VisualState>
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="GridView.ItemsPanel">
+                            <Setter.Value>
+                                <ItemsPanelTemplate>
 
-        <ScrollViewer IsTabStop="True">
+                                </ItemsPanelTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </VisualState.Setters>
+                </VisualState>
 
-            <StackPanel>
+            </VisualStateGroup>
+            
+        </VisualStateManager.VisualStateGroups>
+
+        <ScrollViewer IsTabStop="True" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Hidden">
+
+            <StackPanel HorizontalAlignment="Stretch">
                 <!--Filters and Search-->
                 <StackPanel>
                     <Button Content="ADD" Command="{x:Bind ViewModel.AddOrderCommand}"
 						Background="#26C215" Foreground="White"
 						HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top"
 						Canvas.ZIndex="100" Padding="20,10" />
+                    <!-- ToggleButton to show/hide AddOrderPage -->
+                    <Button x:Name="ToggleFormButton"
+                        Content="Toggle"
+                        Click="ToggleFormButton_Click"
+                        HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" />
                     <InfoBarPanel>
                         <InfoBar
 						x:Name="ErrorInfoBar"
@@ -118,14 +168,10 @@
 							/>
                     </InfoBarPanel>
                 </StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="7*" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Spacing="12" Margin="10" Grid.Column="0">
-                        <TextBox Header="User ID" Text="{x:Bind ViewModel.UserId, Mode=TwoWay}" Width="200"/>
-                        <CalendarDatePicker Header="Order Date" Date="{x:Bind ViewModel.OrderDate, Mode=TwoWay}" Width="200"/>
+                <Grid x:Name="BodyAddOrder" ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" HorizontalAlignment="Stretch">
+                    <StackPanel x:Name="FormOrder" Orientation="Vertical" Spacing="12" Margin="10" Grid.Column="0" Grid.Row="0">
+                        <TextBox Header="User ID" Text="{x:Bind ViewModel.UserId, Mode=TwoWay}" MinWidth="200"/>
+                        <CalendarDatePicker Header="Order Date" Date="{x:Bind ViewModel.OrderDate, Mode=TwoWay}" MinWidth="200"/>
                         <ComboBox SelectedValue="{x:Bind ViewModel.SelectedStatusOrder, Mode=TwoWay}" SelectedValuePath="Content" MinWidth="200" Height="50">
                             <ComboBoxItem Content="Pending" />
                             <ComboBoxItem Content="Shipped" />
@@ -133,14 +179,14 @@
                             <ComboBoxItem Content="Cancelled" />
                         </ComboBox>
 
-                        <TextBox Header="Street" Text="{x:Bind ViewModel.NewAddress.Street, Mode=TwoWay}" Width="200"/>
-                        <TextBox Header="City" Text="{x:Bind ViewModel.NewAddress.City, Mode=TwoWay}" Width="200"/>
-                        <TextBox Header="State" Text="{x:Bind ViewModel.NewAddress.State, Mode=TwoWay}" Width="200"/>
-                        <TextBox Header="Zip Code" Text="{x:Bind ViewModel.NewAddress.ZipCode, Mode=TwoWay}" Width="200"/>
-                        <TextBox Header="Country" Text="{x:Bind ViewModel.NewAddress.Country, Mode=TwoWay}" Width="200"/>
+                        <TextBox Header="Street" Text="{x:Bind ViewModel.NewAddress.Street, Mode=TwoWay}" MinWidth="200"/>
+                        <TextBox Header="City" Text="{x:Bind ViewModel.NewAddress.City, Mode=TwoWay}" MinWidth="200"/>
+                        <TextBox Header="State" Text="{x:Bind ViewModel.NewAddress.State, Mode=TwoWay}" MinWidth="200"/>
+                        <TextBox Header="Zip Code" Text="{x:Bind ViewModel.NewAddress.ZipCode, Mode=TwoWay}" MinWidth="200"/>
+                        <TextBox Header="Country" Text="{x:Bind ViewModel.NewAddress.Country, Mode=TwoWay}" MinWidth="200"/>
                     </StackPanel>
 
-                    <StackPanel Orientation="Vertical" Grid.Column="1">
+                    <StackPanel x:Name="ShoesSelection" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="0">
                         <StackPanel
                         Orientation="Horizontal"
 					    x:Name="FiltersAndSearchPanel"
@@ -222,6 +268,7 @@
                                 <NumberBox
 							      Header="Max Price"
 							      ValueChanged="MaxPriceTextBox_ValueChanged"
+                                  HorizontalAlignment="Left"
 							      SpinButtonPlacementMode="Compact"
 							      Value="{Binding ElementName=MaxPriceTextBox, Path=Value, Mode=TwoWay}"
 							      SmallChange="1000"
@@ -263,28 +310,35 @@
 
                         <!--Shoess-->
 
-                        <StackPanel Spacing="20" Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}">
-                            <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6" HorizontalAlignment="Stretch">
-                                <Grid ColumnDefinitions="Auto, *, *, *, *, *, *" >
-                                    <!-- Hình ảnh -->
-
-                                    <TextBlock Text="Image" FontWeight="Bold" Margin="8,0" Width="40"/>
-                                    <!-- Chi tiết -->
-                                    <TextBlock Grid.Column="1" Text="Name" Style="{StaticResource DetailShoes}" FontWeight="Bold"/>
-                                    <TextBlock Grid.Column="2" Text="Size" Style="{StaticResource DetailShoes}"/>
-                                    <TextBlock Grid.Column="3" Text="Brand" Style="{StaticResource DetailShoes}"/>
-                                    <TextBlock Grid.Column="4" Text="Color" Style="{StaticResource DetailShoes}"/>
-                                    <TextBlock Grid.Column="5" Text="Quantity" Style="{StaticResource DetailShoes}"/>
-                                    <TextBlock Grid.Column="6" Text="Price" Style="{StaticResource DetailShoes}"/>
-                                    
-                                </Grid>
-                            </Border>
+                        <StackPanel Spacing="20" Visibility="{x:Bind ViewModel.ContentIsReady, Mode=OneWay}" HorizontalAlignment="Stretch">
+                            <Grid x:Name="HeaderListShoes_Wide" ColumnDefinitions="Auto, 2*, *, *, *, 2*, *" Background="{ThemeResource CardBackground}" CornerRadius="10" Padding="10">
+                                <TextBlock Text="Image" FontWeight="Bold" Margin="8,0" Width="40"/>
+                                <TextBlock Grid.Column="1" Text="Name" Style="{StaticResource DetailShoes}" FontWeight="Bold"/>
+                                <TextBlock Grid.Column="2" Text="Size" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="3" Text="Brand" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="4" Text="Color" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="5" Text="Quantity" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="6" Text="Price" Style="{StaticResource DetailShoes}"/>
+                            </Grid>
+                            
+                            <!--Responsive-->
+                            <Grid x:Name="HeaderListShoes_Narrow" Visibility="Collapsed" ColumnDefinitions="Auto, 2*, *, 2*, *" Background="{ThemeResource CardBackground}" CornerRadius="10" Padding="10">
+                                <TextBlock Text="Image" FontWeight="Bold" Margin="8,0" Width="40"/>
+                                <TextBlock Grid.Column="1" Text="Name" Style="{StaticResource DetailShoes}" FontWeight="Bold"/>
+                                <TextBlock Grid.Column="2" Text="Size" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="3" Text="Brand" Style="{StaticResource DetailShoes}"/>
+                                <TextBlock Grid.Column="4" Text="Price" Style="{StaticResource DetailShoes}"/>
+                            </Grid>
+                            
                             <GridView
-                            Margin="0, 16, 0, 16"
-                            IsItemClickEnabled="True"
-                            ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
-                            SelectionMode="Multiple"
-                            ItemClick="OnShoesItemClick">
+                                x:Name="GridViewShoes_Wide"
+                                CornerRadius="10"
+                                Padding="10"
+                                Background="{ThemeResource CardBackground}"
+                                IsItemClickEnabled="True"
+                                ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                                SelectionMode="Multiple"
+                                ItemClick="OnShoesItemClick">
                                 <GridView.Resources>
                                     <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
                                 </GridView.Resources>
@@ -297,25 +351,83 @@
                                     <Style TargetType="GridViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0 10 0 0"/>
                                     </Style>
                                 </GridView.ItemContainerStyle>
                                 <GridView.ItemTemplate>
                                     <DataTemplate x:DataType="models:Shoes">
+                                        <Grid ColumnDefinitions="Auto, 2*, *, *, *, 2*, *" RowSpacing="8" HorizontalAlignment="Stretch">
+                                            <!--Hình ảnh-->
+                                            <Image Source="{x:Bind Image}" Width="40" Height="40" Stretch="UniformToFill" Grid.Column="0" Margin="8"/>
 
-                                        <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6" HorizontalAlignment="Stretch">
-                                            <Grid ColumnDefinitions="Auto, *, *, *, *, *, *" RowSpacing="8">
-                                                <!--Hình ảnh-->
-                                                <Image Source="{x:Bind Image}" Width="40" Height="40" Stretch="UniformToFill" Grid.Column="0" Margin="8"/>
+                                            <!--Chi tiết-->
+                                            <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <TextBlock Grid.Column="3" Text="{x:Bind Brand, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <TextBlock Grid.Column="4" Text="{x:Bind Color, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <NumberBox
+                                                    Grid.Column="5"
+                                                    Value="1"
+                                                    ValueChanged="NumberBox_ValueChanged"
+                                                    SpinButtonPlacementMode="Compact"
+                                                    HorizontalAlignment="Left"
+                                                    SmallChange="1"
+                                                    LargeChange="10"
+                                                    Height="30"
+                                                    MaxWidth="120"/>
+                                            <TextBlock Grid.Column="6" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridView.ItemTemplate>
+                            </GridView>
+                            
+                            <!--Responsive-->
+                            <GridView Visibility="Collapsed"
+                                x:Name="GridViewShoes_Narrow"
+                                CornerRadius="10"
+                                Padding="10"
+                                Background="{ThemeResource CardBackground}"      
+                                IsItemClickEnabled="True"
+                                ItemsSource="{x:Bind ViewModel.Source, Mode=OneWay}"
+                                SelectionMode="Multiple"
+                                ItemClick="OnShoesItemClick">
+                                <GridView.Resources>
+                                    <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+                                </GridView.Resources>
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsStackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                                <GridView.ItemContainerStyle>
+                                    <Style TargetType="GridViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0 10 0 0"/>
+                                    </Style>
+                                </GridView.ItemContainerStyle>
+                                
+                                <GridView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:Shoes">
+                                        <Grid ColumnDefinitions="Auto, 2*, *, 2*, *" RowSpacing="8" Background="{ThemeResource CardBackground}">
+                                            <Image Source="{x:Bind Image}" Width="40" Height="40" Stretch="UniformToFill" Grid.Column="0" Margin="8"/>
 
-                                                <!--Chi tiết-->
-                                                <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                                <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                                <TextBlock Grid.Column="3" Text="{x:Bind Brand, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                                <TextBlock Grid.Column="4" Text="{x:Bind Color, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                                <TextBlock Grid.Column="5" Text="1"/>
-                                                <TextBlock Grid.Column="6" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
-                                            </Grid>
-                                        </Border>
+                                            <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
+                                            <NumberBox
+                                                Grid.Column="3"
+                                                Value="1"
+                                                ValueChanged="NumberBox_ValueChanged"
+                                                SpinButtonPlacementMode="Compact"
+                                                HorizontalAlignment="Left"
+                                                SmallChange="1"
+                                                LargeChange="10"
+                                                Height="30"
+                                                MaxWidth="120"/>
+                                            <TextBlock Grid.Column="4" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
 
