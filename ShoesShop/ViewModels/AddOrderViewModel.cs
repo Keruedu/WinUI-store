@@ -9,6 +9,7 @@ using ShoesShop.Contracts.ViewModels;
 using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Http;
 using ShoesShop.Core.Models;
+using ShoesShop.Core.Services;
 using ShoesShop.Services;
 using WinUIEx.Messaging;
 
@@ -21,6 +22,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
     private readonly IOrderDataService _orderDataService;
     private readonly ICategoryDataService _categoryDataService;
     private readonly IAddressDataService _addressDataService;
+    private readonly IUserDataService _userDataService;
 
     public event Action<string, string>? ShowDialogRequested;
 
@@ -71,7 +73,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         get; set;
     } = new ObservableCollection<Tuple<int, int>>();
 
-    public AddOrderViewModel(INavigationService navigationService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IAddressDataService addressDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
+    public AddOrderViewModel(INavigationService navigationService, IUserDataService userDataService, IShoesDataService ShoesDataService, IOrderDataService orderDataService, ICategoryDataService categoryDataService, IAddressDataService addressDataService, IStorePageSettingsService storePageSettingsService) : base(storePageSettingsService)
     {
         AddOrderCommand = new RelayCommand(OnAddOrder);
 
@@ -80,6 +82,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         _categoryDataService = categoryDataService;
         _orderDataService = orderDataService;
         _addressDataService = addressDataService;
+        _userDataService = userDataService;
 
         SelectedStatusOrder = "Pending";
 
@@ -162,9 +165,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         if (SelectedShoes.Count == 0)
         {
             ErrorMessage = "Please select at least one Shoes";
-            NotfifyChanges();
-            await Task.Delay(2000); // Wait for 2 seconds
-            ErrorMessage = string.Empty;
+            ShowDialogRequested?.Invoke("Error", ErrorMessage);
+            LoadData();
             NotfifyChanges();
             return;
         }
@@ -176,6 +178,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             if (addressErrorCode == 0)
             {
                 ErrorMessage = addressErrorMessage;
+                ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                LoadData();
                 NotfifyChanges();
                 return;
             }
@@ -188,15 +192,19 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
                 var quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock;
 
-                if (shoes.Stock == 0)
+                if (shoes.Stock <= 0)
                 {
-                    ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
+                    ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
+                    ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                    LoadData();
                     NotfifyChanges();
                     return;
                 }
                 if (shoes.Stock < quantity)
                 {
-                    ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
+                    ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
+                    ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                    LoadData();
                     NotfifyChanges();
                     return;
                 }
@@ -205,7 +213,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 {
                     ShoesID = shoes.ID,
                     Quantity = quantity,
-                    Price = shoes.Price
+                    Price = shoes.Price,
+                    Shoes = shoes
                 });
 
                 // Update the stock
@@ -219,21 +228,27 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                     return;
                 }
             }
-
+            var user = await _userDataService.GetUserByIdAsync(UserId);
             var order = new Order
             {
                 UserID = UserId,
+                User = user,
                 OrderDate = OrderDate.ToString(),
                 Status = SelectedStatusOrder,
                 Details = orderDetails,
                 AddressID = NewAddress.ID,
             };
 
-            var (_, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
+            var (neworder, errorMessage, errorCode) = await Task.Run(async () => await _orderDataService.CreateAOrderAsync(order));
+
+            neworder.User = user;
+            neworder.Details = orderDetails;
 
             if (errorCode == 1)
             {
                 ShowDialogRequested?.Invoke("Success", "Order updated successfully.");
+                GmailNotificationService gmailNotificationService = new GmailNotificationService(_userDataService);
+                gmailNotificationService.NotifyMakingOrder(neworder);
                 _navigationService.NavigateTo("ShoesShop.ViewModels.OrdersViewModel");
             }
             else

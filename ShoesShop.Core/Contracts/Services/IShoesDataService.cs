@@ -18,7 +18,7 @@ public interface IShoesDataService
 
     public Task<(IEnumerable<Shoes>, int, string, int)> LoadDataAsync();
     public (IEnumerable<Shoes>, int, string, int) GetData();
-
+    public Task<(IEnumerable<Shoes>, int, string, int)> GetInactiveShoesAsync();
     public Task<(Shoes, string, int)> CreateShoesAsync(Shoes Shoes);
 
     public Task<(string, int)> DeleteShoesAsync(Shoes Shoes);

@@ -1,4 +1,5 @@
-﻿using ShoesShop.Core.Contracts.Services;
+﻿using System;
+using ShoesShop.Core.Contracts.Services;
 using ShoesShop.Core.Models;
 using ShoesShop.Core.Services.DataAcess;
 namespace ShoesShop.Core.Services;
@@ -53,6 +54,7 @@ public class ShoesDataService : IShoesDataService
         _ShoesDataTuple = (listShoes, (int)totalShoes, "Success", 1);
         //return _ShoesDataTuple;
         return _ShoesDataTuple;
+
     }
 
     public async Task<(Shoes, string, int)> CreateShoesAsync(Shoes Shoes)
@@ -75,6 +77,22 @@ public class ShoesDataService : IShoesDataService
         var (errorCode, Message, _) = _dao.UpdateShoes(Shoes);
         return await Task.FromResult((Shoes, Message, errorCode ? 1 : 0));
     }
+
+    public async Task<(IEnumerable<Shoes>, int, string, int)> GetInactiveShoesAsync()
+    {
+        var (_, _, numberFieldsOptions, textFieldsOptions, sortOptions) = _searchQuery;
+        int currentPage = 1;
+        int itemsPerPage = int.MaxValue;
+        if (textFieldsOptions.ContainsKey("Status") && textFieldsOptions["Status"] != "Inactive")
+        {
+            return await Task.FromResult((Enumerable.Empty<Shoes>(), 0, "Status filter already exists", 0));
+        }
+
+        textFieldsOptions["Status"] = "Inactive";
+        var (listShoes, totalShoes) = _dao.GetShoes(currentPage, itemsPerPage, numberFieldsOptions, textFieldsOptions, sortOptions);
+        return await Task.FromResult((listShoes, (int)totalShoes, "Success", 1));
+    }
+
 
     public async Task<(int, string, int)> GetShoesCountByCategoryIdAsync(int categoryId)
     {

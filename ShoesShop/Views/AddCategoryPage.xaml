@@ -5,10 +5,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
-	<ScrollViewer Margin="0,0,0,40">
+    <Page.Resources>
+		<Style x:Key="TitleText" TargetType="TextBlock">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="FontSize" Value="24" />
+		</Style>
+    </Page.Resources>
+    <ScrollViewer Margin="0,0,0,40">
+        
 		<Grid x:Name="ContentArea">
             <StackPanel Spacing="16" MaxWidth="600" Padding="0, 20, 0, 20">
+                <TextBlock Text="Add Category" Style="{StaticResource TitleText}" FontSize="32"/>
                 <TextBox Header="Category name" PlaceholderText="Name" Text="{x:Bind ViewModel.NewCategory.Name, Mode=TwoWay}" />
                 <TextBox Header="Description" Height="120" PlaceholderText="Write category description" Text="{x:Bind ViewModel.NewCategory.Description, Mode=TwoWay}" />
 

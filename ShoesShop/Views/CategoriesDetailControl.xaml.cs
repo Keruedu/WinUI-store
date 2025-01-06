@@ -43,6 +43,7 @@ public sealed partial class CategoriesDetailControl : UserControl
         ViewModel.EditCategory = ListDetailsMenuItem ?? new();
 
         DeleteItemButton.IsEnabled = ViewModel.Item?.ID != 1;
+        EditItemButton.IsEnabled = ViewModel.Item?.ID != 1;
     }
 
     private async void DeleteItemButton_Click(object sender, RoutedEventArgs e)

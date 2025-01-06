@@ -21,7 +21,7 @@ public class PostgreDao : IDao
         var connectionConfig = """
             Host = localhost;
             Port=5433;
-            Database = shop;
+            Database = postgres;
             User ID = root;
             Password = root;
         """;
@@ -1347,7 +1347,6 @@ public class PostgreDao : IDao
             user.ID = (int)reader["UserID"];
             user.Name = (string)reader["Name"];
             user.Email = (string)reader["Email"];
-            user.Password = (string)reader["Password"];
             user.PhoneNumber = (string)reader["PhoneNumber"];
         }
         reader.Close();
@@ -1855,7 +1854,5 @@ public class PostgreDao : IDao
     }
 
 
-
-  
 
 }

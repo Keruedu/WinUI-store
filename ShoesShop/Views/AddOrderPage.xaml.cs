@@ -149,6 +149,7 @@ public sealed partial class AddOrderPage : Page
     {
         if (e.ClickedItem is Shoes shoes)
         {
+
             ViewModel.ToggleShoesSelectionCommand.Execute(shoes);
         }
     }

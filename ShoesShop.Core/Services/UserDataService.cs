@@ -212,6 +212,11 @@ public class UserDataService : IUserDataService
         }
     }
 
+    public async Task<User> GetUserByIdAsync(int userId)
+    {
+        return await Task.Run(() => _dao.GetUserByID(userId));
+    }
+
 
     public async Task<(IEnumerable<User>, int, string, int)> GetCustomers()
     {

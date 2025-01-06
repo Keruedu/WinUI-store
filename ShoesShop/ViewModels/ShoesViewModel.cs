@@ -14,6 +14,13 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
     private readonly IShoesDataService _ShoesDataService;
     private readonly ICategoryDataService _categoryDataService;
 
+    public int InactiveShoes
+    {
+
+        get; set;
+    }
+
+
     public ObservableCollection<Shoes> Source { get; } = new ObservableCollection<Shoes>();
 
     public RelayCommand NavigateToAddShoesPageCommand
@@ -35,8 +42,8 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
             new() { Name = "Name (Z-A)", Value="Name", IsAscending = false },
             new() { Name = "Price (Low - High)", Value="Price", IsAscending = true },
             new() { Name = "Price (High - Low)", Value="Price", IsAscending = false },
-            new() { Name = "Stock (Past)", Value="Stock", IsAscending = true },
-            new() { Name = "Stock (Recent)", Value="Stock", IsAscending = false },
+            new() { Name = "Stock (Most)", Value="Stock", IsAscending = false },
+            new() { Name = "Stock (Low)", Value="Stock", IsAscending = true },
         };
         SelectedSortOption = SortOptions[0];
         NavigateToAddShoesPageCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(AddShoesViewModel).FullName!));
@@ -84,6 +91,22 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
         {
             Source.Clear();
 
+            TotalItems = totalItems;
+
+            var (inactiveShoes, _, inactiveMessage, inactiveErrorCode) = await _ShoesDataService.GetInactiveShoesAsync();
+            if (inactiveShoes is not null)
+            {
+                InactiveShoes = inactiveShoes.Count();
+            }
+            else
+            {
+                if (inactiveErrorCode == 0)
+                {
+                    ErrorMessage = inactiveMessage;
+                }
+            }
+
+
             foreach (var item in data)
             {
                 if (item.Image is null || item.Image == "")
@@ -93,8 +116,6 @@ public partial class ShoesViewModel : ResourceLoadingViewModel, INavigationAware
                 Source.Add(item);
 
             }
-
-            TotalItems = totalItems;
 
             if (TotalItems == 0)
             {

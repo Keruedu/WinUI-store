@@ -14,10 +14,11 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+        <helpers:CurrencyConverter x:Key="CurrencyConverter"/>
         <helpers:CategoryIdToNameConverter x:Key="CategoryIdToNameConverter"/>
         <helpers:StatusToColorConverter x:Key="ColorStatusConverter" />
         <helpers:ShoesSoldConverter x:Key="ShoesSoldConverter"/>
+        <helpers:StockToVisibilityConverter x:Key="StockToVisibilityConverter"/>
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
@@ -45,15 +46,38 @@
         </Grid.Resources>
 
         <ScrollViewer IsTabStop="True" VerticalScrollBarVisibility="Hidden">
-            <StackPanel Spacing="20">
+            <StackPanel Spacing="8">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                     <TextBlock Text="All Products" Style="{StaticResource TitleText}" FontSize="32" Grid.Column="0"/>
+                    <TextBlock Text="All Products" Style="{StaticResource TitleText}" FontSize="32" Grid.Column="0"/>
+                </Grid>
+                
+                <StackPanel Orientation="Horizontal" Spacing="20">
+                    <StackPanel Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="15" Spacing="10">
+                        <TextBlock Text="Total Shoes:" FontWeight="Medium" FontSize="16"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="#4A69E2" Padding="5" CornerRadius="5" Margin="0 0 25 0">
+                                <FontIcon Glyph="&#xEE57;" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+                            </Border>
+                            <TextBlock Text="{x:Bind ViewModel.TotalItems, Mode=TwoWay}" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="15" Spacing="10">
+                        <TextBlock Text="Inactive Users:" FontWeight="Medium" FontSize="16"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="#FFA52F" Padding="5" CornerRadius="5" Margin="0 0 25 0">
+                                <FontIcon Glyph="&#xEB90;" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+                            </Border>
+                            <TextBlock Text="{x:Bind ViewModel.InactiveShoes, Mode=TwoWay}" FontWeight="Bold" FontSize="24" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
                     <Button Background="{ThemeResource AddButton}" Foreground="{ThemeResource TextAddButton}" 
-                            Grid.Column="1" HorizontalAlignment="Right" Padding="10" CornerRadius="8" 
+                            Grid.Column="1" HorizontalAlignment="Right" Padding="20" CornerRadius="8" 
                             VerticalAlignment="Stretch" Command="{x:Bind ViewModel.NavigateToAddShoesPageCommand}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -64,8 +88,8 @@
                             </StackPanel>
                         </StackPanel>
                     </Button>
-                </Grid>
-                <!--Filters and Search-->
+                </StackPanel>
+                    <!--Filters and Search-->
                 <Grid>
 
                     <!--I have code duplication, but huhhuhuhuhu-->
@@ -221,7 +245,7 @@
                                                 </Grid.RowDefinitions>
                                                 <TextBlock Text="{x:Bind Name}" FontSize="20" FontWeight="Medium" Grid.Row="0"/>
                                                 <TextBlock Text="{x:Bind CategoryID, Converter={StaticResource CategoryIdToNameConverter}}" Grid.Row="1" />
-                                                <TextBlock Text="{x:Bind Price}" VerticalAlignment="Bottom" FontWeight="Bold" FontSize="18" Grid.Row="2"/>
+                                                <TextBlock Text="{x:Bind Price, Converter={StaticResource CurrencyConverter}}" VerticalAlignment="Bottom" FontWeight="Bold" FontSize="18" Grid.Row="2"/>
                                             </Grid>
                                         </StackPanel>
                                         <!--Description and Status-->
@@ -229,11 +253,15 @@
                                             <Grid Grid.Row="1" HorizontalAlignment="Stretch" ColumnSpacing="10">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="Summary" FontSize="20" FontWeight="Medium" Grid.Column="0"/>
-                                                <Border Background="{x:Bind Status, Converter={StaticResource ColorStatusConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="3" CornerRadius="4" Grid.Column="1">
+                                                <Border Grid.Column="1" Background="{x:Bind Status, Converter={StaticResource ColorStatusConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="3" CornerRadius="4">
                                                     <TextBlock Text="{x:Bind Status}" Foreground="White" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <Border Grid.Column="2" Background="#FFA52F" Visibility="{x:Bind Stock, Converter={StaticResource StockToVisibilityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="3" CornerRadius="4">
+                                                    <TextBlock Text="Out of Stock" Foreground="White" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
                                             <TextBlock Text="{x:Bind Description}" MinHeight="38" TextWrapping="Wrap"/>
