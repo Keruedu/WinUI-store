@@ -162,6 +162,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
 
     private async void OnAddOrder()
     {
+        
         if (SelectedShoes.Count == 0)
         {
             ErrorMessage = "Please select at least one Shoes";
@@ -171,16 +172,20 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             return;
         }
 
+        IsLoading = true;
+
         try
         {
             // Create a new address
             var (newAddress, addressErrorMessage, addressErrorCode) = await _addressDataService.CreateAddressAsync(NewAddress);
             if (addressErrorCode == 0)
             {
+                
                 ErrorMessage = addressErrorMessage;
                 ShowDialogRequested?.Invoke("Error", ErrorMessage);
                 LoadData();
                 NotfifyChanges();
+                IsLoading = false;
                 return;
             }
             NewAddress = newAddress;
@@ -194,18 +199,22 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
 
                 if (shoes.Stock <= 0)
                 {
+                    
                     ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
                     ShowDialogRequested?.Invoke("Error", ErrorMessage);
                     LoadData();
                     NotfifyChanges();
+                    IsLoading = false;
                     return;
                 }
                 if (shoes.Stock < quantity)
                 {
+                    
                     ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
                     ShowDialogRequested?.Invoke("Error", ErrorMessage);
                     LoadData();
                     NotfifyChanges();
+                    IsLoading = false;
                     return;
                 }
 
@@ -222,6 +231,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 var (_, errorMessageShoes, errorCodeShoes) = await Task.Run(async () => await _ShoesDataService.UpdateShoesAsync(shoes));
                 if (errorCodeShoes == 0)
                 {
+                    IsLoading = false;
                     ErrorMessage = errorMessageShoes;
                     ShowDialogRequested?.Invoke("Error", ErrorMessage);
                     NotfifyChanges();
@@ -246,6 +256,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
 
             if (errorCode == 1)
             {
+                IsLoading = false;
                 ShowDialogRequested?.Invoke("Success", "Order updated successfully.");
                 GmailNotificationService gmailNotificationService = new GmailNotificationService(_userDataService);
                 gmailNotificationService.NotifyMakingOrder(neworder);
@@ -253,13 +264,16 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             }
             else
             {
+                IsLoading = false;
                 ErrorMessage = errorMessage;
                 ShowDialogRequested?.Invoke("Error", ErrorMessage);
                 NotfifyChanges();
+                
             }
         }
         catch (Exception ex)
         {
+            IsLoading = false;
             ErrorMessage = $"An error occurred: {ex.Message}";
             ShowDialogRequested?.Invoke("Error", ErrorMessage);
             NotfifyChanges();

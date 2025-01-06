@@ -16,6 +16,7 @@
         <helpers:CurrencyConverter x:Key="CurrencyConverter"/>
         <helpers:StockToIsEnabledConverter x:Key="StockToIsEnabledConverter"/>
         <helpers:StockToOpacityConverter x:Key="StockToOpacityConverter"/>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
         <DataTemplate x:Key="InStockTemplate">
             <NumberBox
@@ -168,11 +169,18 @@
                 <!--Filters and Search-->
                 <TextBlock Text="Create Order" Style="{StaticResource TitleText}" FontSize="32"/>
                 <StackPanel>
-                    <Button Content="ADD" Command="{x:Bind ViewModel.AddOrderCommand}"
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="ADD" Command="{x:Bind ViewModel.AddOrderCommand}"
 						Background="#4A69E2" Foreground="White"
 						HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top"
 						Canvas.ZIndex="100" Padding="20,10" />
-                    <!-- ToggleButton to show/hide AddOrderPage -->
+                        <!-- ToggleButton to show/hide AddOrderPage -->
+                        <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressRing IsActive="True" Width="30" Height="30" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                     <Button x:Name="ToggleFormButton"
                         Content="Toggle"
                         Click="ToggleFormButton_Click"
@@ -306,15 +314,6 @@
                             </StackPanel>
                         </Expander>
 
-
-                        <!--Loading-->
-                        <ProgressRing
-						    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-						    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-						    Width="60"
-						    Margin="0, 20, 0, 20"
-						    Height="{Binding Width, RelativeSource={RelativeSource Self}}"/>
-
                         <!--Error & Info-->
 
 
@@ -330,7 +329,7 @@
                                 <TextBlock Grid.Column="5" Text="Quantity" Style="{StaticResource DetailShoes}"/>
                                 <TextBlock Grid.Column="6" Text="Price" Style="{StaticResource DetailShoes}"/>
                             </Grid>
-                            
+
                             <!--Responsive-->
                             <Grid x:Name="HeaderListShoes_Narrow" Visibility="Collapsed" ColumnDefinitions="Auto, 2*, *, 2*, *" Background="{ThemeResource CardBackground}" CornerRadius="10" Padding="10">
                                 <TextBlock Text="Image" FontWeight="Bold" Margin="8,0" Width="40"/>
@@ -339,7 +338,7 @@
                                 <TextBlock Grid.Column="3" Text="Brand" Style="{StaticResource DetailShoes}"/>
                                 <TextBlock Grid.Column="4" Text="Price" Style="{StaticResource DetailShoes}"/>
                             </Grid>
-                            
+
                             <GridView
                                 x:Name="GridViewShoes_Wide"
                                 CornerRadius="10"
@@ -384,7 +383,7 @@
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
                             </GridView>
-                            
+
                             <!--Responsive-->
                             <GridView Visibility="Collapsed"
                                 x:Name="GridViewShoes_Narrow"
@@ -414,7 +413,7 @@
 
                                     </Style>
                                 </GridView.ItemContainerStyle>
-                                
+
                                 <GridView.ItemTemplate>
                                     <DataTemplate x:DataType="models:Shoes">
                                         <Grid ColumnDefinitions="Auto, 2*, *, 2*, *" RowSpacing="8" Background="{ThemeResource CardBackground}">
@@ -451,6 +450,8 @@
 
                     </StackPanel>
                 </Grid>
+                <!-- Loading Indicator -->
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -43,6 +43,7 @@
             <!-- Left Section -->
             <StackPanel Grid.Column="0" Spacing="15" HorizontalAlignment="Stretch" Padding="0 0 20 0">
                 <TextBlock Text="Add Shoes" FontSize="24" FontWeight="Bold" />
+                <TextBlock Text="{Binding ID, Converter={StaticResource PrefixConverter}}" FontSize="18" FontWeight="Bold" />
                 <TextBox Header="Product Name" PlaceholderText="Enter user's full name" Text="{x:Bind ViewModel.EditShoes.Name, Mode=TwoWay}" />
                 <TextBox Header="Description" PlaceholderText="Write something here" Text="{x:Bind ViewModel.EditShoes.Description, Mode=TwoWay}" MinHeight="250"/>
                 <ComboBox 
@@ -98,12 +99,12 @@
                 Style="{StaticResource ButtonSize}" 
                 Command="{x:Bind ViewModel.CancelButtonCommand}" />
                 </StackPanel>
+                <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsEditLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ProgressRing IsActive="True" Width="30" Height="30" />
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-            <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsEditLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <ProgressRing IsActive="True" MinWidth="100" MinHeight="100" />
-                </StackPanel>
-            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>

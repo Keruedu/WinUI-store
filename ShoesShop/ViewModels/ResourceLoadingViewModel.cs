@@ -212,6 +212,10 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
             textFieldsOptions.Add("Status", SelectedStatus);
         }
 
+        if (!string.IsNullOrEmpty(SearchQuery))
+        {
+            textFieldsOptions.Add("Name", SearchQuery);
+        }
 
         if (SelectedSortOption is not null && SelectedSortOption.Value != "default")
         {
@@ -254,7 +258,15 @@ public partial class ResourceLoadingViewModel : ObservableRecipient
 
         if (!string.IsNullOrEmpty(SearchQuery))
         {
-            textFieldsOptions.Add("OrderID", SearchQuery);
+            if (int.TryParse(SearchQuery, out int orderId))
+            {
+
+                textFieldsOptions.Add("OrderID", orderId.ToString());
+            }
+            else
+            {
+                textFieldsOptions.Add("Name", SearchQuery);
+            }
         }
 
         if (!string.IsNullOrEmpty(SelectedStatus))
