@@ -102,9 +102,6 @@ But some pages that are not yet fully responsive.
 5. **Sources**
    - Link repository: [Keruedu/WinUI-store](https://github.com/Keruedu/WinUI-store)
    - Latest branch: `feature/update-ui`
-   - Video: 
-
-
 
 ## Team work
 
