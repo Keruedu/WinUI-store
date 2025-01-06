@@ -99,12 +99,12 @@
                 Style="{StaticResource ButtonSize}" 
                 Command="{x:Bind ViewModel.CancelButtonCommand}" />
                 </StackPanel>
+                <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsEditLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ProgressRing IsActive="True" Width="30" Height="30" />
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-            <Grid Background="Transparent" Visibility="{x:Bind ViewModel.IsEditLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <ProgressRing IsActive="True" MinWidth="100" MinHeight="100" />
-                </StackPanel>
-            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>
