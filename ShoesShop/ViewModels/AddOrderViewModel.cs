@@ -165,9 +165,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
         if (SelectedShoes.Count == 0)
         {
             ErrorMessage = "Please select at least one Shoes";
-            NotfifyChanges();
-            await Task.Delay(2000); // Wait for 2 seconds
-            ErrorMessage = string.Empty;
+            ShowDialogRequested?.Invoke("Error", ErrorMessage);
+            LoadData();
             NotfifyChanges();
             return;
         }
@@ -179,6 +178,8 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             if (addressErrorCode == 0)
             {
                 ErrorMessage = addressErrorMessage;
+                ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                LoadData();
                 NotfifyChanges();
                 return;
             }
@@ -191,15 +192,19 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
                 var quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock;
 
-                if (shoes.Stock == 0)
+                if (shoes.Stock <= 0)
                 {
-                    ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
+                    ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
+                    ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                    LoadData();
                     NotfifyChanges();
                     return;
                 }
                 if (shoes.Stock < quantity)
                 {
-                    ErrorMessage = $"Shoes {shoes.Name} is out of stock.";
+                    ErrorMessage = $"The quantity for {shoes.Name} exceeds the available stock.";
+                    ShowDialogRequested?.Invoke("Error", ErrorMessage);
+                    LoadData();
                     NotfifyChanges();
                     return;
                 }

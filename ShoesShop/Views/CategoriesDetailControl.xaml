@@ -33,7 +33,7 @@
                 <TextBlock Style="{StaticResource DetailSubTitleStyle}"  Text="{x:Bind ViewModel.Item.Description, Mode=OneWay}" />
 
                 <CommandBar DefaultLabelPosition="Right" HorizontalAlignment="Left" Margin="0,10,0,0" >
-                    <AppBarButton Icon="Edit" Label="Edit" Command="{x:Bind ViewModel.SetEditItemSessionButtonCommand}" />
+                    <AppBarButton Icon="Edit" Label="Edit" x:Name="EditItemButton" Command="{x:Bind ViewModel.SetEditItemSessionButtonCommand}" />
                     <AppBarButton Icon="Delete" Label="Delete" x:Name="DeleteItemButton" Click="DeleteItemButton_Click" />
                 </CommandBar>
             </StackPanel>

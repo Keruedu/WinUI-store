@@ -13,7 +13,31 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+        <helpers:CurrencyConverter x:Key="CurrencyConverter"/>
+        <helpers:StockToIsEnabledConverter x:Key="StockToIsEnabledConverter"/>
+        <helpers:StockToOpacityConverter x:Key="StockToOpacityConverter"/>
+
+        <DataTemplate x:Key="InStockTemplate">
+            <NumberBox
+                Value="1"
+                ValueChanged="NumberBox_ValueChanged"
+                SpinButtonPlacementMode="Compact"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                SmallChange="1"
+                LargeChange="10"
+                Height="30"
+                MaxWidth="120"/>
+        </DataTemplate>
+        <DataTemplate x:Key="OutOfStockTemplate">
+            <Border Background="#FFA52F"  HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="4">
+                <TextBlock Text="Out of Stock" Foreground="White" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+            </Border>
+        </DataTemplate>
+        <helpers:StockTemplateSelector x:Key="StockTemplateSelector"
+            InStockTemplate="{StaticResource InStockTemplate}"
+            OutOfStockTemplate="{StaticResource OutOfStockTemplate}"/>
+        
         <x:String x:Key="CurrencyValue">VND</x:String>
     </Page.Resources>
     
@@ -79,6 +103,13 @@
                 <Setter Property="Margin" Value="8, 0" />
             </Style>
 
+            <Style x:Key="TitleText" TargetType="TextBlock">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontSize" Value="24" />
+            </Style>
+
             <DataTemplate x:Key="BoldHeaderTemplate">
                 <TextBlock Text="{Binding}" FontWeight="Bold"/>
             </DataTemplate>
@@ -133,12 +164,12 @@
         </VisualStateManager.VisualStateGroups>
 
         <ScrollViewer IsTabStop="True" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Hidden">
-
             <StackPanel HorizontalAlignment="Stretch">
                 <!--Filters and Search-->
+                <TextBlock Text="Create Order" Style="{StaticResource TitleText}" FontSize="32"/>
                 <StackPanel>
                     <Button Content="ADD" Command="{x:Bind ViewModel.AddOrderCommand}"
-						Background="#26C215" Foreground="White"
+						Background="#4A69E2" Foreground="White"
 						HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top"
 						Canvas.ZIndex="100" Padding="20,10" />
                     <!-- ToggleButton to show/hide AddOrderPage -->
@@ -146,27 +177,6 @@
                         Content="Toggle"
                         Click="ToggleFormButton_Click"
                         HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" />
-                    <InfoBarPanel>
-                        <InfoBar
-						x:Name="ErrorInfoBar"
-						Title="Error Loading Shoess"
-						Severity="Error"
-						IsClosable="False"
-						IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
-						Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
-						Margin="0, 20, 0, 20"
-							/>
-
-                        <InfoBar
-						x:Name="InfoInfoBar"
-						Title="Info"
-						Severity="Warning"
-						IsClosable="False"
-						IsOpen="{x:Bind ViewModel.HasInfo, Mode=OneWay}"
-						Message="{x:Bind ViewModel.InfoMessage, Mode=OneWay}"
-						Margin="0, 20, 0, 20"
-							/>
-                    </InfoBarPanel>
                 </StackPanel>
                 <Grid x:Name="BodyAddOrder" ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" HorizontalAlignment="Stretch">
                     <StackPanel x:Name="FormOrder" Orientation="Vertical" Spacing="12" Margin="10" Grid.Column="0" Grid.Row="0">
@@ -340,7 +350,7 @@
                                 SelectionMode="Multiple"
                                 ItemClick="OnShoesItemClick">
                                 <GridView.Resources>
-                                    <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+                                    <helpers:CurrencyConverter x:Key="CurrencyConverter"/>
                                 </GridView.Resources>
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -353,6 +363,8 @@
                                         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                         <Setter Property="Padding" Value="0"/>
                                         <Setter Property="Margin" Value="0 10 0 0"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Stock, Converter={StaticResource StockToIsEnabledConverter}}"/>
+                                        <Setter Property="Opacity" Value="{Binding Stock, Converter={StaticResource StockToOpacityConverter}}"/>
                                     </Style>
                                 </GridView.ItemContainerStyle>
                                 <GridView.ItemTemplate>
@@ -366,17 +378,8 @@
                                             <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
                                             <TextBlock Grid.Column="3" Text="{x:Bind Brand, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
                                             <TextBlock Grid.Column="4" Text="{x:Bind Color, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                            <NumberBox
-                                                    Grid.Column="5"
-                                                    Value="1"
-                                                    ValueChanged="NumberBox_ValueChanged"
-                                                    SpinButtonPlacementMode="Compact"
-                                                    HorizontalAlignment="Left"
-                                                    SmallChange="1"
-                                                    LargeChange="10"
-                                                    Height="30"
-                                                    MaxWidth="120"/>
-                                            <TextBlock Grid.Column="6" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
+                                            <ContentControl Grid.Column="5" ContentTemplateSelector="{StaticResource StockTemplateSelector}" Content="{x:Bind}"/>
+                                            <TextBlock Grid.Column="6" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource DetailShoes}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
@@ -393,7 +396,7 @@
                                 SelectionMode="Multiple"
                                 ItemClick="OnShoesItemClick">
                                 <GridView.Resources>
-                                    <helpers:VietnamesePriceConverter x:Key="VietnamesePriceConverter"/>
+                                    <helpers:CurrencyConverter x:Key="CurrencyConverter"/>
                                 </GridView.Resources>
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -406,6 +409,9 @@
                                         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                         <Setter Property="Padding" Value="0"/>
                                         <Setter Property="Margin" Value="0 10 0 0"/>
+                                        <Setter Property="IsEnabled" Value="{Binding Stock, Converter={StaticResource StockToIsEnabledConverter}}"/>
+                                        <Setter Property="Opacity" Value="{Binding Stock, Converter={StaticResource StockToOpacityConverter}}"/>
+
                                     </Style>
                                 </GridView.ItemContainerStyle>
                                 
@@ -416,17 +422,9 @@
 
                                             <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
                                             <TextBlock Grid.Column="2" Text="{x:Bind Size, Mode=OneWay}" Style="{StaticResource ShoesPYStyle}"/>
-                                            <NumberBox
-                                                Grid.Column="3"
-                                                Value="1"
-                                                ValueChanged="NumberBox_ValueChanged"
-                                                SpinButtonPlacementMode="Compact"
-                                                HorizontalAlignment="Left"
-                                                SmallChange="1"
-                                                LargeChange="10"
-                                                Height="30"
-                                                MaxWidth="120"/>
-                                            <TextBlock Grid.Column="4" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource VietnamesePriceConverter}}" Style="{StaticResource DetailShoes}"/>
+                                            <ContentControl Grid.Column="3" ContentTemplateSelector="{StaticResource StockTemplateSelector}" Content="{x:Bind}"/>
+
+                                            <TextBlock Grid.Column="4" Text="{x:Bind Price, Mode=OneWay, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource DetailShoes}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </GridView.ItemTemplate>

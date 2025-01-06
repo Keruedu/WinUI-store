@@ -7,6 +7,7 @@ using ShoesShop;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using ShoesShop.Contracts.Services;
+using ShoesShop.Core.Services;
 using ShoesShop.Services;
 
 namespace ShoesShop.ViewModels;
@@ -17,6 +18,7 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
     private readonly ICategoryDataService _categoryDataService;
     private readonly ICloudinaryService _cloudinaryService;
     private readonly INavigationService _navigationService;
+    private readonly IUserDataService _userDataService;
     private readonly IMediator _mediator;
 
     [ObservableProperty]
@@ -79,12 +81,13 @@ public partial class AddShoesViewModel : ObservableRecipient, INavigationAware
         get; set;
     }
 
-    public AddShoesViewModel(IShoesDataService ShoesDataService, INavigationService navigationService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService, IMediator mediator)
+    public AddShoesViewModel(IShoesDataService ShoesDataService, IUserDataService userDataService, INavigationService navigationService, ICategoryDataService categoryDataService, ICloudinaryService cloudinaryService, IMediator mediator)
     {
         _ShoesDataService = ShoesDataService;
         _navigationService = navigationService;
         _categoryDataService = categoryDataService;
         _cloudinaryService = cloudinaryService;
+        _userDataService = userDataService;
         _mediator = mediator;
 
         newShoes = new Shoes
@@ -157,15 +160,19 @@ public async void AddShoes()
     SuccessMessage = string.Empty;
     NotfifyChanges();
     try {
+        NewShoes.CategoryID = SelectedCategory.ID;
+
         if (!string.IsNullOrEmpty(NewShoes?.Image) && NewShoes.Image == SelectedImagePath)
         {
             var imageUrl = await _cloudinaryService.UploadImageAsync(NewShoes.Image, "shoes");
             NewShoes.Image = imageUrl;
         }
-        var (_, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
+        var (newshoes, message, ERROR_CODE) = await _ShoesDataService.CreateShoesAsync(NewShoes);
 
         if (ERROR_CODE == 1)
         {
+            GmailNotificationService gmailNotificationService = new GmailNotificationService(_userDataService);
+            gmailNotificationService.NotifyNewProductForAllCustomers(newshoes);
             SuccessMessage = message;
             _mediator.Notify();
             Reset();
