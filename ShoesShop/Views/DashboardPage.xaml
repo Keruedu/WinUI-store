@@ -149,18 +149,18 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Order Statistics" FontSize="24" Margin="0 0 0 10" FontWeight="Medium"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="By Month" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="month" Margin="5"/>
-                                <Button Content="By Year" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="year" Margin="5"/>
+                                <Button Content="By Month" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="month" Margin="5 0 5 0"/>
+                                <Button Content="By Year" Command="{Binding LoadOrderStatisticsCommand}" CommandParameter="year" Margin="5 0 5 0"/>
                             </StackPanel>
                         </Grid>
 
-                        <oxy:PlotView Model="{Binding OrderStatisticsPlotModel}" Foreground="{ThemeResource TextAddButton}" Height="400" Margin="5" BorderBrush="Gray" BorderThickness="0 2 0 0"/>
+                        <oxy:PlotView Padding="0 5 0 0" Model="{Binding OrderStatisticsPlotModel}" Foreground="{ThemeResource TextAddButton}" Height="400" Margin="5" BorderBrush="Gray" BorderThickness="0 2 0 0"/>
                     </StackPanel>
 
                     <Border Grid.Column="2" Background="{ThemeResource CardBackground}" Padding="20" CornerRadius="10">
                         <StackPanel Spacing="10">
                             <TextBlock Text="Best Selling Shoes:" FontSize="24" FontWeight="Medium"/>
-                            <ListView Margin="0 5 0 0" BorderBrush="Gray" BorderThickness="0 2 0 0"
+                            <ListView Padding="0 10 0 0" BorderBrush="Gray" BorderThickness="0 2 0 0"
                                       ItemsSource="{Binding Top5BestSellingShoes}" ItemTemplate="{StaticResource BestSellingShoesItemTemplate}">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
