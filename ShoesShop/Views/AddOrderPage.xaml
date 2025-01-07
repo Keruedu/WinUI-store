@@ -31,7 +31,7 @@
                 MaxWidth="120"/>
         </DataTemplate>
         <DataTemplate x:Key="OutOfStockTemplate">
-            <Border Background="#FFA52F"  HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="4">
+            <Border Padding="3" Background="#FFA52F"  HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="4">
                 <TextBlock Text="Out of Stock" Foreground="White" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
             </Border>
         </DataTemplate>

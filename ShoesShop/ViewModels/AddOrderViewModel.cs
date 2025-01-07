@@ -195,7 +195,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
             foreach (var shoes in SelectedShoes)
             {
                 var detailQuantity = newDetailQuantity.FirstOrDefault(dq => dq.Item1 == shoes.ID);
-                var quantity = detailQuantity != null ? detailQuantity.Item2 : shoes.Stock;
+                var quantity = detailQuantity != null ? detailQuantity.Item2 : 1;
 
                 if (shoes.Stock <= 0)
                 {
@@ -222,7 +222,7 @@ public partial class AddOrderViewModel : ResourceLoadingViewModel, INavigationAw
                 {
                     ShoesID = shoes.ID,
                     Quantity = quantity,
-                    Price = shoes.Price,
+                    Price = shoes.Price * quantity,
                     Shoes = shoes
                 });
 
